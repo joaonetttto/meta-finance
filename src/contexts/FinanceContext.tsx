@@ -67,7 +67,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
       supabase.from("goals").select("*").eq("user_id", user.id).order("prazo"),
       supabase.from("profiles").select("*").eq("id", user.id).single(),
     ]);
-    if (txRes.data) setTransactions(txRes.data);
+    if (txRes.data) setTransactions(txRes.data as unknown as Transaction[]);
     if (catRes.data) setCategories(catRes.data);
     if (goalRes.data) setGoals(goalRes.data);
     if (profRes.data) setProfile({ idade: profRes.data.idade, salario: profRes.data.salario, plano: profRes.data.plano });
