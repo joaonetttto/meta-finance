@@ -1,33 +1,50 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useFinance } from "@/contexts/FinanceContext";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowUpRight, ArrowDownRight, Wallet } from "lucide-react";
+import {
+  ArrowUpRight, ArrowDownRight, Wallet, Plus, ChevronLeft, ChevronRight,
+  ArrowRight, TrendingUp, Target
+} from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { Button } from "@/components/ui/button";
+import { AddTransactionDialog } from "@/components/dashboard/AddTransactionDialog";
 
 const CHART_COLORS = [
-  "hsl(245, 55%, 42%)",
-  "hsl(155, 45%, 40%)",
-  "hsl(15, 55%, 48%)",
-  "hsl(200, 50%, 45%)",
-  "hsl(45, 60%, 50%)",
-  "hsl(280, 40%, 50%)",
-  "hsl(340, 45%, 50%)",
-  "hsl(120, 30%, 45%)",
+  "hsl(245, 55%, 42%)", "hsl(155, 45%, 40%)", "hsl(15, 55%, 48%)",
+  "hsl(200, 50%, 45%)", "hsl(45, 60%, 50%)", "hsl(280, 40%, 50%)",
+  "hsl(340, 45%, 50%)", "hsl(120, 30%, 45%)",
+];
+
+const MONTHS = [
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ];
 
 export default function Dashboard() {
   const { transactions, categories, goals, profile, loading } = useFinance();
+  const navigate = useNavigate();
 
   const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth());
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear());
+  const [showAddTransaction, setShowAddTransaction] = useState(false);
+
+  const prevMonth = () => {
+    if (selectedMonth === 0) { setSelectedMonth(11); setSelectedYear(y => y - 1); }
+    else setSelectedMonth(m => m - 1);
+  };
+  const nextMonth = () => {
+    if (selectedMonth === 11) { setSelectedMonth(0); setSelectedYear(y => y + 1); }
+    else setSelectedMonth(m => m + 1);
+  };
 
   const monthTransactions = useMemo(
     () => transactions.filter((t) => {
       const d = new Date(t.data);
-      return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
     }),
-    [transactions, currentMonth, currentYear]
+    [transactions, selectedMonth, selectedYear]
   );
 
   const totalReceitas = monthTransactions.filter((t) => t.tipo === "receita").reduce((s, t) => s + t.valor, 0);
@@ -65,11 +82,37 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold font-display">Dashboard</h1>
-        <p className="text-muted-foreground text-sm mt-1 tracking-ui">
-          {profile.salario ? `Salário: ${fmt(profile.salario)}` : "Configure seu perfil para mais insights"}
-        </p>
+      {/* Header with actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold font-display">Dashboard</h1>
+          <p className="text-muted-foreground text-sm mt-1 tracking-ui">
+            {profile.salario ? `Salário: ${fmt(profile.salario)}` : "Configure seu perfil para mais insights"}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowAddTransaction(true)} size="sm">
+            <Plus className="h-4 w-4" />
+            Adicionar Transação
+          </Button>
+          <Button onClick={() => navigate("/metas")} variant="outline" size="sm">
+            <Target className="h-4 w-4" />
+            Nova Meta
+          </Button>
+        </div>
+      </div>
+
+      {/* Month selector */}
+      <div className="flex items-center justify-center gap-3">
+        <Button variant="ghost" size="icon" onClick={prevMonth} className="h-8 w-8">
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+        <span className="text-sm font-semibold tracking-ui min-w-[140px] text-center">
+          {MONTHS[selectedMonth]} {selectedYear}
+        </span>
+        <Button variant="ghost" size="icon" onClick={nextMonth} className="h-8 w-8">
+          <ChevronRight className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* Summary Cards */}
@@ -80,7 +123,8 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
-            className="rounded-xl border border-border bg-card p-6 shadow-sm"
+            className="rounded-xl border border-border bg-card p-6 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+            onClick={() => navigate("/transacoes")}
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{c.label}</span>
@@ -88,6 +132,26 @@ export default function Dashboard() {
             </div>
             <p className={`text-2xl font-bold font-mono-nums ${c.color}`}>{fmt(c.value)}</p>
           </motion.div>
+        ))}
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        {[
+          { label: "Transações", icon: ArrowUpRight, to: "/transacoes" },
+          { label: "Metas", icon: Target, to: "/metas" },
+          { label: "Projeções", icon: TrendingUp, to: "/projecoes" },
+          { label: "Perfil", icon: Wallet, to: "/perfil" },
+        ].map((action) => (
+          <Button
+            key={action.label}
+            variant="outline"
+            className="h-auto py-4 flex flex-col items-center gap-2"
+            onClick={() => navigate(action.to)}
+          >
+            <action.icon className="h-5 w-5 text-primary" />
+            <span className="text-xs">{action.label}</span>
+          </Button>
         ))}
       </div>
 
@@ -99,7 +163,12 @@ export default function Dashboard() {
           transition={{ delay: 0.15 }}
           className="rounded-xl border border-border bg-card p-6 shadow-sm"
         >
-          <h2 className="text-sm font-semibold tracking-ui mb-4">Gastos por Categoria</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold tracking-ui">Gastos por Categoria</h2>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground">
+              Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
+            </Button>
+          </div>
           {categoryData.length > 0 ? (
             <div className="flex items-center gap-6">
               <div className="w-40 h-40">
@@ -127,7 +196,12 @@ export default function Dashboard() {
               </div>
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Nenhuma despesa registrada este mês.</p>
+            <div className="text-center py-8">
+              <p className="text-sm text-muted-foreground mb-3">Nenhuma despesa registrada este mês.</p>
+              <Button size="sm" variant="outline" onClick={() => setShowAddTransaction(true)}>
+                <Plus className="h-4 w-4" /> Adicionar despesa
+              </Button>
+            </div>
           )}
         </motion.div>
 
@@ -138,13 +212,18 @@ export default function Dashboard() {
           transition={{ delay: 0.2 }}
           className="rounded-xl border border-border bg-card p-6 shadow-sm"
         >
-          <h2 className="text-sm font-semibold tracking-ui mb-4">Metas Financeiras</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-sm font-semibold tracking-ui">Metas Financeiras</h2>
+            <Button variant="ghost" size="sm" onClick={() => navigate("/metas")} className="text-xs text-muted-foreground">
+              Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
+            </Button>
+          </div>
           {goals.length > 0 ? (
             <div className="space-y-4">
               {goals.slice(0, 4).map((g) => {
                 const pct = Math.min((g.valor_atual / g.valor_objetivo) * 100, 100);
                 return (
-                  <div key={g.id}>
+                  <div key={g.id} className="cursor-pointer hover:bg-accent/50 rounded-lg p-2 -mx-2 transition-colors" onClick={() => navigate("/metas")}>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="font-medium">{g.nome}</span>
                       <span className="font-mono-nums text-primary">{pct.toFixed(0)}%</span>
@@ -165,7 +244,12 @@ export default function Dashboard() {
               })}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">Nenhuma meta criada ainda.</p>
+            <div className="text-center py-8">
+              <p className="text-sm text-muted-foreground mb-3">Nenhuma meta criada ainda.</p>
+              <Button size="sm" variant="outline" onClick={() => navigate("/metas")}>
+                <Target className="h-4 w-4" /> Criar meta
+              </Button>
+            </div>
           )}
         </motion.div>
       </div>
@@ -177,13 +261,22 @@ export default function Dashboard() {
         transition={{ delay: 0.25 }}
         className="rounded-xl border border-border bg-card p-6 shadow-sm"
       >
-        <h2 className="text-sm font-semibold tracking-ui mb-4">Transações Recentes</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-sm font-semibold tracking-ui">Transações Recentes</h2>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground">
+            Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
+          </Button>
+        </div>
         {transactions.length > 0 ? (
           <div className="space-y-0 divide-y divide-border">
             {transactions.slice(0, 8).map((t) => {
               const cat = categories.find((c) => c.id === t.categoria_id);
               return (
-                <div key={t.id} className="flex items-center justify-between py-3">
+                <div
+                  key={t.id}
+                  className="flex items-center justify-between py-3 cursor-pointer hover:bg-accent/50 rounded-lg px-2 -mx-2 transition-colors"
+                  onClick={() => navigate("/transacoes")}
+                >
                   <div>
                     <p className="text-sm font-medium">{t.descricao}</p>
                     <p className="text-xs text-muted-foreground">
@@ -198,9 +291,16 @@ export default function Dashboard() {
             })}
           </div>
         ) : (
-          <p className="text-sm text-muted-foreground">Nenhuma transação registrada.</p>
+          <div className="text-center py-8">
+            <p className="text-sm text-muted-foreground mb-3">Nenhuma transação registrada.</p>
+            <Button size="sm" onClick={() => setShowAddTransaction(true)}>
+              <Plus className="h-4 w-4" /> Adicionar transação
+            </Button>
+          </div>
         )}
       </motion.div>
+
+      <AddTransactionDialog open={showAddTransaction} onOpenChange={setShowAddTransaction} />
     </div>
   );
 }
