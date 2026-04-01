@@ -11,9 +11,9 @@ import { Button } from "@/components/ui/button";
 import { AddTransactionDialog } from "@/components/dashboard/AddTransactionDialog";
 
 const CHART_COLORS = [
-  "hsl(245, 55%, 42%)", "hsl(155, 45%, 40%)", "hsl(15, 55%, 48%)",
-  "hsl(200, 50%, 45%)", "hsl(45, 60%, 50%)", "hsl(280, 40%, 50%)",
-  "hsl(340, 45%, 50%)", "hsl(120, 30%, 45%)",
+  "hsl(217, 91%, 50%)", "hsl(155, 60%, 42%)", "hsl(0, 72%, 51%)",
+  "hsl(200, 65%, 50%)", "hsl(45, 70%, 50%)", "hsl(280, 50%, 55%)",
+  "hsl(340, 55%, 50%)", "hsl(120, 40%, 45%)",
 ];
 
 const MONTHS = [
@@ -67,9 +67,9 @@ export default function Dashboard() {
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   const cards = [
-    { label: "Saldo do Mês", value: saldo, icon: Wallet, color: saldo >= 0 ? "text-success" : "text-destructive" },
-    { label: "Receitas", value: totalReceitas, icon: ArrowUpRight, color: "text-success" },
-    { label: "Despesas", value: totalDespesas, icon: ArrowDownRight, color: "text-destructive" },
+    { label: "Saldo do Mês", value: saldo, icon: Wallet, color: saldo >= 0 ? "text-accent" : "text-destructive", bg: saldo >= 0 ? "bg-accent/10" : "bg-destructive/10" },
+    { label: "Receitas", value: totalReceitas, icon: ArrowUpRight, color: "text-accent", bg: "bg-accent/10" },
+    { label: "Despesas", value: totalDespesas, icon: ArrowDownRight, color: "text-destructive", bg: "bg-destructive/10" },
   ];
 
   if (loading) {
@@ -82,7 +82,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Header with actions */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold font-display">Dashboard</h1>
@@ -91,11 +91,11 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => setShowAddTransaction(true)} size="sm">
+          <Button onClick={() => setShowAddTransaction(true)} size="sm" className="gap-2">
             <Plus className="h-4 w-4" />
-            Adicionar Transação
+            Nova Transação
           </Button>
-          <Button onClick={() => navigate("/metas")} variant="outline" size="sm">
+          <Button onClick={() => navigate("/metas")} variant="outline" size="sm" className="gap-2">
             <Target className="h-4 w-4" />
             Nova Meta
           </Button>
@@ -104,13 +104,15 @@ export default function Dashboard() {
 
       {/* Month selector */}
       <div className="flex items-center justify-center gap-3">
-        <Button variant="ghost" size="icon" onClick={prevMonth} className="h-8 w-8">
+        <Button variant="ghost" size="icon" onClick={prevMonth} className="h-8 w-8 rounded-full">
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <span className="text-sm font-semibold tracking-ui min-w-[140px] text-center">
-          {MONTHS[selectedMonth]} {selectedYear}
-        </span>
-        <Button variant="ghost" size="icon" onClick={nextMonth} className="h-8 w-8">
+        <div className="bg-secondary/80 rounded-full px-5 py-1.5">
+          <span className="text-sm font-semibold tracking-ui">
+            {MONTHS[selectedMonth]} {selectedYear}
+          </span>
+        </div>
+        <Button variant="ghost" size="icon" onClick={nextMonth} className="h-8 w-8 rounded-full">
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
@@ -120,15 +122,17 @@ export default function Dashboard() {
         {cards.map((c, i) => (
           <motion.div
             key={c.label}
-            initial={{ opacity: 0, y: 8 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
-            className="rounded-xl border border-border bg-card p-6 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+            className="glass-card rounded-xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 group"
             onClick={() => navigate("/transacoes")}
           >
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{c.label}</span>
-              <c.icon className={`h-4 w-4 ${c.color}`} />
+              <div className={`h-8 w-8 rounded-lg ${c.bg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                <c.icon className={`h-4 w-4 ${c.color}`} />
+              </div>
             </div>
             <p className={`text-2xl font-bold font-mono-nums ${c.color}`}>{fmt(c.value)}</p>
           </motion.div>
@@ -146,7 +150,7 @@ export default function Dashboard() {
           <Button
             key={action.label}
             variant="outline"
-            className="h-auto py-4 flex flex-col items-center gap-2"
+            className="h-auto py-4 flex flex-col items-center gap-2 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
             onClick={() => navigate(action.to)}
           >
             <action.icon className="h-5 w-5 text-primary" />
@@ -161,11 +165,11 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
-          className="rounded-xl border border-border bg-card p-6 shadow-sm"
+          className="glass-card rounded-xl p-6"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold tracking-ui">Gastos por Categoria</h2>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground hover:text-primary">
               Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
             </Button>
           </div>
@@ -210,11 +214,11 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="rounded-xl border border-border bg-card p-6 shadow-sm"
+          className="glass-card rounded-xl p-6"
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold tracking-ui">Metas Financeiras</h2>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/metas")} className="text-xs text-muted-foreground">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/metas")} className="text-xs text-muted-foreground hover:text-primary">
               Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
             </Button>
           </div>
@@ -223,16 +227,16 @@ export default function Dashboard() {
               {goals.slice(0, 4).map((g) => {
                 const pct = Math.min((g.valor_atual / g.valor_objetivo) * 100, 100);
                 return (
-                  <div key={g.id} className="cursor-pointer hover:bg-accent/50 rounded-lg p-2 -mx-2 transition-colors" onClick={() => navigate("/metas")}>
+                  <div key={g.id} className="cursor-pointer hover:bg-secondary/50 rounded-lg p-2 -mx-2 transition-colors" onClick={() => navigate("/metas")}>
                     <div className="flex justify-between text-sm mb-1">
                       <span className="font-medium">{g.nome}</span>
-                      <span className="font-mono-nums text-primary">{pct.toFixed(0)}%</span>
+                      <span className="font-mono-nums text-primary font-semibold">{pct.toFixed(0)}%</span>
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${pct}%` }}
-                        className="h-full rounded-full bg-primary"
+                        className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
                       />
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground mt-1">
@@ -259,22 +263,22 @@ export default function Dashboard() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25 }}
-        className="rounded-xl border border-border bg-card p-6 shadow-sm"
+        className="glass-card rounded-xl p-6"
       >
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-sm font-semibold tracking-ui">Transações Recentes</h2>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground">
+          <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground hover:text-primary">
             Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
           </Button>
         </div>
         {transactions.length > 0 ? (
-          <div className="space-y-0 divide-y divide-border">
+          <div className="space-y-0 divide-y divide-border/50">
             {transactions.slice(0, 8).map((t) => {
               const cat = categories.find((c) => c.id === t.categoria_id);
               return (
                 <div
                   key={t.id}
-                  className="flex items-center justify-between py-3 cursor-pointer hover:bg-accent/50 rounded-lg px-2 -mx-2 transition-colors"
+                  className="flex items-center justify-between py-3 cursor-pointer hover:bg-secondary/50 rounded-lg px-2 -mx-2 transition-colors"
                   onClick={() => navigate("/transacoes")}
                 >
                   <div>
@@ -283,7 +287,7 @@ export default function Dashboard() {
                       {cat?.nome ?? "Sem categoria"} · {new Date(t.data).toLocaleDateString("pt-BR")}
                     </p>
                   </div>
-                  <span className={`font-mono-nums text-sm font-semibold ${t.tipo === "receita" ? "text-success" : "text-destructive"}`}>
+                  <span className={`font-mono-nums text-sm font-semibold ${t.tipo === "receita" ? "text-accent" : "text-destructive"}`}>
                     {t.tipo === "receita" ? "+" : "-"}{fmt(t.valor)}
                   </span>
                 </div>
