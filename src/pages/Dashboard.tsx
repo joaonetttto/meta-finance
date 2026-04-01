@@ -4,16 +4,16 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowUpRight, ArrowDownRight, Wallet, Plus, ChevronLeft, ChevronRight,
-  ArrowRight, TrendingUp, Target
+  ArrowRight, TrendingUp, Target, Sparkles
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { Button } from "@/components/ui/button";
 import { AddTransactionDialog } from "@/components/dashboard/AddTransactionDialog";
 
 const CHART_COLORS = [
-  "hsl(217, 91%, 50%)", "hsl(155, 60%, 42%)", "hsl(0, 72%, 51%)",
-  "hsl(200, 65%, 50%)", "hsl(45, 70%, 50%)", "hsl(280, 50%, 55%)",
-  "hsl(340, 55%, 50%)", "hsl(120, 40%, 45%)",
+  "hsl(217, 91%, 60%)", "hsl(155, 60%, 45%)", "hsl(45, 70%, 55%)",
+  "hsl(200, 65%, 50%)", "hsl(280, 50%, 55%)", "hsl(340, 55%, 50%)",
+  "hsl(0, 72%, 55%)", "hsl(120, 40%, 45%)",
 ];
 
 const MONTHS = [
@@ -67,15 +67,42 @@ export default function Dashboard() {
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
   const cards = [
-    { label: "Saldo do Mês", value: saldo, icon: Wallet, color: saldo >= 0 ? "text-accent" : "text-destructive", bg: saldo >= 0 ? "bg-accent/10" : "bg-destructive/10" },
-    { label: "Receitas", value: totalReceitas, icon: ArrowUpRight, color: "text-accent", bg: "bg-accent/10" },
-    { label: "Despesas", value: totalDespesas, icon: ArrowDownRight, color: "text-destructive", bg: "bg-destructive/10" },
+    {
+      label: "Saldo do Mês",
+      value: saldo,
+      icon: Wallet,
+      positive: saldo >= 0,
+      gradient: saldo >= 0 ? "from-accent/20 to-accent/5" : "from-destructive/20 to-destructive/5",
+      iconBg: saldo >= 0 ? "bg-accent/15" : "bg-destructive/15",
+      textColor: saldo >= 0 ? "text-accent" : "text-destructive",
+    },
+    {
+      label: "Receitas",
+      value: totalReceitas,
+      icon: ArrowUpRight,
+      positive: true,
+      gradient: "from-accent/20 to-accent/5",
+      iconBg: "bg-accent/15",
+      textColor: "text-accent",
+    },
+    {
+      label: "Despesas",
+      value: totalDespesas,
+      icon: ArrowDownRight,
+      positive: false,
+      gradient: "from-destructive/20 to-destructive/5",
+      iconBg: "bg-destructive/15",
+      textColor: "text-destructive",
+    },
   ];
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="h-6 w-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-muted-foreground">Carregando dados...</p>
+        </div>
       </div>
     );
   }
@@ -83,58 +110,67 @@ export default function Dashboard() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="flex items-center gap-2 mb-1">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-xs font-medium uppercase tracking-[0.15em] text-primary">Visão Geral</span>
+          </div>
           <h1 className="text-3xl font-bold font-display">Dashboard</h1>
-          <p className="text-muted-foreground text-sm mt-1 tracking-ui">
-            {profile.salario ? `Salário: ${fmt(profile.salario)}` : "Configure seu perfil para mais insights"}
+          <p className="text-muted-foreground text-sm mt-1">
+            {profile.salario ? `Salário mensal: ${fmt(profile.salario)}` : "Configure seu perfil para mais insights"}
           </p>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setShowAddTransaction(true)} size="sm" className="gap-2">
+        </motion.div>
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex gap-2">
+          <Button onClick={() => setShowAddTransaction(true)} size="sm" className="gap-2 bg-primary hover:bg-primary/90">
             <Plus className="h-4 w-4" />
             Nova Transação
           </Button>
-          <Button onClick={() => navigate("/metas")} variant="outline" size="sm" className="gap-2">
+          <Button onClick={() => navigate("/metas")} variant="outline" size="sm" className="gap-2 border-border/50 hover:border-primary/50 hover:bg-primary/5">
             <Target className="h-4 w-4" />
             Nova Meta
           </Button>
-        </div>
+        </motion.div>
       </div>
 
       {/* Month selector */}
-      <div className="flex items-center justify-center gap-3">
-        <Button variant="ghost" size="icon" onClick={prevMonth} className="h-8 w-8 rounded-full">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="flex items-center justify-center gap-3">
+        <Button variant="ghost" size="icon" onClick={prevMonth} className="h-9 w-9 rounded-full hover:bg-primary/10 hover:text-primary">
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <div className="bg-secondary/80 rounded-full px-5 py-1.5">
+        <div className="bg-card border border-border/50 rounded-full px-6 py-2 min-w-[180px] text-center">
           <span className="text-sm font-semibold tracking-ui">
             {MONTHS[selectedMonth]} {selectedYear}
           </span>
         </div>
-        <Button variant="ghost" size="icon" onClick={nextMonth} className="h-8 w-8 rounded-full">
+        <Button variant="ghost" size="icon" onClick={nextMonth} className="h-9 w-9 rounded-full hover:bg-primary/10 hover:text-primary">
           <ChevronRight className="h-4 w-4" />
         </Button>
-      </div>
+      </motion.div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {cards.map((c, i) => (
           <motion.div
             key={c.label}
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
-            className="glass-card rounded-xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 group"
+            transition={{ delay: 0.15 + i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
+            className="relative overflow-hidden rounded-xl border border-border/50 bg-card p-6 cursor-pointer hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group"
             onClick={() => navigate("/transacoes")}
           >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{c.label}</span>
-              <div className={`h-8 w-8 rounded-lg ${c.bg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                <c.icon className={`h-4 w-4 ${c.color}`} />
+            {/* Gradient accent */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${c.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+            
+            <div className="relative z-10">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">{c.label}</span>
+                <div className={`h-9 w-9 rounded-lg ${c.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}>
+                  <c.icon className={`h-4 w-4 ${c.textColor}`} />
+                </div>
               </div>
+              <p className={`text-2xl font-bold font-mono-nums ${c.textColor}`}>{fmt(c.value)}</p>
             </div>
-            <p className={`text-2xl font-bold font-mono-nums ${c.color}`}>{fmt(c.value)}</p>
           </motion.div>
         ))}
       </div>
@@ -146,16 +182,17 @@ export default function Dashboard() {
           { label: "Metas", icon: Target, to: "/metas" },
           { label: "Projeções", icon: TrendingUp, to: "/projecoes" },
           { label: "Perfil", icon: Wallet, to: "/perfil" },
-        ].map((action) => (
-          <Button
-            key={action.label}
-            variant="outline"
-            className="h-auto py-4 flex flex-col items-center gap-2 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200"
-            onClick={() => navigate(action.to)}
-          >
-            <action.icon className="h-5 w-5 text-primary" />
-            <span className="text-xs">{action.label}</span>
-          </Button>
+        ].map((action, i) => (
+          <motion.div key={action.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + i * 0.03 }}>
+            <Button
+              variant="outline"
+              className="w-full h-auto py-4 flex flex-col items-center gap-2 border-border/50 hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-all duration-200"
+              onClick={() => navigate(action.to)}
+            >
+              <action.icon className="h-5 w-5" />
+              <span className="text-xs font-medium">{action.label}</span>
+            </Button>
+          </motion.div>
         ))}
       </div>
 
@@ -164,11 +201,14 @@ export default function Dashboard() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="glass-card rounded-xl p-6"
+          transition={{ delay: 0.3 }}
+          className="rounded-xl border border-border/50 bg-card p-6"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold tracking-ui">Gastos por Categoria</h2>
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-sm font-semibold tracking-ui">Gastos por Categoria</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Distribuição mensal</p>
+            </div>
             <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground hover:text-primary">
               Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
             </Button>
@@ -178,34 +218,41 @@ export default function Dashboard() {
               <div className="w-40 h-40">
                 <ResponsiveContainer>
                   <PieChart>
-                    <Pie data={categoryData} dataKey="value" cx="50%" cy="50%" outerRadius={70} innerRadius={40} strokeWidth={2} stroke="hsl(var(--card))">
+                    <Pie data={categoryData} dataKey="value" cx="50%" cy="50%" outerRadius={70} innerRadius={42} strokeWidth={2} stroke="hsl(var(--card))">
                       {categoryData.map((_, i) => (
                         <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(v: number) => fmt(v)} />
+                    <Tooltip
+                      formatter={(v: number) => fmt(v)}
+                      contentStyle={{
+                        background: "hsl(var(--card))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: "8px",
+                        fontSize: "12px",
+                      }}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="space-y-2 flex-1">
+              <div className="space-y-3 flex-1">
                 {categoryData.slice(0, 5).map((d, i) => (
                   <div key={d.name} className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
-                      <span className="text-muted-foreground">{d.name}</span>
+                      <span className="text-muted-foreground text-xs">{d.name}</span>
                     </div>
-                    <span className="font-mono-nums">{fmt(d.value)}</span>
+                    <span className="font-mono-nums text-xs font-semibold">{fmt(d.value)}</span>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-sm text-muted-foreground mb-3">Nenhuma despesa registrada este mês.</p>
-              <Button size="sm" variant="outline" onClick={() => setShowAddTransaction(true)}>
-                <Plus className="h-4 w-4" /> Adicionar despesa
-              </Button>
-            </div>
+            <EmptyState
+              message="Nenhuma despesa registrada este mês."
+              action="Adicionar despesa"
+              onClick={() => setShowAddTransaction(true)}
+            />
           )}
         </motion.div>
 
@@ -213,11 +260,14 @@ export default function Dashboard() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="glass-card rounded-xl p-6"
+          transition={{ delay: 0.35 }}
+          className="rounded-xl border border-border/50 bg-card p-6"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold tracking-ui">Metas Financeiras</h2>
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-sm font-semibold tracking-ui">Metas Financeiras</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">{goals.length} meta{goals.length !== 1 ? "s" : ""} ativa{goals.length !== 1 ? "s" : ""}</p>
+            </div>
             <Button variant="ghost" size="sm" onClick={() => navigate("/metas")} className="text-xs text-muted-foreground hover:text-primary">
               Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
             </Button>
@@ -227,19 +277,20 @@ export default function Dashboard() {
               {goals.slice(0, 4).map((g) => {
                 const pct = Math.min((g.valor_atual / g.valor_objetivo) * 100, 100);
                 return (
-                  <div key={g.id} className="cursor-pointer hover:bg-secondary/50 rounded-lg p-2 -mx-2 transition-colors" onClick={() => navigate("/metas")}>
-                    <div className="flex justify-between text-sm mb-1">
+                  <div key={g.id} className="cursor-pointer hover:bg-muted/50 rounded-lg p-3 -mx-3 transition-colors" onClick={() => navigate("/metas")}>
+                    <div className="flex justify-between text-sm mb-2">
                       <span className="font-medium">{g.nome}</span>
-                      <span className="font-mono-nums text-primary font-semibold">{pct.toFixed(0)}%</span>
+                      <span className="font-mono-nums text-primary font-semibold text-xs">{pct.toFixed(0)}%</span>
                     </div>
-                    <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+                    <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${pct}%` }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
                         className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
                       />
                     </div>
-                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                    <div className="flex justify-between text-xs text-muted-foreground mt-1.5">
                       <span className="font-mono-nums">{fmt(g.valor_atual)}</span>
                       <span className="font-mono-nums">{fmt(g.valor_objetivo)}</span>
                     </div>
@@ -248,12 +299,11 @@ export default function Dashboard() {
               })}
             </div>
           ) : (
-            <div className="text-center py-8">
-              <p className="text-sm text-muted-foreground mb-3">Nenhuma meta criada ainda.</p>
-              <Button size="sm" variant="outline" onClick={() => navigate("/metas")}>
-                <Target className="h-4 w-4" /> Criar meta
-              </Button>
-            </div>
+            <EmptyState
+              message="Nenhuma meta criada ainda."
+              action="Criar meta"
+              onClick={() => navigate("/metas")}
+            />
           )}
         </motion.div>
       </div>
@@ -262,30 +312,42 @@ export default function Dashboard() {
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25 }}
-        className="glass-card rounded-xl p-6"
+        transition={{ delay: 0.4 }}
+        className="rounded-xl border border-border/50 bg-card p-6"
       >
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-sm font-semibold tracking-ui">Transações Recentes</h2>
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h2 className="text-sm font-semibold tracking-ui">Transações Recentes</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">{transactions.length} transaç{transactions.length !== 1 ? "ões" : "ão"}</p>
+          </div>
           <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground hover:text-primary">
             Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
           </Button>
         </div>
         {transactions.length > 0 ? (
-          <div className="space-y-0 divide-y divide-border/50">
+          <div className="space-y-0 divide-y divide-border/30">
             {transactions.slice(0, 8).map((t) => {
               const cat = categories.find((c) => c.id === t.categoria_id);
               return (
                 <div
                   key={t.id}
-                  className="flex items-center justify-between py-3 cursor-pointer hover:bg-secondary/50 rounded-lg px-2 -mx-2 transition-colors"
+                  className="flex items-center justify-between py-3.5 cursor-pointer hover:bg-muted/50 rounded-lg px-3 -mx-3 transition-colors"
                   onClick={() => navigate("/transacoes")}
                 >
-                  <div>
-                    <p className="text-sm font-medium">{t.descricao}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {cat?.nome ?? "Sem categoria"} · {new Date(t.data).toLocaleDateString("pt-BR")}
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${t.tipo === "receita" ? "bg-accent/10" : "bg-destructive/10"}`}>
+                      {t.tipo === "receita" ? (
+                        <ArrowUpRight className="h-4 w-4 text-accent" />
+                      ) : (
+                        <ArrowDownRight className="h-4 w-4 text-destructive" />
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{t.descricao}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {cat?.nome ?? "Sem categoria"} · {new Date(t.data).toLocaleDateString("pt-BR")}
+                      </p>
+                    </div>
                   </div>
                   <span className={`font-mono-nums text-sm font-semibold ${t.tipo === "receita" ? "text-accent" : "text-destructive"}`}>
                     {t.tipo === "receita" ? "+" : "-"}{fmt(t.valor)}
@@ -295,16 +357,29 @@ export default function Dashboard() {
             })}
           </div>
         ) : (
-          <div className="text-center py-8">
-            <p className="text-sm text-muted-foreground mb-3">Nenhuma transação registrada.</p>
-            <Button size="sm" onClick={() => setShowAddTransaction(true)}>
-              <Plus className="h-4 w-4" /> Adicionar transação
-            </Button>
-          </div>
+          <EmptyState
+            message="Nenhuma transação registrada."
+            action="Adicionar transação"
+            onClick={() => setShowAddTransaction(true)}
+          />
         )}
       </motion.div>
 
       <AddTransactionDialog open={showAddTransaction} onOpenChange={setShowAddTransaction} />
+    </div>
+  );
+}
+
+function EmptyState({ message, action, onClick }: { message: string; action: string; onClick: () => void }) {
+  return (
+    <div className="text-center py-10">
+      <div className="h-12 w-12 rounded-xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
+        <Plus className="h-5 w-5 text-muted-foreground" />
+      </div>
+      <p className="text-sm text-muted-foreground mb-4">{message}</p>
+      <Button size="sm" variant="outline" onClick={onClick} className="border-border/50 hover:border-primary/40 hover:bg-primary/5">
+        <Plus className="h-4 w-4 mr-1" /> {action}
+      </Button>
     </div>
   );
 }
