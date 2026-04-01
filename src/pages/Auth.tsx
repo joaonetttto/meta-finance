@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { TrendingUp, Shield, Target } from "lucide-react";
+import { TrendingUp, Shield, Target, Zap, ArrowRight } from "lucide-react";
 
 export default function Auth() {
   const { signIn, signUp } = useAuth();
@@ -32,94 +32,132 @@ export default function Auth() {
     }
   };
 
-  return (
-    <div className="min-h-screen flex">
-      {/* Left panel - branding */}
-      <div className="hidden lg:flex lg:w-1/2 bg-[hsl(222,30%,8%)] relative overflow-hidden flex-col justify-between p-12">
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="absolute bottom-0 left-0 w-72 h-72 bg-accent/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+  const features = [
+    { icon: TrendingUp, title: "Controle Total", desc: "Visualize receitas, despesas e saldo em tempo real" },
+    { icon: Target, title: "Metas Inteligentes", desc: "Defina metas e acompanhe quanto falta por mês" },
+    { icon: Shield, title: "100% Seguro", desc: "Seus dados criptografados e protegidos" },
+  ];
 
-        <div className="relative z-10">
-          <h1 className="font-display text-3xl font-bold text-white">
+  return (
+    <div className="min-h-screen flex bg-[hsl(222,30%,4%)]">
+      {/* Left panel - branding */}
+      <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden flex-col justify-between p-12">
+        {/* Animated background orbs */}
+        <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-primary/8 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[-15%] left-[-5%] w-[400px] h-[400px] bg-accent/6 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
+        <div className="absolute top-[40%] left-[30%] w-[300px] h-[300px] bg-primary/5 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: "2s" }} />
+
+        {/* Grid pattern overlay */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{
+          backgroundImage: "linear-gradient(hsl(217,91%,60%) 1px, transparent 1px), linear-gradient(90deg, hsl(217,91%,60%) 1px, transparent 1px)",
+          backgroundSize: "60px 60px"
+        }} />
+
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative z-10 flex items-center gap-3"
+        >
+          <div className="h-10 w-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+            <Zap className="h-5 w-5 text-primary" />
+          </div>
+          <h1 className="font-display text-2xl font-bold text-white">
             Meta<span className="text-primary">Finance</span>
           </h1>
-        </div>
+        </motion.div>
 
-        <div className="relative z-10 space-y-8">
-          <motion.h2
-            initial={{ opacity: 0, x: -20 }}
+        <div className="relative z-10 space-y-10">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            className="font-display text-4xl font-bold text-white leading-tight"
+            transition={{ delay: 0.2, duration: 0.6 }}
           >
-            Seu patrimônio,<br />
-            <span className="text-accent">engenheirado.</span>
-          </motion.h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-4">Planejamento Financeiro</p>
+            <h2 className="font-display text-5xl font-bold text-white leading-[1.1] mb-4">
+              Seu patrimônio,<br />
+              <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">engenheirado.</span>
+            </h2>
+            <p className="text-base text-white/40 max-w-md leading-relaxed">
+              Organize suas finanças, defina metas e tome decisões inteligentes para construir seu futuro financeiro.
+            </p>
+          </motion.div>
 
           <div className="space-y-4">
-            {[
-              { icon: TrendingUp, text: "Controle total das suas finanças" },
-              { icon: Target, text: "Metas inteligentes com projeções" },
-              { icon: Shield, text: "Seus dados seguros e protegidos" },
-            ].map(({ icon: Icon, text }, i) => (
+            {features.map(({ icon: Icon, title, desc }, i) => (
               <motion.div
-                key={text}
+                key={title}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 + i * 0.1 }}
-                className="flex items-center gap-3"
+                transition={{ delay: 0.5 + i * 0.1, duration: 0.4 }}
+                className="flex items-start gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm hover:bg-white/[0.05] transition-colors"
               >
-                <div className="h-9 w-9 rounded-lg bg-primary/15 flex items-center justify-center">
-                  <Icon className="h-4 w-4 text-primary" />
+                <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                  <Icon className="h-5 w-5 text-primary" />
                 </div>
-                <span className="text-sm text-white/70">{text}</span>
+                <div>
+                  <p className="text-sm font-semibold text-white mb-0.5">{title}</p>
+                  <p className="text-xs text-white/40">{desc}</p>
+                </div>
               </motion.div>
             ))}
           </div>
         </div>
 
-        <p className="relative z-10 text-xs text-white/30">© 2026 MetaFinance. Todos os direitos reservados.</p>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="relative z-10 text-xs text-white/20"
+        >
+          © 2026 MetaFinance. Todos os direitos reservados.
+        </motion.p>
       </div>
 
       {/* Right panel - form */}
-      <div className="flex-1 flex items-center justify-center p-6 bg-background">
+      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-[hsl(222,30%,6%)]">
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
           className="w-full max-w-sm"
         >
-          <div className="text-center mb-8 lg:hidden">
-            <h1 className="text-2xl font-bold font-display">
-              Meta<span className="text-primary">Finance</span>
-            </h1>
-            <p className="text-sm text-muted-foreground mt-2">Seu patrimônio, engenheirado.</p>
+          {/* Mobile branding */}
+          <div className="text-center mb-10 lg:hidden">
+            <div className="flex items-center justify-center gap-2 mb-3">
+              <div className="h-9 w-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+                <Zap className="h-4 w-4 text-primary" />
+              </div>
+              <h1 className="text-xl font-bold font-display text-white">
+                Meta<span className="text-primary">Finance</span>
+              </h1>
+            </div>
+            <p className="text-sm text-white/40">Seu patrimônio, engenheirado.</p>
           </div>
 
-          <div className="lg:hidden text-center mb-6">
-            <p className="text-sm text-muted-foreground">{isSignUp ? "Crie sua conta" : "Entre na sua conta"}</p>
-          </div>
-          <div className="hidden lg:block mb-8">
-            <h2 className="text-2xl font-bold font-display">{isSignUp ? "Criar Conta" : "Bem-vindo de volta"}</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              {isSignUp ? "Comece a controlar suas finanças" : "Entre para continuar"}
+          {/* Form header */}
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold font-display text-white">
+              {isSignUp ? "Criar Conta" : "Bem-vindo de volta"}
+            </h2>
+            <p className="text-sm text-white/40 mt-2">
+              {isSignUp ? "Comece a controlar suas finanças hoje" : "Entre para continuar seu planejamento"}
             </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div className="space-y-2">
-              <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Email</Label>
+              <Label className="text-xs font-medium uppercase tracking-[0.15em] text-white/50">Email</Label>
               <Input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="seu@email.com"
-                className="h-11 bg-secondary/50 border-border/50 focus:bg-card"
+                className="h-12 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus:bg-white/[0.06] focus:border-primary/50 transition-all"
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Senha</Label>
+              <Label className="text-xs font-medium uppercase tracking-[0.15em] text-white/50">Senha</Label>
               <Input
                 type="password"
                 value={password}
@@ -127,20 +165,36 @@ export default function Auth() {
                 required
                 minLength={6}
                 placeholder="••••••••"
-                className="h-11 bg-secondary/50 border-border/50 focus:bg-card"
+                className="h-12 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus:bg-white/[0.06] focus:border-primary/50 transition-all"
               />
             </div>
-            <Button type="submit" className="w-full h-11 font-semibold" disabled={loading}>
-              {loading ? "Carregando..." : isSignUp ? "Criar Conta" : "Entrar"}
+            <Button
+              type="submit"
+              className="w-full h-12 font-semibold text-sm bg-primary hover:bg-primary/90 transition-all group"
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  {isSignUp ? "Criar Conta" : "Entrar"}
+                  <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
+                </>
+              )}
             </Button>
           </form>
 
-          <p className="text-sm text-center text-muted-foreground mt-6">
-            {isSignUp ? "Já tem uma conta?" : "Não tem uma conta?"}{" "}
-            <button onClick={() => setIsSignUp(!isSignUp)} className="text-primary font-semibold hover:underline">
-              {isSignUp ? "Entrar" : "Criar conta"}
-            </button>
-          </p>
+          <div className="mt-8 pt-6 border-t border-white/[0.06]">
+            <p className="text-sm text-center text-white/40">
+              {isSignUp ? "Já tem uma conta?" : "Não tem uma conta?"}{" "}
+              <button
+                onClick={() => setIsSignUp(!isSignUp)}
+                className="text-primary font-semibold hover:text-primary/80 transition-colors"
+              >
+                {isSignUp ? "Entrar" : "Criar conta"}
+              </button>
+            </p>
+          </div>
         </motion.div>
       </div>
     </div>
