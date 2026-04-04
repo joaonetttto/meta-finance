@@ -66,7 +66,7 @@ export default function Projections() {
           <h2 className="text-sm font-semibold tracking-ui">Simulador</h2>
           <div>
             <Label>Valor Desejado (R$)</Label>
-            <Input type="number" step="0.01" min="1" value={valorDesejado} onChange={(e) => setValorDesejado(e.target.value)} className="font-mono-nums" required />
+            <CurrencyInput value={valorDesejado} onValueChange={setValorDesejado} placeholder="0,00" className="font-mono-nums" required />
           </div>
           <div>
             <Label>Prazo (anos)</Label>

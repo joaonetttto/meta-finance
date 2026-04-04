@@ -78,7 +78,7 @@ export default function Transactions() {
               </div>
               <div>
                 <Label>Valor (R$)</Label>
-                <Input type="number" step="0.01" min="0.01" value={form.valor} onChange={(e) => setForm({ ...form, valor: e.target.value })} required className="font-mono-nums" />
+                <CurrencyInput value={form.valor} onValueChange={(v) => setForm({ ...form, valor: v })} placeholder="0,00" className="font-mono-nums" />
               </div>
               <div>
                 <Label>Tipo</Label>

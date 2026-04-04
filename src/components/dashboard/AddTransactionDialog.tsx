@@ -72,7 +72,7 @@ export function AddTransactionDialog({ open, onOpenChange }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label>Valor (R$)</Label>
-              <Input type="number" step="0.01" min="0" value={valor} onChange={(e) => setValor(e.target.value)} placeholder="0,00" />
+              <CurrencyInput value={valor} onValueChange={setValor} placeholder="0,00" className="font-mono-nums" />
             </div>
             <div className="space-y-2">
               <Label>Data</Label>
