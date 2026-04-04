@@ -63,7 +63,7 @@ export default function Goals() {
               </div>
               <div>
                 <Label>Valor Objetivo (R$)</Label>
-                <Input type="number" step="0.01" min="1" value={form.valor_objetivo} onChange={(e) => setForm({ ...form, valor_objetivo: e.target.value })} required className="font-mono-nums" />
+                <CurrencyInput value={form.valor_objetivo} onValueChange={(v) => setForm({ ...form, valor_objetivo: v })} placeholder="0,00" className="font-mono-nums" />
               </div>
               <div>
                 <Label>Valor Atual (R$)</Label>
