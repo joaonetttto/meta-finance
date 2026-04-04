@@ -46,27 +46,29 @@ function AuthRoute() {
 }
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Sonner />
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<AuthRoute />} />
-            <Route element={<ProtectedRoutes />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/transacoes" element={<Transactions />} />
-              <Route path="/metas" element={<Goals />} />
-              <Route path="/projecoes" element={<Projections />} />
-              <Route path="/planos" element={<Plans />} />
-              <Route path="/perfil" element={<ProfilePage />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <div className="dark min-h-screen bg-background text-foreground">
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Sonner />
+        <AuthProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/auth" element={<AuthRoute />} />
+              <Route element={<ProtectedRoutes />}>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/transacoes" element={<Transactions />} />
+                <Route path="/metas" element={<Goals />} />
+                <Route path="/projecoes" element={<Projections />} />
+                <Route path="/planos" element={<Plans />} />
+                <Route path="/perfil" element={<ProfilePage />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </AuthProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </div>
 );
 
 export default App;
