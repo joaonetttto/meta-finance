@@ -3,6 +3,7 @@ import { useFinance } from "@/contexts/FinanceContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
@@ -71,7 +72,7 @@ export function AddTransactionDialog({ open, onOpenChange }: Props) {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <Label>Valor (R$)</Label>
-              <Input type="number" step="0.01" min="0" value={valor} onChange={(e) => setValor(e.target.value)} placeholder="0,00" />
+              <CurrencyInput value={valor} onValueChange={setValor} placeholder="0,00" className="font-mono-nums" />
             </div>
             <div className="space-y-2">
               <Label>Data</Label>

@@ -5,6 +5,7 @@ import { Plus, X, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CurrencyInput } from "@/components/ui/currency-input";
 
 export default function Goals() {
   const { goals, addGoal, updateGoal, deleteGoal, profile } = useFinance();
@@ -62,11 +63,11 @@ export default function Goals() {
               </div>
               <div>
                 <Label>Valor Objetivo (R$)</Label>
-                <Input type="number" step="0.01" min="1" value={form.valor_objetivo} onChange={(e) => setForm({ ...form, valor_objetivo: e.target.value })} required className="font-mono-nums" />
+                <CurrencyInput value={form.valor_objetivo} onValueChange={(v) => setForm({ ...form, valor_objetivo: v })} placeholder="0,00" className="font-mono-nums" />
               </div>
               <div>
                 <Label>Valor Atual (R$)</Label>
-                <Input type="number" step="0.01" min="0" value={form.valor_atual} onChange={(e) => setForm({ ...form, valor_atual: e.target.value })} className="font-mono-nums" />
+                <CurrencyInput value={form.valor_atual} onValueChange={(v) => setForm({ ...form, valor_atual: v })} placeholder="0,00" className="font-mono-nums" />
               </div>
             </div>
             {form.valor_objetivo && form.prazo && (

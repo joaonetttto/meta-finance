@@ -5,6 +5,7 @@ import { Plus, Pencil, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface FormData {
@@ -77,7 +78,7 @@ export default function Transactions() {
               </div>
               <div>
                 <Label>Valor (R$)</Label>
-                <Input type="number" step="0.01" min="0.01" value={form.valor} onChange={(e) => setForm({ ...form, valor: e.target.value })} required className="font-mono-nums" />
+                <CurrencyInput value={form.valor} onValueChange={(v) => setForm({ ...form, valor: v })} placeholder="0,00" className="font-mono-nums" />
               </div>
               <div>
                 <Label>Tipo</Label>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useFinance } from "@/contexts/FinanceContext";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Shield, BarChart3 } from "lucide-react";
@@ -65,7 +66,7 @@ export default function Projections() {
           <h2 className="text-sm font-semibold tracking-ui">Simulador</h2>
           <div>
             <Label>Valor Desejado (R$)</Label>
-            <Input type="number" step="0.01" min="1" value={valorDesejado} onChange={(e) => setValorDesejado(e.target.value)} className="font-mono-nums" required />
+            <CurrencyInput value={valorDesejado} onValueChange={setValorDesejado} placeholder="0,00" className="font-mono-nums" required />
           </div>
           <div>
             <Label>Prazo (anos)</Label>

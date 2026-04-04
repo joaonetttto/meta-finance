@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
@@ -42,7 +43,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <Label>Salário Mensal (R$)</Label>
-            <Input type="number" step="0.01" min="0" value={salario} onChange={(e) => setSalario(e.target.value)} className="font-mono-nums" />
+            <CurrencyInput value={salario} onValueChange={setSalario} placeholder="0,00" className="font-mono-nums" />
           </div>
           <Button type="submit">Salvar</Button>
         </form>
