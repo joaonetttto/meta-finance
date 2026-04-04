@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useFinance } from "@/contexts/FinanceContext";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { TrendingUp, Shield, BarChart3 } from "lucide-react";
