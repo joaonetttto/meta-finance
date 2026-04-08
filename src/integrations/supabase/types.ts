@@ -95,6 +95,45 @@ export type Database = {
         }
         Relationships: []
       }
+      saved_projections: {
+        Row: {
+          aporte_mensal: number
+          cenario: string
+          convertida: boolean
+          created_at: string
+          id: string
+          nome: string
+          prazo_anos: number
+          updated_at: string
+          user_id: string
+          valor_desejado: number
+        }
+        Insert: {
+          aporte_mensal?: number
+          cenario?: string
+          convertida?: boolean
+          created_at?: string
+          id?: string
+          nome?: string
+          prazo_anos: number
+          updated_at?: string
+          user_id: string
+          valor_desejado: number
+        }
+        Update: {
+          aporte_mensal?: number
+          cenario?: string
+          convertida?: boolean
+          created_at?: string
+          id?: string
+          nome?: string
+          prazo_anos?: number
+          updated_at?: string
+          user_id?: string
+          valor_desejado?: number
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           categoria_id: string | null
