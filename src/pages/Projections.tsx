@@ -338,6 +338,9 @@ export default function Projections() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* SAVED PROJECTIONS */}
+      <SavedProjections key={savedKey} onReopen={handleReopen} />
     </div>
   );
 }
