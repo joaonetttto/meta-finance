@@ -29,9 +29,13 @@ import { InsightsBlock } from "@/components/projections/InsightsBlock";
 
 export default function Projections() {
   const { profile } = useFinance();
+  const { user } = useAuth();
   const [valorDesejado, setValorDesejado] = useState("");
   const [prazoAnos, setPrazoAnos] = useState("");
   const [aporteManual, setAporteManual] = useState("");
+  const [projName, setProjName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [savedKey, setSavedKey] = useState(0);
   const [tab, setTab] = useState("cenarios");
 
   const [delayStart, setDelayStart] = useState(false);
