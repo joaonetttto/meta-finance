@@ -64,6 +64,35 @@ export default function Projections() {
 
   const allocation = useMemo(() => (anos > 0 ? getAllocation(anos) : null), [anos]);
 
+  const handleSave = async () => {
+    if (!user || !hasResult) return;
+    setSaving(true);
+    const recKey = recScenario?.key ?? "moderado";
+    const { error } = await supabase.from("saved_projections").insert({
+      user_id: user.id,
+      nome: projName.trim() || `Projeção ${new Date().toLocaleDateString("pt-BR")}`,
+      valor_desejado: valor,
+      prazo_anos: anos,
+      aporte_mensal: aporte,
+      cenario: recKey,
+    } as any);
+    setSaving(false);
+    if (error) {
+      toast.error("Erro ao salvar projeção");
+    } else {
+      toast.success("Projeção salva!");
+      setProjName("");
+      setSavedKey((k) => k + 1);
+    }
+  };
+
+  const handleReopen = (p: { valorDesejado: string; prazoAnos: string; aporteManual: string }) => {
+    setValorDesejado(p.valorDesejado);
+    setPrazoAnos(p.prazoAnos);
+    setAporteManual(p.aporteManual);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   const chartData = useMemo(() => {
     if (!scenarios) return [];
     const maxLen = Math.max(...scenarios.map((s) => s.timeline.length));
