@@ -146,6 +146,26 @@ export default function Projections() {
         </div>
       </motion.form>
 
+      {/* SAVE BUTTON */}
+      {hasResult && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center gap-2"
+        >
+          <Input
+            value={projName}
+            onChange={(e) => setProjName(e.target.value)}
+            placeholder="Nome da projeção (opcional)"
+            className="max-w-xs h-9 text-sm"
+          />
+          <Button onClick={handleSave} disabled={saving} size="sm" className="gap-1.5">
+            <Save className="h-3.5 w-3.5" />
+            {saving ? "Salvando..." : "Salvar projeção"}
+          </Button>
+        </motion.div>
+      )}
+
       <AnimatePresence>
         {hasResult && scenarios && recommendation && (
           <motion.div
