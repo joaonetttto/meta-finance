@@ -1,12 +1,17 @@
 import { useState, useMemo } from "react";
 import { useFinance } from "@/contexts/FinanceContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
 import { motion, AnimatePresence } from "framer-motion";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Target, BarChart3 } from "lucide-react";
+import { Target, BarChart3, Save } from "lucide-react";
+import { toast } from "sonner";
+import { SavedProjections } from "@/components/projections/SavedProjections";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Area, AreaChart, Legend, ReferenceLine
@@ -24,9 +29,13 @@ import { InsightsBlock } from "@/components/projections/InsightsBlock";
 
 export default function Projections() {
   const { profile } = useFinance();
+  const { user } = useAuth();
   const [valorDesejado, setValorDesejado] = useState("");
   const [prazoAnos, setPrazoAnos] = useState("");
   const [aporteManual, setAporteManual] = useState("");
+  const [projName, setProjName] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [savedKey, setSavedKey] = useState(0);
   const [tab, setTab] = useState("cenarios");
 
   const [delayStart, setDelayStart] = useState(false);
@@ -54,6 +63,35 @@ export default function Projections() {
   }, [scenarios, valor, anos, aporte, profile.salario]);
 
   const allocation = useMemo(() => (anos > 0 ? getAllocation(anos) : null), [anos]);
+
+  const handleSave = async () => {
+    if (!user || !hasResult) return;
+    setSaving(true);
+    const recKey = recScenario?.key ?? "moderado";
+    const { error } = await supabase.from("saved_projections").insert({
+      user_id: user.id,
+      nome: projName.trim() || `Projeção ${new Date().toLocaleDateString("pt-BR")}`,
+      valor_desejado: valor,
+      prazo_anos: anos,
+      aporte_mensal: aporte,
+      cenario: recKey,
+    } as any);
+    setSaving(false);
+    if (error) {
+      toast.error("Erro ao salvar projeção");
+    } else {
+      toast.success("Projeção salva!");
+      setProjName("");
+      setSavedKey((k) => k + 1);
+    }
+  };
+
+  const handleReopen = (p: { valorDesejado: string; prazoAnos: string; aporteManual: string }) => {
+    setValorDesejado(p.valorDesejado);
+    setPrazoAnos(p.prazoAnos);
+    setAporteManual(p.aporteManual);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const chartData = useMemo(() => {
     if (!scenarios) return [];
@@ -107,6 +145,26 @@ export default function Projections() {
           </div>
         </div>
       </motion.form>
+
+      {/* SAVE BUTTON */}
+      {hasResult && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="flex items-center gap-2"
+        >
+          <Input
+            value={projName}
+            onChange={(e) => setProjName(e.target.value)}
+            placeholder="Nome da projeção (opcional)"
+            className="max-w-xs h-9 text-sm"
+          />
+          <Button onClick={handleSave} disabled={saving} size="sm" className="gap-1.5">
+            <Save className="h-3.5 w-3.5" />
+            {saving ? "Salvando..." : "Salvar projeção"}
+          </Button>
+        </motion.div>
+      )}
 
       <AnimatePresence>
         {hasResult && scenarios && recommendation && (
@@ -280,6 +338,9 @@ export default function Projections() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* SAVED PROJECTIONS */}
+      <SavedProjections key={savedKey} onReopen={handleReopen} />
     </div>
   );
 }
