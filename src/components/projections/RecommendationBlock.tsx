@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Sparkles, ArrowUp, CheckCircle } from "lucide-react";
-import { Recommendation } from "@/lib/projections";
+import { Recommendation, fmt } from "@/lib/projections";
 
 export function RecommendationBlock({ rec }: { rec: Recommendation }) {
   return (
@@ -17,6 +17,8 @@ export function RecommendationBlock({ rec }: { rec: Recommendation }) {
           <h3 className="text-base font-bold tracking-ui">Melhor estratégia para você</h3>
         </div>
 
+        <p className="text-xs text-muted-foreground">{rec.contextMessage}</p>
+
         <div className="flex items-center gap-3">
           <span
             className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold text-primary-foreground"
@@ -29,6 +31,27 @@ export function RecommendationBlock({ rec }: { rec: Recommendation }) {
 
         <p className="text-lg font-semibold">{rec.action}</p>
         <p className="text-sm text-muted-foreground">{rec.detail}</p>
+
+        {/* Comparisons */}
+        {rec.comparisons.length > 0 && (
+          <div className="mt-2 pt-3 border-t border-border/50 space-y-1.5">
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Comparado aos outros cenários</p>
+            {rec.comparisons.map((c) => (
+              <div key={c.key} className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                {c.yearsDiff > 0.5 && (
+                  <span>Você economiza <span className="font-semibold text-accent">{c.yearsDiff.toFixed(1)} anos</span> comparado ao {c.label}</span>
+                )}
+                {c.yearsDiff <= 0.5 && c.valueDiff > 0 && (
+                  <span>Pode render <span className="font-semibold text-accent">{fmt(c.valueDiff)}</span> a mais que o {c.label}</span>
+                )}
+                {c.yearsDiff <= 0.5 && c.valueDiff <= 0 && (
+                  <span>Cenário {c.label}: menor risco, maior aporte mensal</span>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </motion.div>
   );
