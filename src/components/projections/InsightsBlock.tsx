@@ -1,9 +1,9 @@
-import { TrendingUp, Shield, Lightbulb, Clock, DollarSign } from "lucide-react";
+import { TrendingUp, Shield, Lightbulb, Clock, DollarSign, Zap, AlertTriangle, Sparkles } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Insight } from "@/lib/projections";
 
 const iconMap: Record<string, typeof Lightbulb> = {
-  TrendingUp, Shield, Lightbulb, Clock, DollarSign,
+  TrendingUp, Shield, Lightbulb, Clock, DollarSign, Zap, AlertTriangle, Sparkles,
 };
 
 export function InsightsBlock({ insights }: { insights: Insight[] }) {

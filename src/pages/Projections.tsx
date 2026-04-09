@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Target, BarChart3, Save } from "lucide-react";
+import { Target, BarChart3, Save, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { SavedProjections } from "@/components/projections/SavedProjections";
 import {
@@ -33,6 +33,7 @@ export default function Projections() {
   const [valorDesejado, setValorDesejado] = useState("");
   const [prazoAnos, setPrazoAnos] = useState("");
   const [aporteManual, setAporteManual] = useState("");
+  const [valorInicial, setValorInicial] = useState("");
   const [projName, setProjName] = useState("");
   const [saving, setSaving] = useState(false);
   const [savedKey, setSavedKey] = useState(0);
@@ -45,22 +46,23 @@ export default function Projections() {
   const valor = parseFloat(valorDesejado) || 0;
   const anos = parseFloat(prazoAnos) || 0;
   const aporte = parseFloat(aporteManual) || 0;
+  const pvInicial = parseFloat(valorInicial) || 0;
   const hasResult = valor > 0 && anos > 0;
 
   const scenarios = useMemo(() => {
     if (!hasResult) return null;
-    return buildScenarios(valor, anos, aporte, delayStart, skipMonths, reducedContrib);
-  }, [valor, anos, aporte, delayStart, skipMonths, reducedContrib, hasResult]);
+    return buildScenarios(valor, anos, aporte, delayStart, skipMonths, reducedContrib, pvInicial);
+  }, [valor, anos, aporte, delayStart, skipMonths, reducedContrib, hasResult, pvInicial]);
 
   const recommendation = useMemo(() => {
     if (!scenarios) return null;
-    return getRecommendation(scenarios, valor, anos, aporte);
-  }, [scenarios, valor, anos, aporte]);
+    return getRecommendation(scenarios, valor, anos, aporte, pvInicial);
+  }, [scenarios, valor, anos, aporte, pvInicial]);
 
   const insights = useMemo(() => {
     if (!scenarios) return [];
-    return generateInsights(scenarios, valor, anos, aporte, profile.salario);
-  }, [scenarios, valor, anos, aporte, profile.salario]);
+    return generateInsights(scenarios, valor, anos, aporte, profile.salario, pvInicial);
+  }, [scenarios, valor, anos, aporte, profile.salario, pvInicial]);
 
   const allocation = useMemo(() => (anos > 0 ? getAllocation(anos) : null), [anos]);
 
@@ -102,7 +104,6 @@ export default function Projections() {
       scenarios.forEach((s) => {
         point[s.key] = s.timeline[i]?.valor ?? 0;
       });
-      // Add invested line (same for all scenarios)
       point["investido"] = scenarios[0].timeline[i]?.investido ?? 0;
       data.push(point);
     }
@@ -130,7 +131,7 @@ export default function Projections() {
         <h2 className="text-sm font-semibold tracking-ui mb-4 flex items-center gap-2">
           <Target className="h-4 w-4 text-primary" /> Simulador
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
             <Label>Valor Desejado (R$)</Label>
             <CurrencyInput value={valorDesejado} onValueChange={setValorDesejado} placeholder="0,00" className="font-mono-nums" required />
@@ -142,6 +143,13 @@ export default function Projections() {
           <div>
             <Label>Quanto posso investir/mês</Label>
             <CurrencyInput value={aporteManual} onValueChange={setAporteManual} placeholder="0,00" className="font-mono-nums" />
+          </div>
+          <div>
+            <Label className="flex items-center gap-1.5">
+              <Wallet className="h-3.5 w-3.5 text-accent" />
+              Já tenho investido
+            </Label>
+            <CurrencyInput value={valorInicial} onValueChange={setValorInicial} placeholder="0,00 (opcional)" className="font-mono-nums" />
           </div>
         </div>
       </motion.form>
@@ -174,7 +182,7 @@ export default function Projections() {
             exit={{ opacity: 0, y: -8 }}
             className="space-y-6"
           >
-            {/* RECOMMENDATION — most visible element */}
+            {/* RECOMMENDATION */}
             <RecommendationBlock rec={recommendation} />
 
             {/* PROGRESS */}
@@ -184,6 +192,7 @@ export default function Projections() {
               aporteManual={aporte}
               recommendedRate={recScenario?.rate ?? 0.07}
               recommendedPmt={recScenario?.pmt ?? 0}
+              valorInicial={pvInicial}
             />
 
             {/* TABS */}
@@ -237,7 +246,6 @@ export default function Projections() {
                             if (value === "investido") return "Valor Investido";
                             return SCENARIOS.find((s) => s.key === value)?.label ?? value;
                           }} />
-                          {/* Invested baseline */}
                           <Area
                             type="monotone"
                             dataKey="investido"
@@ -260,7 +268,6 @@ export default function Projections() {
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
-                    {/* Milestones */}
                     <div className="flex justify-between mt-4 px-2">
                       {[0, Math.round(anos * 0.25), Math.round(anos * 0.5), Math.round(anos * 0.75), Math.round(anos)].map((yr, i) => {
                         const modTimeline = scenarios.find(s => s.key === "moderado")!.timeline;
