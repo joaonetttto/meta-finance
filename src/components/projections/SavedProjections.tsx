@@ -47,24 +47,29 @@ function getHighlights(projections: SavedProjection[]) {
   if (projections.length < 2) return {};
   const highlights: Record<string, string[]> = {};
 
-  // Find cheapest (lowest monthly)
   let cheapest = projections[0];
   let fastest = projections[0];
   let safest: SavedProjection | null = null;
+  let bestReturn = projections[0];
 
   projections.forEach((p) => {
     const sc = SCENARIOS.find((s) => s.key === p.cenario);
-    const pmt = calcPMT(p.valor_desejado, sc?.rate ?? 0.07, p.prazo_anos);
+    const rate = sc?.rate ?? 0.07;
+    const pmt = calcPMT(p.valor_desejado, rate, p.prazo_anos);
     const cheapestPmt = calcPMT(cheapest.valor_desejado, SCENARIOS.find(s => s.key === cheapest.cenario)?.rate ?? 0.07, cheapest.prazo_anos);
+    const bestRate = SCENARIOS.find(s => s.key === bestReturn.cenario)?.rate ?? 0.07;
 
     if (pmt < cheapestPmt) cheapest = p;
     if (p.prazo_anos < fastest.prazo_anos) fastest = p;
     if (p.cenario === "conservador") safest = p;
+    if (rate > bestRate) bestReturn = p;
   });
 
-  if (cheapest) highlights[cheapest.id] = [...(highlights[cheapest.id] || []), "Mais econômico"];
+  if (cheapest) highlights[cheapest.id] = [...(highlights[cheapest.id] || []), "Menor esforço"];
   if (fastest && fastest.id !== cheapest?.id) highlights[fastest.id] = [...(highlights[fastest.id] || []), "Mais rápido"];
-  if (safest && safest.id !== cheapest?.id && safest.id !== fastest?.id)
+  if (bestReturn && bestReturn.id !== cheapest?.id && bestReturn.id !== fastest?.id)
+    highlights[bestReturn.id] = [...(highlights[bestReturn.id] || []), "Maior rendimento"];
+  if (safest && safest.id !== cheapest?.id && safest.id !== fastest?.id && safest.id !== bestReturn?.id)
     highlights[safest.id] = [...(highlights[safest.id] || []), "Mais seguro"];
 
   return highlights;
