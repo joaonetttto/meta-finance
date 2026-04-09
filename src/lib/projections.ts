@@ -8,25 +8,29 @@ export const SCENARIOS = [
 
 export type ScenarioKey = typeof SCENARIOS[number]["key"];
 
-export function calcPMT(fv: number, rateAnnual: number, years: number) {
+/** Calculate PMT considering present value (initial investment) */
+export function calcPMT(fv: number, rateAnnual: number, years: number, pv = 0) {
   const n = years * 12;
   const r = rateAnnual / 12;
-  if (r === 0) return fv / n;
-  return (fv * r) / (Math.pow(1 + r, n) - 1);
+  const fvNeeded = fv - pv * Math.pow(1 + r, n);
+  if (fvNeeded <= 0) return 0;
+  if (r === 0) return fvNeeded / n;
+  return (fvNeeded * r) / (Math.pow(1 + r, n) - 1);
 }
 
-export function calcFV(pmt: number, rateAnnual: number, years: number) {
+export function calcFV(pmt: number, rateAnnual: number, years: number, pv = 0) {
   const r = rateAnnual / 12;
   const n = years * 12;
-  if (r === 0) return pmt * n;
-  return pmt * ((Math.pow(1 + r, n) - 1) / r);
+  const pvGrowth = pv * Math.pow(1 + r, n);
+  if (r === 0) return pvGrowth + pmt * n;
+  return pvGrowth + pmt * ((Math.pow(1 + r, n) - 1) / r);
 }
 
-export function buildTimeline(pmt: number, rateAnnual: number, years: number) {
+export function buildTimeline(pmt: number, rateAnnual: number, years: number, pv = 0) {
   const r = rateAnnual / 12;
   const points: { ano: number; valor: number; investido: number }[] = [];
-  let balance = 0;
-  let totalInvested = 0;
+  let balance = pv;
+  let totalInvested = pv;
   for (let m = 0; m <= years * 12; m++) {
     if (m % 12 === 0) {
       points.push({ ano: m / 12, valor: Math.round(balance), investido: Math.round(totalInvested) });
@@ -37,12 +41,26 @@ export function buildTimeline(pmt: number, rateAnnual: number, years: number) {
   return points;
 }
 
-export function calcYearsNeeded(fv: number, pmt: number, rateAnnual: number) {
-  if (pmt <= 0) return Infinity;
+export function calcYearsNeeded(fv: number, pmt: number, rateAnnual: number, pv = 0) {
+  if (pmt <= 0 && pv <= 0) return Infinity;
   const r = rateAnnual / 12;
-  if (r === 0) return fv / pmt / 12;
-  const n = Math.log((fv * r) / pmt + 1) / Math.log(1 + r);
-  return n / 12;
+  const target = fv;
+  if (r === 0) {
+    if (pmt <= 0) return Infinity;
+    return (target - pv) / pmt / 12;
+  }
+  // Iterative approach for accuracy with PV
+  if (pv > 0 || pmt > 0) {
+    let balance = pv;
+    let months = 0;
+    const maxMonths = 100 * 12;
+    while (balance < target && months < maxMonths) {
+      balance = (balance + pmt) * (1 + r);
+      months++;
+    }
+    return months >= maxMonths ? Infinity : months / 12;
+  }
+  return Infinity;
 }
 
 export function getAllocation(years: number) {
@@ -77,6 +95,7 @@ export interface ScenarioResult {
   totalRendimento: number;
   pctRendimento: number;
   recommended?: boolean;
+  yearsNeeded: number;
 }
 
 export function buildScenarios(
@@ -85,13 +104,14 @@ export function buildScenarios(
   aporteManual: number,
   delayStart: boolean,
   skipMonths: boolean,
-  reducedContrib: boolean
+  reducedContrib: boolean,
+  valorInicial = 0
 ): ScenarioResult[] {
   const results = SCENARIOS.map((s) => {
     let effectiveYears = anos;
     if (delayStart) effectiveYears = Math.max(0.5, anos - 2);
 
-    let pmt = calcPMT(valor, s.rate, effectiveYears);
+    let pmt = calcPMT(valor, s.rate, effectiveYears, valorInicial);
 
     if (skipMonths) pmt = pmt * 12 / 11;
 
@@ -101,15 +121,14 @@ export function buildScenarios(
 
     if (reducedContrib) {
       actualPmt = pmt * 0.8;
-      const r = s.rate / 12;
-      const n = effectiveYears * 12;
-      finalValue = r === 0 ? actualPmt * n : actualPmt * ((Math.pow(1 + r, n) - 1) / r);
+      finalValue = calcFV(actualPmt, s.rate, effectiveYears, valorInicial);
     }
 
-    const timeline = buildTimeline(actualPmt, s.rate, effectiveYears);
-    const totalInvested = actualPmt * effectiveYears * 12;
+    const timeline = buildTimeline(actualPmt, s.rate, effectiveYears, valorInicial);
+    const totalInvested = valorInicial + actualPmt * effectiveYears * 12;
     const totalRendimento = finalValue - totalInvested;
     const pctRendimento = finalValue > 0 ? (totalRendimento / finalValue) * 100 : 0;
+    const yearsNeeded = calcYearsNeeded(valor, actualPmt, s.rate, valorInicial);
 
     return {
       ...s,
@@ -123,10 +142,10 @@ export function buildScenarios(
       totalInvested,
       totalRendimento,
       pctRendimento,
+      yearsNeeded,
     } as ScenarioResult;
   });
 
-  // Determine recommendation
   const recommended = getRecommendedScenario(results, aporteManual, anos);
   results.forEach(r => { r.recommended = r.key === recommended; });
 
@@ -135,21 +154,24 @@ export function buildScenarios(
 
 export function getRecommendedScenario(scenarios: ScenarioResult[], aporteManual: number, anos: number): string {
   if (aporteManual > 0) {
-    // If user can afford moderado, recommend it. If not, check conservador feasibility.
     const mod = scenarios.find(s => s.key === "moderado")!;
     const con = scenarios.find(s => s.key === "conservador")!;
-    const agr = scenarios.find(s => s.key === "agressivo")!;
 
     if (aporteManual >= mod.pmt * 0.9) return "moderado";
     if (aporteManual >= con.pmt * 0.9) return "conservador";
-    // Can't afford any comfortably — still recommend moderado but with adjustment
     return "moderado";
   }
 
-  // No manual input — recommend based on timeframe
   if (anos <= 3) return "conservador";
   if (anos <= 10) return "moderado";
   return "agressivo";
+}
+
+export interface ScenarioComparison {
+  key: string;
+  label: string;
+  yearsDiff: number; // positive = saves years vs this scenario
+  valueDiff: number; // positive = earns more vs this scenario
 }
 
 export interface Recommendation {
@@ -159,21 +181,35 @@ export interface Recommendation {
   action: string;
   detail: string;
   sufficient: boolean;
+  comparisons: ScenarioComparison[];
+  contextMessage: string;
 }
 
 export function getRecommendation(
   scenarios: ScenarioResult[],
   valor: number,
   anos: number,
-  aporteManual: number
+  aporteManual: number,
+  valorInicial = 0
 ): Recommendation {
   const rec = scenarios.find(s => s.recommended)!;
-  
+  const comparisons: ScenarioComparison[] = scenarios
+    .filter(s => s.key !== rec.key)
+    .map(s => ({
+      key: s.key,
+      label: s.label,
+      yearsDiff: s.yearsNeeded - rec.yearsNeeded,
+      valueDiff: rec.finalValue - s.finalValue,
+    }));
+
+  const contextBase = valorInicial > 0
+    ? `Com base no seu capital inicial de ${fmt(valorInicial)}, prazo e capacidade de investimento`
+    : `Com base no seu prazo e capacidade de investimento`;
+
   if (aporteManual > 0) {
     const diff = rec.pmt - aporteManual;
     if (diff <= 0) {
-      // Sufficient
-      const yearsNeeded = calcYearsNeeded(valor, aporteManual, rec.rate);
+      const yearsNeeded = calcYearsNeeded(valor, aporteManual, rec.rate, valorInicial);
       const savedYears = anos - yearsNeeded;
       return {
         scenarioLabel: rec.label,
@@ -182,8 +218,10 @@ export function getRecommendation(
         action: savedYears > 0.5
           ? `Você pode atingir a meta ${savedYears.toFixed(1)} anos antes do prazo!`
           : "Seu aporte é suficiente para atingir a meta no prazo.",
-        detail: `Cenário ${rec.label} com ${fmt(aporteManual)}/mês.`,
+        detail: `${contextBase}, o cenário ${rec.label} com ${fmt(aporteManual)}/mês é ideal.`,
         sufficient: true,
+        comparisons,
+        contextMessage: contextBase,
       };
     } else {
       return {
@@ -191,8 +229,10 @@ export function getRecommendation(
         scenarioKey: rec.key,
         color: rec.color,
         action: `Aumente seu aporte em ${fmt(diff)}/mês para atingir a meta.`,
-        detail: `No cenário ${rec.label}, você precisa de ${fmt(rec.pmt)}/mês.`,
+        detail: `${contextBase}, no cenário ${rec.label} você precisa de ${fmt(rec.pmt)}/mês.`,
         sufficient: false,
+        comparisons,
+        contextMessage: contextBase,
       };
     }
   }
@@ -202,15 +242,17 @@ export function getRecommendation(
     scenarioKey: rec.key,
     color: rec.color,
     action: `Invista ${fmt(rec.pmt)}/mês no cenário ${rec.label}.`,
-    detail: `Taxa estimada de ${(rec.rate * 100).toFixed(0)}% a.a. — ${rec.desc}`,
+    detail: `${contextBase} — taxa estimada de ${(rec.rate * 100).toFixed(0)}% a.a. (${rec.desc})`,
     sufficient: true,
+    comparisons,
+    contextMessage: contextBase,
   };
 }
 
 export interface Insight {
-  icon: string; // icon name
+  icon: string;
   text: string;
-  priority: number; // lower = more important
+  priority: number;
 }
 
 export function generateInsights(
@@ -218,7 +260,8 @@ export function generateInsights(
   valor: number,
   anos: number,
   aporteManual: number,
-  salario: number | null
+  salario: number | null,
+  valorInicial = 0
 ): Insight[] {
   const mod = scenarios.find(s => s.key === "moderado")!;
   const insights: Insight[] = [];
@@ -241,7 +284,7 @@ export function generateInsights(
 
   // +R$50 impact
   const pmtPlus50 = mod.pmt + 50;
-  const yearsNew = calcYearsNeeded(valor, pmtPlus50, 0.07);
+  const yearsNew = calcYearsNeeded(valor, pmtPlus50, 0.07, valorInicial);
   const saved = anos - yearsNew;
   if (saved > 0.3) {
     insights.push({
@@ -269,8 +312,21 @@ export function generateInsights(
     }
   }
 
-  // Delay impact
-  const pmtDelayed = calcPMT(valor, 0.07, Math.max(0.5, anos - 2));
+  // URGENCY: Start today savings
+  if (valorInicial === 0) {
+    const pmtDelay1 = calcPMT(valor, 0.07, Math.max(0.5, anos - 1), 0);
+    const increase1yr = pmtDelay1 - mod.pmt;
+    if (increase1yr > 10) {
+      insights.push({
+        icon: "AlertTriangle",
+        text: `Adiar 1 ano aumenta seu esforço mensal em ${fmt(increase1yr)}.`,
+        priority: 2.5,
+      });
+    }
+  }
+
+  // Delay 2 years impact
+  const pmtDelayed = calcPMT(valor, 0.07, Math.max(0.5, anos - 2), valorInicial);
   const increase = pmtDelayed - mod.pmt;
   if (increase > 10) {
     insights.push({
@@ -278,6 +334,20 @@ export function generateInsights(
       text: `Adiar 2 anos aumenta o esforço mensal em ${fmt(increase)}.`,
       priority: 5,
     });
+  }
+
+  // Start today compound interest message
+  if (valorInicial === 0 && anos >= 5) {
+    const fvToday = calcFV(mod.pmt, 0.07, anos, 0);
+    const fvDelay1 = calcFV(mod.pmt, 0.07, anos - 1, 0);
+    const lostValue = fvToday - fvDelay1;
+    if (lostValue > 100) {
+      insights.push({
+        icon: "Zap",
+        text: `Começar hoje economiza ${fmt(lostValue)} no total comparado a esperar 1 ano.`,
+        priority: 1.5,
+      });
+    }
   }
 
   // Salary proportion
@@ -296,7 +366,21 @@ export function generateInsights(
     insights.push({ icon: "Shield", text: "Prazo curto — priorize investimentos de baixo risco e alta liquidez.", priority: 7 });
   }
 
-  return insights.sort((a, b) => a.priority - b.priority).slice(0, 5);
+  // Initial value advantage
+  if (valorInicial > 0) {
+    const pmtWithout = calcPMT(valor, 0.07, anos, 0);
+    const pmtWith = calcPMT(valor, 0.07, anos, valorInicial);
+    const saving = pmtWithout - pmtWith;
+    if (saving > 10) {
+      insights.push({
+        icon: "Sparkles",
+        text: `Seu capital inicial de ${fmt(valorInicial)} reduz o esforço mensal em ${fmt(saving)}.`,
+        priority: 1,
+      });
+    }
+  }
+
+  return insights.sort((a, b) => a.priority - b.priority).slice(0, 6);
 }
 
 export function getProgressStatus(aporteManual: number, requiredPmt: number): { label: string; color: string } {
