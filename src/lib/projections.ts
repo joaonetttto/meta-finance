@@ -179,10 +179,8 @@ export interface Recommendation {
   scenarioKey: string;
   color: string;
   action: string;
-  detail: string;
   sufficient: boolean;
   comparisons: ScenarioComparison[];
-  contextMessage: string;
 }
 
 export function getRecommendation(
@@ -202,10 +200,6 @@ export function getRecommendation(
       valueDiff: rec.finalValue - s.finalValue,
     }));
 
-  const contextBase = valorInicial > 0
-    ? `Com base no seu capital inicial de ${fmt(valorInicial)}, prazo e capacidade de investimento`
-    : `Com base no seu prazo e capacidade de investimento`;
-
   if (aporteManual > 0) {
     const diff = rec.pmt - aporteManual;
     if (diff <= 0) {
@@ -216,23 +210,19 @@ export function getRecommendation(
         scenarioKey: rec.key,
         color: rec.color,
         action: savedYears > 0.5
-          ? `Você pode atingir a meta ${savedYears.toFixed(1)} anos antes do prazo!`
-          : "Seu aporte é suficiente para atingir a meta no prazo.",
-        detail: `${contextBase}, o cenário ${rec.label} com ${fmt(aporteManual)}/mês é ideal.`,
+          ? `Invista ${fmt(aporteManual)}/mês — atinja a meta ${savedYears.toFixed(1)} anos antes!`
+          : `Invista ${fmt(aporteManual)}/mês no cenário ${rec.label} para atingir a meta no prazo.`,
         sufficient: true,
         comparisons,
-        contextMessage: contextBase,
       };
     } else {
       return {
         scenarioLabel: rec.label,
         scenarioKey: rec.key,
         color: rec.color,
-        action: `Aumente seu aporte em ${fmt(diff)}/mês para atingir a meta.`,
-        detail: `${contextBase}, no cenário ${rec.label} você precisa de ${fmt(rec.pmt)}/mês.`,
+        action: `Aumente para ${fmt(rec.pmt)}/mês (+${fmt(diff)}) no cenário ${rec.label}.`,
         sufficient: false,
         comparisons,
-        contextMessage: contextBase,
       };
     }
   }
@@ -241,11 +231,9 @@ export function getRecommendation(
     scenarioLabel: rec.label,
     scenarioKey: rec.key,
     color: rec.color,
-    action: `Invista ${fmt(rec.pmt)}/mês no cenário ${rec.label}.`,
-    detail: `${contextBase} — taxa estimada de ${(rec.rate * 100).toFixed(0)}% a.a. (${rec.desc})`,
+    action: `Invista ${fmt(rec.pmt)}/mês no cenário ${rec.label} (${(rec.rate * 100).toFixed(0)}% a.a.)`,
     sufficient: true,
     comparisons,
-    contextMessage: contextBase,
   };
 }
 
@@ -325,26 +313,15 @@ export function generateInsights(
     }
   }
 
-  // Delay 2 years impact
-  const pmtDelayed = calcPMT(valor, 0.07, Math.max(0.5, anos - 2), valorInicial);
-  const increase = pmtDelayed - mod.pmt;
-  if (increase > 10) {
-    insights.push({
-      icon: "Clock",
-      text: `Adiar 2 anos aumenta o esforço mensal em ${fmt(increase)}.`,
-      priority: 5,
-    });
-  }
-
-  // Start today compound interest message
-  if (valorInicial === 0 && anos >= 5) {
+  // Urgency: cost of delay (single insight, not duplicated)
+  if (valorInicial === 0 && anos >= 3) {
     const fvToday = calcFV(mod.pmt, 0.07, anos, 0);
     const fvDelay1 = calcFV(mod.pmt, 0.07, anos - 1, 0);
     const lostValue = fvToday - fvDelay1;
     if (lostValue > 100) {
       insights.push({
         icon: "Zap",
-        text: `Começar hoje economiza ${fmt(lostValue)} no total comparado a esperar 1 ano.`,
+        text: `Começar hoje economiza ${fmt(lostValue)} — cada ano de atraso custa caro pelos juros compostos.`,
         priority: 1.5,
       });
     }
@@ -380,7 +357,7 @@ export function generateInsights(
     }
   }
 
-  return insights.sort((a, b) => a.priority - b.priority).slice(0, 6);
+  return insights.sort((a, b) => a.priority - b.priority).slice(0, 5);
 }
 
 export function getProgressStatus(aporteManual: number, requiredPmt: number): { label: string; color: string } {

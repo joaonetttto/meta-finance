@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Sparkles, ArrowUp, CheckCircle } from "lucide-react";
+import { Sparkles, ArrowUp, CheckCircle, TrendingUp } from "lucide-react";
 import { Recommendation, fmt } from "@/lib/projections";
 
 export function RecommendationBlock({ rec }: { rec: Recommendation }) {
@@ -11,14 +11,8 @@ export function RecommendationBlock({ rec }: { rec: Recommendation }) {
       className="rounded-2xl border-2 border-primary bg-primary/5 p-6 relative overflow-hidden"
     >
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-      <div className="relative z-10 space-y-3">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <h3 className="text-base font-bold tracking-ui">Melhor estratégia para você</h3>
-        </div>
-
-        <p className="text-xs text-muted-foreground">{rec.contextMessage}</p>
-
+      <div className="relative z-10 space-y-4">
+        {/* Line 1: Recommended scenario */}
         <div className="flex items-center gap-3">
           <span
             className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold text-primary-foreground"
@@ -27,29 +21,39 @@ export function RecommendationBlock({ rec }: { rec: Recommendation }) {
             {rec.sufficient ? <CheckCircle className="h-3.5 w-3.5" /> : <ArrowUp className="h-3.5 w-3.5" />}
             {rec.scenarioLabel}
           </span>
+          <div className="flex items-center gap-1.5">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <span className="text-xs font-medium text-muted-foreground">Melhor estratégia</span>
+          </div>
         </div>
 
-        <p className="text-lg font-semibold">{rec.action}</p>
-        <p className="text-sm text-muted-foreground">{rec.detail}</p>
+        {/* Line 2: Clear action */}
+        <p className="text-lg font-bold leading-tight">{rec.action}</p>
 
-        {/* Comparisons */}
+        {/* Line 3: Comparisons as compact chips */}
         {rec.comparisons.length > 0 && (
-          <div className="mt-2 pt-3 border-t border-border/50 space-y-1.5">
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Comparado aos outros cenários</p>
-            {rec.comparisons.map((c) => (
-              <div key={c.key} className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                {c.yearsDiff > 0.5 && (
-                  <span>Você economiza <span className="font-semibold text-accent">{c.yearsDiff.toFixed(1)} anos</span> comparado ao {c.label}</span>
-                )}
-                {c.yearsDiff <= 0.5 && c.valueDiff > 0 && (
-                  <span>Pode render <span className="font-semibold text-accent">{fmt(c.valueDiff)}</span> a mais que o {c.label}</span>
-                )}
-                {c.yearsDiff <= 0.5 && c.valueDiff <= 0 && (
-                  <span>Cenário {c.label}: menor risco, maior aporte mensal</span>
-                )}
-              </div>
-            ))}
+          <div className="flex flex-wrap gap-2">
+            {rec.comparisons.map((c) => {
+              let text = "";
+              if (c.yearsDiff > 0.5) {
+                text = `${c.yearsDiff.toFixed(1)} anos mais rápido que ${c.label}`;
+              } else if (c.valueDiff > 0) {
+                text = `${fmt(c.valueDiff)} a mais que ${c.label}`;
+              } else if (c.yearsDiff < -0.5) {
+                text = `${c.label}: ${Math.abs(c.yearsDiff).toFixed(1)} anos a mais, menor risco`;
+              } else {
+                text = `${c.label}: resultado similar, perfil diferente`;
+              }
+              return (
+                <span
+                  key={c.key}
+                  className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
+                >
+                  <TrendingUp className="h-3 w-3" />
+                  {text}
+                </span>
+              );
+            })}
           </div>
         )}
       </div>
