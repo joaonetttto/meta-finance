@@ -325,26 +325,15 @@ export function generateInsights(
     }
   }
 
-  // Delay 2 years impact
-  const pmtDelayed = calcPMT(valor, 0.07, Math.max(0.5, anos - 2), valorInicial);
-  const increase = pmtDelayed - mod.pmt;
-  if (increase > 10) {
-    insights.push({
-      icon: "Clock",
-      text: `Adiar 2 anos aumenta o esforço mensal em ${fmt(increase)}.`,
-      priority: 5,
-    });
-  }
-
-  // Start today compound interest message
-  if (valorInicial === 0 && anos >= 5) {
+  // Urgency: cost of delay (single insight, not duplicated)
+  if (valorInicial === 0 && anos >= 3) {
     const fvToday = calcFV(mod.pmt, 0.07, anos, 0);
     const fvDelay1 = calcFV(mod.pmt, 0.07, anos - 1, 0);
     const lostValue = fvToday - fvDelay1;
     if (lostValue > 100) {
       insights.push({
         icon: "Zap",
-        text: `Começar hoje economiza ${fmt(lostValue)} no total comparado a esperar 1 ano.`,
+        text: `Começar hoje economiza ${fmt(lostValue)} — cada ano de atraso custa caro pelos juros compostos.`,
         priority: 1.5,
       });
     }
@@ -380,7 +369,7 @@ export function generateInsights(
     }
   }
 
-  return insights.sort((a, b) => a.priority - b.priority).slice(0, 6);
+  return insights.sort((a, b) => a.priority - b.priority).slice(0, 5);
 }
 
 export function getProgressStatus(aporteManual: number, requiredPmt: number): { label: string; color: string } {
