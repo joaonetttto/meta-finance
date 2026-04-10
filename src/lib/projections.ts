@@ -179,10 +179,8 @@ export interface Recommendation {
   scenarioKey: string;
   color: string;
   action: string;
-  detail: string;
   sufficient: boolean;
   comparisons: ScenarioComparison[];
-  contextMessage: string;
 }
 
 export function getRecommendation(
@@ -202,10 +200,6 @@ export function getRecommendation(
       valueDiff: rec.finalValue - s.finalValue,
     }));
 
-  const contextBase = valorInicial > 0
-    ? `Com base no seu capital inicial de ${fmt(valorInicial)}, prazo e capacidade de investimento`
-    : `Com base no seu prazo e capacidade de investimento`;
-
   if (aporteManual > 0) {
     const diff = rec.pmt - aporteManual;
     if (diff <= 0) {
@@ -216,23 +210,19 @@ export function getRecommendation(
         scenarioKey: rec.key,
         color: rec.color,
         action: savedYears > 0.5
-          ? `Você pode atingir a meta ${savedYears.toFixed(1)} anos antes do prazo!`
-          : "Seu aporte é suficiente para atingir a meta no prazo.",
-        detail: `${contextBase}, o cenário ${rec.label} com ${fmt(aporteManual)}/mês é ideal.`,
+          ? `Invista ${fmt(aporteManual)}/mês — atinja a meta ${savedYears.toFixed(1)} anos antes!`
+          : `Invista ${fmt(aporteManual)}/mês no cenário ${rec.label} para atingir a meta no prazo.`,
         sufficient: true,
         comparisons,
-        contextMessage: contextBase,
       };
     } else {
       return {
         scenarioLabel: rec.label,
         scenarioKey: rec.key,
         color: rec.color,
-        action: `Aumente seu aporte em ${fmt(diff)}/mês para atingir a meta.`,
-        detail: `${contextBase}, no cenário ${rec.label} você precisa de ${fmt(rec.pmt)}/mês.`,
+        action: `Aumente para ${fmt(rec.pmt)}/mês (+${fmt(diff)}) no cenário ${rec.label}.`,
         sufficient: false,
         comparisons,
-        contextMessage: contextBase,
       };
     }
   }
@@ -241,11 +231,9 @@ export function getRecommendation(
     scenarioLabel: rec.label,
     scenarioKey: rec.key,
     color: rec.color,
-    action: `Invista ${fmt(rec.pmt)}/mês no cenário ${rec.label}.`,
-    detail: `${contextBase} — taxa estimada de ${(rec.rate * 100).toFixed(0)}% a.a. (${rec.desc})`,
+    action: `Invista ${fmt(rec.pmt)}/mês no cenário ${rec.label} (${(rec.rate * 100).toFixed(0)}% a.a.)`,
     sufficient: true,
     comparisons,
-    contextMessage: contextBase,
   };
 }
 
