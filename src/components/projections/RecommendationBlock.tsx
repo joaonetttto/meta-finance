@@ -8,12 +8,12 @@ export function RecommendationBlock({ rec }: { rec: Recommendation }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="rounded-2xl border-2 border-primary bg-primary/5 p-6 relative overflow-hidden"
+      className="rounded-2xl border-2 border-primary bg-primary/5 p-5 sm:p-6 relative overflow-hidden"
     >
       <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-      <div className="relative z-10 space-y-4">
+      <div className="relative z-10 space-y-3">
         {/* Line 1: Recommended scenario */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 flex-wrap">
           <span
             className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold text-primary-foreground"
             style={{ background: rec.color }}
@@ -21,36 +21,32 @@ export function RecommendationBlock({ rec }: { rec: Recommendation }) {
             {rec.sufficient ? <CheckCircle className="h-3.5 w-3.5" /> : <ArrowUp className="h-3.5 w-3.5" />}
             {rec.scenarioLabel}
           </span>
-          <div className="flex items-center gap-1.5">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-xs font-medium text-muted-foreground">Melhor estratégia</span>
-          </div>
+          <span className="flex items-center gap-1 text-xs font-medium text-muted-foreground">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            Melhor estratégia
+          </span>
         </div>
 
-        {/* Line 2: Clear action */}
+        {/* Line 2: Clear action (value) */}
         <p className="text-lg font-bold leading-tight">{rec.action}</p>
 
-        {/* Line 3: Comparisons as compact chips */}
+        {/* Line 3: Benefit */}
+        {rec.benefit && (
+          <p className="text-sm font-medium text-accent">{rec.benefit}</p>
+        )}
+
+        {/* Line 4: Comparisons as compact chips — only concrete data */}
         {rec.comparisons.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {rec.comparisons.map((c) => {
-              let text = "";
-              if (c.yearsDiff > 0.5) {
-                text = `${c.yearsDiff.toFixed(1)} anos mais rápido que ${c.label}`;
-              } else if (c.valueDiff > 0) {
-                text = `${fmt(c.valueDiff)} a mais que ${c.label}`;
-              } else if (c.yearsDiff < -0.5) {
-                text = `${c.label}: ${Math.abs(c.yearsDiff).toFixed(1)} anos a mais, menor risco`;
-              } else {
-                text = `${c.label}: resultado similar, perfil diferente`;
-              }
+              if (!c.text) return null;
               return (
                 <span
                   key={c.key}
                   className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
                 >
                   <TrendingUp className="h-3 w-3" />
-                  {text}
+                  {c.text}
                 </span>
               );
             })}

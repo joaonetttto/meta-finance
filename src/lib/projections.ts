@@ -170,8 +170,9 @@ export function getRecommendedScenario(scenarios: ScenarioResult[], aporteManual
 export interface ScenarioComparison {
   key: string;
   label: string;
-  yearsDiff: number; // positive = saves years vs this scenario
-  valueDiff: number; // positive = earns more vs this scenario
+  yearsDiff: number;
+  valueDiff: number;
+  text: string;
 }
 
 export interface Recommendation {
@@ -179,6 +180,7 @@ export interface Recommendation {
   scenarioKey: string;
   color: string;
   action: string;
+  benefit: string;
   sufficient: boolean;
   comparisons: ScenarioComparison[];
 }
@@ -191,27 +193,43 @@ export function getRecommendation(
   valorInicial = 0
 ): Recommendation {
   const rec = scenarios.find(s => s.recommended)!;
+
+  function compText(s: { label: string; yearsDiff: number; valueDiff: number }): string {
+    if (s.yearsDiff > 0.5) return `${s.yearsDiff.toFixed(1)} anos mais rápido que ${s.label}`;
+    if (s.valueDiff > 0) return `${fmt(s.valueDiff)} a mais que ${s.label}`;
+    if (s.yearsDiff < -0.5) return `${s.label}: ${Math.abs(s.yearsDiff).toFixed(1)} anos a mais`;
+    return "";
+  }
+
   const comparisons: ScenarioComparison[] = scenarios
     .filter(s => s.key !== rec.key)
-    .map(s => ({
-      key: s.key,
-      label: s.label,
-      yearsDiff: s.yearsNeeded - rec.yearsNeeded,
-      valueDiff: rec.finalValue - s.finalValue,
-    }));
+    .map(s => {
+      const yearsDiff = s.yearsNeeded - rec.yearsNeeded;
+      const valueDiff = rec.finalValue - s.finalValue;
+      return {
+        key: s.key,
+        label: s.label,
+        yearsDiff,
+        valueDiff,
+        text: compText({ label: s.label, yearsDiff, valueDiff }),
+      };
+    })
+    .filter(c => c.text !== "");
 
   if (aporteManual > 0) {
     const diff = rec.pmt - aporteManual;
     if (diff <= 0) {
       const yearsNeeded = calcYearsNeeded(valor, aporteManual, rec.rate, valorInicial);
       const savedYears = anos - yearsNeeded;
+      const benefit = savedYears > 0.5
+        ? `Você pode antecipar em ${savedYears.toFixed(1)} anos`
+        : `Você atinge a meta no prazo de ${anos} anos`;
       return {
         scenarioLabel: rec.label,
         scenarioKey: rec.key,
         color: rec.color,
-        action: savedYears > 0.5
-          ? `Invista ${fmt(aporteManual)}/mês — atinja a meta ${savedYears.toFixed(1)} anos antes!`
-          : `Invista ${fmt(aporteManual)}/mês no cenário ${rec.label} para atingir a meta no prazo.`,
+        action: `Invista ${fmt(aporteManual)}/mês`,
+        benefit,
         sufficient: true,
         comparisons,
       };
@@ -220,7 +238,8 @@ export function getRecommendation(
         scenarioLabel: rec.label,
         scenarioKey: rec.key,
         color: rec.color,
-        action: `Aumente para ${fmt(rec.pmt)}/mês (+${fmt(diff)}) no cenário ${rec.label}.`,
+        action: `Aumente para ${fmt(rec.pmt)}/mês (+${fmt(diff)})`,
+        benefit: `Para atingir a meta no prazo de ${anos} anos`,
         sufficient: false,
         comparisons,
       };
@@ -231,7 +250,8 @@ export function getRecommendation(
     scenarioLabel: rec.label,
     scenarioKey: rec.key,
     color: rec.color,
-    action: `Invista ${fmt(rec.pmt)}/mês no cenário ${rec.label} (${(rec.rate * 100).toFixed(0)}% a.a.)`,
+    action: `Invista ${fmt(rec.pmt)}/mês`,
+    benefit: `Cenário ${rec.label} (${(rec.rate * 100).toFixed(0)}% a.a.) — meta em ${anos} anos`,
     sufficient: true,
     comparisons,
   };

@@ -15,7 +15,7 @@ export function InsightsBlock({ insights }: { insights: Insight[] }) {
         <h3 className="text-sm font-semibold">Insights</h3>
       </div>
       <div className="space-y-2">
-        {insights.map((ins, i) => {
+        {insights.slice(0, 5).map((ins, i) => {
           const Icon = iconMap[ins.icon] ?? Lightbulb;
           return (
             <div key={i} className="flex items-start gap-2 text-sm">

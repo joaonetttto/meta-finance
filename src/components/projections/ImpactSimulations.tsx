@@ -22,36 +22,31 @@ export function ImpactSimulations({
   baseScenarios, valor, anos, aporteManual,
 }: Props) {
   const mod = baseScenarios.find(s => s.key === "moderado")!;
-  const basePmt = mod.originalPmt;
 
   const impacts = [
     {
       label: "Começar em 2 anos",
-      desc: "Reduz o prazo efetivo de investimento",
       active: delayStart,
       toggle: setDelayStart,
-      impact: delayStart ? `Aporte sobe para ${fmt(mod.pmt)}/mês` : null,
-      loss: delayStart ? `Novo prazo efetivo: ${mod.effectiveYears} anos` : null,
+      result: delayStart ? `Aporte sobe para ${fmt(mod.pmt)}/mês` : null,
+      detail: delayStart ? `Prazo efetivo: ${mod.effectiveYears} anos` : null,
     },
     {
       label: "Pular 1 mês por ano",
-      desc: "Simula falhas de contribuição",
       active: skipMonths,
       toggle: setSkipMonths,
-      impact: skipMonths ? `Aporte compensa: ${fmt(mod.pmt)}/mês` : null,
-      loss: null,
+      result: skipMonths ? `Aporte compensa: ${fmt(mod.pmt)}/mês` : null,
+      detail: null,
     },
     {
       label: "Reduzir contribuição em 20%",
-      desc: "Mostra quanto a menos você acumularia",
       active: reducedContrib,
       toggle: setReducedContrib,
-      impact: reducedContrib ? `Você perderia ${fmt(valor - mod.finalValue)}` : null,
-      loss: reducedContrib ? `Acumula apenas ${fmt(mod.finalValue)}` : null,
+      result: reducedContrib ? `Você perderia ${fmt(valor - mod.finalValue)}` : null,
+      detail: reducedContrib ? `Acumula apenas ${fmt(mod.finalValue)}` : null,
     },
   ];
 
-  // Reverse mode
   const reverseAporte = aporteManual ? parseFloat(String(aporteManual)) : 0;
   const reverseYears = reverseAporte > 0 ? calcYearsNeeded(valor, reverseAporte, 0.07) : null;
   const reverseDiff = reverseAporte > 0 && anos > 0 ? mod.originalPmt - reverseAporte : 0;
@@ -66,16 +61,13 @@ export function ImpactSimulations({
           {impacts.map((item) => (
             <div key={item.label}>
               <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium">{item.label}</p>
-                  <p className="text-xs text-muted-foreground">{item.desc}</p>
-                </div>
+                <p className="text-sm font-medium">{item.label}</p>
                 <Switch checked={item.active} onCheckedChange={item.toggle} />
               </div>
-              {item.active && (item.impact || item.loss) && (
+              {item.active && (item.result || item.detail) && (
                 <div className="mt-2 rounded-lg bg-destructive/5 border border-destructive/15 px-3 py-2 text-xs space-y-0.5">
-                  {item.impact && <p className="text-destructive font-semibold">{item.impact}</p>}
-                  {item.loss && <p className="text-muted-foreground">{item.loss}</p>}
+                  {item.result && <p className="text-destructive font-semibold">{item.result}</p>}
+                  {item.detail && <p className="text-muted-foreground">{item.detail}</p>}
                 </div>
               )}
             </div>
@@ -99,12 +91,12 @@ export function ImpactSimulations({
             </p>
             {anos > 0 && reverseDiff > 0 && (
               <p className="text-xs text-muted-foreground">
-                Para manter o prazo de {anos} anos, você precisaria de mais{" "}
+                Para o prazo de {anos} anos, faltam{" "}
                 <span className="text-destructive font-semibold">{fmt(reverseDiff)}/mês</span>.
               </p>
             )}
             {anos > 0 && reverseDiff <= 0 && (
-              <p className="text-xs text-accent font-semibold">✓ Seu aporte é suficiente para atingir a meta dentro do prazo!</p>
+              <p className="text-xs text-accent font-semibold">✓ Aporte suficiente para atingir a meta no prazo!</p>
             )}
           </CardContent>
         </Card>
