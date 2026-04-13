@@ -170,8 +170,9 @@ export function getRecommendedScenario(scenarios: ScenarioResult[], aporteManual
 export interface ScenarioComparison {
   key: string;
   label: string;
-  yearsDiff: number; // positive = saves years vs this scenario
-  valueDiff: number; // positive = earns more vs this scenario
+  yearsDiff: number;
+  valueDiff: number;
+  text: string;
 }
 
 export interface Recommendation {
@@ -179,6 +180,7 @@ export interface Recommendation {
   scenarioKey: string;
   color: string;
   action: string;
+  benefit: string;
   sufficient: boolean;
   comparisons: ScenarioComparison[];
 }
