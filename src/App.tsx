@@ -76,7 +76,7 @@ function AppWithLoading() {
       {showLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
       <Routes>
         <Route path="/auth" element={<AuthRoute />} />
-        <Route path="/bem-vindo" element={<Welcome />} />
+        <Route path="/bem-vindo" element={<WelcomeRoute />} />
         <Route element={<ProtectedRoutes />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/transacoes" element={<Transactions />} />
