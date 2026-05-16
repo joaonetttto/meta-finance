@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -6,6 +7,7 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { FinanceProvider } from "@/contexts/FinanceContext";
 import { AppLayout } from "@/components/AppLayout";
 import { MobileNav } from "@/components/MobileNav";
+import LoadingScreen from "@/components/LoadingScreen";
 import Dashboard from "@/pages/Dashboard";
 import Transactions from "@/pages/Transactions";
 import Goals from "@/pages/Goals";
@@ -17,9 +19,20 @@ import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 
-function ProtectedRoutes() {
+function AppContent() {
   const { user, loading } = useAuth();
+  const [showLoading, setShowLoading] = useState(true);
 
+  const handleLoadingComplete = useCallback(() => {
+    setShowLoading(false);
+  }, []);
+
+  // Show loading screen on initial app load
+  if (showLoading) {
+    return <LoadingScreen onComplete={handleLoadingComplete} />;
+  }
+
+  // After loading, show auth loading spinner or redirect
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -54,15 +67,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<AuthRoute />} />
-              <Route element={<ProtectedRoutes />}>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/transacoes" element={<Transactions />} />
-                <Route path="/metas" element={<Goals />} />
-                <Route path="/projecoes" element={<Projections />} />
-                <Route path="/planos" element={<Plans />} />
-                <Route path="/perfil" element={<ProfilePage />} />
-              </Route>
-              <Route path="*" element={<NotFound />} />
+              <Route path="*" element={<AppContent />} />
             </Routes>
           </BrowserRouter>
         </AuthProvider>
