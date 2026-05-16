@@ -69,9 +69,22 @@ export default function Auth() {
           animate={{ opacity: 1, y: 0 }}
           className="relative z-10 flex items-center gap-3"
         >
-          <div className="h-10 w-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
-            <Zap className="h-5 w-5 text-primary" />
-          </div>
+          {/* Logo with animated glow */}
+          <motion.div
+            className="relative h-10 w-10"
+            animate={{
+              boxShadow: [
+                "0 0 0 0 hsl(var(--primary) / 0.2)",
+                "0 0 20px 4px hsl(var(--primary) / 0.15)",
+                "0 0 0 0 hsl(var(--primary) / 0.2)",
+              ],
+            }}
+            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <div className="h-10 w-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+              <Zap className="h-5 w-5 text-primary" />
+            </div>
+          </motion.div>
           <h1 className="font-display text-2xl font-bold text-white">
             Meta<span className="text-primary">Finance</span>
           </h1>
