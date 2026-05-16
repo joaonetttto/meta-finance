@@ -3,9 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useFirstAccess } from "@/hooks/useFirstAccess";
 import { 
-  TrendingUp, 
   Target, 
-  Shield, 
   Zap, 
   ArrowRight, 
   Sparkles,

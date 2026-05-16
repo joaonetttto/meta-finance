@@ -44,10 +44,6 @@ export default function Auth() {
     { icon: Shield, title: "100% Seguro", desc: "Seus dados criptografados e protegidos" },
   ];
 
-  const inputTransition = {
-    rest: { scale: 1 },
-    focus: { scale: 1.01, transition: { duration: 0.2 } },
-  };
 
   return (
     <div className="min-h-screen flex bg-[hsl(222,30%,4%)]">
