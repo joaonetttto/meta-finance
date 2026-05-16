@@ -1,5 +1,3 @@
-import { useEffect } from "react";
-
 const FIRST_ACCESS_KEY = "metafinance_first_access";
 
 export function useFirstAccess() {
