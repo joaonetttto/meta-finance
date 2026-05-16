@@ -19,20 +19,9 @@ import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
 
-function AppContent() {
+function ProtectedRoutes() {
   const { user, loading } = useAuth();
-  const [showLoading, setShowLoading] = useState(true);
 
-  const handleLoadingComplete = useCallback(() => {
-    setShowLoading(false);
-  }, []);
-
-  // Show loading screen on initial app load
-  if (showLoading) {
-    return <LoadingScreen onComplete={handleLoadingComplete} />;
-  }
-
-  // After loading, show auth loading spinner or redirect
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
@@ -58,6 +47,32 @@ function AuthRoute() {
   return <Auth />;
 }
 
+function AppWithLoading() {
+  const [showLoading, setShowLoading] = useState(true);
+
+  const handleLoadingComplete = useCallback(() => {
+    setShowLoading(false);
+  }, []);
+
+  return (
+    <>
+      {showLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
+      <Routes>
+        <Route path="/auth" element={<AuthRoute />} />
+        <Route element={<ProtectedRoutes />}>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/transacoes" element={<Transactions />} />
+          <Route path="/metas" element={<Goals />} />
+          <Route path="/projecoes" element={<Projections />} />
+          <Route path="/planos" element={<Plans />} />
+          <Route path="/perfil" element={<ProfilePage />} />
+        </Route>
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </>
+  );
+}
+
 const App = () => (
   <div className="dark min-h-screen bg-background text-foreground">
     <QueryClientProvider client={queryClient}>
@@ -65,10 +80,7 @@ const App = () => (
         <Sonner />
         <AuthProvider>
           <BrowserRouter>
-            <Routes>
-              <Route path="/auth" element={<AuthRoute />} />
-              <Route path="*" element={<AppContent />} />
-            </Routes>
+            <AppWithLoading />
           </BrowserRouter>
         </AuthProvider>
       </TooltipProvider>
