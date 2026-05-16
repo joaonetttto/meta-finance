@@ -50,6 +50,13 @@ function ProtectedRoutes() {
   );
 }
 
+function AuthRoute() {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  if (user) return <Navigate to="/" replace />;
+  return <Auth />;
+}
+
 function WelcomeRoute() {
   const { user, loading } = useAuth();
   if (loading) return null;
