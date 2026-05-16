@@ -150,7 +150,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
             className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
             initial={{ width: "0%" }}
             animate={{ width: "100%" }}
-            transition={{ duration: 2.5, ease: "easeInOut" }}
+            transition={{ duration: 2.5, ease: "easeInOut" as const }}
           />
         </div>
       </div>
