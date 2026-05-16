@@ -1,6 +1,6 @@
 import { useState, useCallback } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
@@ -15,12 +15,22 @@ import Projections from "@/pages/Projections";
 import Plans from "@/pages/Plans";
 import ProfilePage from "@/pages/ProfilePage";
 import Auth from "@/pages/Auth";
+import Welcome from "@/pages/Welcome";
 import NotFound from "@/pages/NotFound";
+import { useFirstAccess } from "@/hooks/useFirstAccess";
 
 const queryClient = new QueryClient();
 
 function ProtectedRoutes() {
   const { user, loading } = useAuth();
+  const { isFirstAccess } = useFirstAccess();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user && isFirstAccess()) {
+      navigate("/bem-vindo", { replace: true });
+    }
+  }, [user, isFirstAccess, navigate]);
 
   if (loading) {
     return (
@@ -59,6 +69,7 @@ function AppWithLoading() {
       {showLoading && <LoadingScreen onComplete={handleLoadingComplete} />}
       <Routes>
         <Route path="/auth" element={<AuthRoute />} />
+        <Route path="/bem-vindo" element={<Welcome />} />
         <Route element={<ProtectedRoutes />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/transacoes" element={<Transactions />} />
