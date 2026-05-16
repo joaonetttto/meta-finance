@@ -45,7 +45,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
       className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[hsl(222,30%,4%)]"
       initial={{ opacity: 1 }}
       animate={{ opacity: fadeOut ? 0 : 1 }}
-      transition={{ duration: 0.5, ease: "easeInOut" }}
+      transition={{ duration: 0.5, ease: "easeInOut" as const }}
     >
       {/* Background glow */}
       <div className="absolute inset-0 overflow-hidden">
