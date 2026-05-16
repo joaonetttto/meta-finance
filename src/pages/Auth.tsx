@@ -191,12 +191,7 @@ export default function Auth() {
           </AnimatePresence>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            <motion.div 
-              className="space-y-2"
-              initial="rest"
-              whileFocus="focus"
-              variants={inputTransition}
-            >
+            <div className="space-y-2">
               <Label className="text-xs font-medium uppercase tracking-[0.15em] text-white/50">Email</Label>
               <Input
                 type="email"
@@ -206,13 +201,8 @@ export default function Auth() {
                 placeholder="seu@email.com"
                 className="h-12 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus:bg-white/[0.06] focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200 hover:border-white/[0.12]"
               />
-            </motion.div>
-            <motion.div 
-              className="space-y-2"
-              initial="rest"
-              whileFocus="focus"
-              variants={inputTransition}
-            >
+            </div>
+            <div className="space-y-2">
               <Label className="text-xs font-medium uppercase tracking-[0.15em] text-white/50">Senha</Label>
               <Input
                 type="password"
@@ -223,7 +213,7 @@ export default function Auth() {
                 placeholder="••••••••"
                 className="h-12 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus:bg-white/[0.06] focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200 hover:border-white/[0.12]"
               />
-            </motion.div>
+            </div>
             <Button
               type="submit"
               className="w-full h-12 font-semibold text-sm bg-primary hover:bg-primary/90 transition-all group relative overflow-hidden"
