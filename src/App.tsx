@@ -50,11 +50,11 @@ function ProtectedRoutes() {
   );
 }
 
-function AuthRoute() {
+function WelcomeRoute() {
   const { user, loading } = useAuth();
   if (loading) return null;
-  if (user) return <Navigate to="/" replace />;
-  return <Auth />;
+  if (!user) return <Navigate to="/auth" replace />;
+  return <Welcome />;
 }
 
 function AppWithLoading() {
