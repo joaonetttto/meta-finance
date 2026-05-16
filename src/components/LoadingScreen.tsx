@@ -89,7 +89,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                ease: "easeInOut",
+              ease: "easeInOut" as const,
               }}
             >
               <Zap className="h-8 w-8 text-primary" />
