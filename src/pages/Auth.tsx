@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { TrendingUp, Shield, Target, Zap, ArrowRight } from "lucide-react";
+import { TrendingUp, Shield, Target, Zap, ArrowRight, Loader2 } from "lucide-react";
 
 export default function Auth() {
   const { signIn, signUp } = useAuth();
@@ -32,11 +32,22 @@ export default function Auth() {
     }
   };
 
+  const toggleMode = () => {
+    setIsSignUp((prev) => !prev);
+    setEmail("");
+    setPassword("");
+  };
+
   const features = [
     { icon: TrendingUp, title: "Controle Total", desc: "Visualize receitas, despesas e saldo em tempo real" },
     { icon: Target, title: "Metas Inteligentes", desc: "Defina metas e acompanhe quanto falta por mês" },
     { icon: Shield, title: "100% Seguro", desc: "Seus dados criptografados e protegidos" },
   ];
+
+  const inputTransition = {
+    rest: { scale: 1 },
+    focus: { scale: 1.01, transition: { duration: 0.2 } },
+  };
 
   return (
     <div className="min-h-screen flex bg-[hsl(222,30%,4%)]">
@@ -114,7 +125,7 @@ export default function Auth() {
       </div>
 
       {/* Right panel - form */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12 bg-[hsl(222,30%,6%)]">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12 bg-[hsl(222,30%,6%)]">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -122,30 +133,49 @@ export default function Auth() {
           className="w-full max-w-sm"
         >
           {/* Mobile branding */}
-          <div className="text-center mb-10 lg:hidden">
-            <div className="flex items-center justify-center gap-2 mb-3">
+          <div className="text-center mb-8 sm:mb-10 lg:hidden">
+            <motion.div 
+              className="flex items-center justify-center gap-2 mb-3"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
               <div className="h-9 w-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
                 <Zap className="h-4 w-4 text-primary" />
               </div>
               <h1 className="text-xl font-bold font-display text-white">
                 Meta<span className="text-primary">Finance</span>
               </h1>
-            </div>
+            </motion.div>
             <p className="text-sm text-white/40">Seu patrimônio, engenheirado.</p>
           </div>
 
           {/* Form header */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold font-display text-white">
-              {isSignUp ? "Criar Conta" : "Bem-vindo de volta"}
-            </h2>
-            <p className="text-sm text-white/40 mt-2">
-              {isSignUp ? "Comece a controlar suas finanças hoje" : "Entre para continuar seu planejamento"}
-            </p>
-          </div>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={isSignUp ? "signup-header" : "login-header"}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
+              className="mb-8"
+            >
+              <h2 className="text-2xl font-bold font-display text-white">
+                {isSignUp ? "Criar Conta" : "Bem-vindo de volta"}
+              </h2>
+              <p className="text-sm text-white/40 mt-2">
+                {isSignUp ? "Comece a controlar suas finanças hoje" : "Entre para continuar seu planejamento"}
+              </p>
+            </motion.div>
+          </AnimatePresence>
 
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div className="space-y-2">
+            <motion.div 
+              className="space-y-2"
+              initial="rest"
+              whileFocus="focus"
+              variants={inputTransition}
+            >
               <Label className="text-xs font-medium uppercase tracking-[0.15em] text-white/50">Email</Label>
               <Input
                 type="email"
@@ -153,10 +183,15 @@ export default function Auth() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="seu@email.com"
-                className="h-12 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus:bg-white/[0.06] focus:border-primary/50 transition-all"
+                className="h-12 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus:bg-white/[0.06] focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200 hover:border-white/[0.12]"
               />
-            </div>
-            <div className="space-y-2">
+            </motion.div>
+            <motion.div 
+              className="space-y-2"
+              initial="rest"
+              whileFocus="focus"
+              variants={inputTransition}
+            >
               <Label className="text-xs font-medium uppercase tracking-[0.15em] text-white/50">Senha</Label>
               <Input
                 type="password"
@@ -165,36 +200,69 @@ export default function Auth() {
                 required
                 minLength={6}
                 placeholder="••••••••"
-                className="h-12 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus:bg-white/[0.06] focus:border-primary/50 transition-all"
+                className="h-12 bg-white/[0.04] border-white/[0.08] text-white placeholder:text-white/20 focus:bg-white/[0.06] focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all duration-200 hover:border-white/[0.12]"
               />
-            </div>
+            </motion.div>
             <Button
               type="submit"
-              className="w-full h-12 font-semibold text-sm bg-primary hover:bg-primary/90 transition-all group"
+              className="w-full h-12 font-semibold text-sm bg-primary hover:bg-primary/90 transition-all group relative overflow-hidden"
               disabled={loading}
             >
-              {loading ? (
-                <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <>
-                  {isSignUp ? "Criar Conta" : "Entrar"}
-                  <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-0.5 transition-transform" />
-                </>
-              )}
+              <AnimatePresence mode="wait">
+                {loading ? (
+                  <motion.div
+                    key="loading"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    <Loader2 className="h-5 w-5 text-white animate-spin" />
+                  </motion.div>
+                ) : (
+                  <motion.span
+                    key="text"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.15 }}
+                    className="flex items-center justify-center gap-2"
+                  >
+                    {isSignUp ? "Criar Conta" : "Entrar"}
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </Button>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-white/[0.06]">
-            <p className="text-sm text-center text-white/40">
-              {isSignUp ? "Já tem uma conta?" : "Não tem uma conta?"}{" "}
-              <button
-                onClick={() => setIsSignUp(!isSignUp)}
-                className="text-primary font-semibold hover:text-primary/80 transition-colors"
+          <motion.div 
+            className="mt-8 pt-6 border-t border-white/[0.06]"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={isSignUp ? "signup-footer" : "login-footer"}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                transition={{ duration: 0.2 }}
+                className="text-sm text-center text-white/40"
               >
-                {isSignUp ? "Entrar" : "Criar conta"}
-              </button>
-            </p>
-          </div>
+                {isSignUp ? "Já tem uma conta?" : "Não tem uma conta?"}{" "}
+                <button
+                  onClick={toggleMode}
+                  className="text-primary font-semibold hover:text-primary/80 transition-colors relative group"
+                >
+                  {isSignUp ? "Entrar" : "Criar conta"}
+                  <span className="absolute bottom-0 left-0 w-0 h-[1px] bg-primary group-hover:w-full transition-all duration-300" />
+                </button>
+              </motion.p>
+            </AnimatePresence>
+          </motion.div>
         </motion.div>
       </div>
     </div>
