@@ -66,14 +66,10 @@ export default function Welcome() {
 
   return (
     <div className="min-h-screen bg-background relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] bg-primary/6 rounded-full blur-[120px]" />
-      <div className="absolute bottom-[-10%] left-[-5%] w-[300px] h-[300px] bg-accent/4 rounded-full blur-[100px]" />
-      
-      {/* Grid pattern */}
-      <div className="absolute inset-0 opacity-[0.02]" style={{
-        backgroundImage: "linear-gradient(hsl(217,91%,60%) 1px, transparent 1px), linear-gradient(90deg, hsl(217,91%,60%) 1px, transparent 1px)",
-        backgroundSize: "60px 60px"
+      {/* Subtle grid pattern */}
+      <div className="absolute inset-0 opacity-[0.025]" style={{
+        backgroundImage: "linear-gradient(hsl(0,0%,100%) 1px, transparent 1px), linear-gradient(90deg, hsl(0,0%,100%) 1px, transparent 1px)",
+        backgroundSize: "64px 64px"
       }} />
 
       <div className="relative z-10 max-w-5xl mx-auto px-6 py-12 sm:py-16 lg:py-20">
