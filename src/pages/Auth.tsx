@@ -60,22 +60,10 @@ export default function Auth() {
           animate={{ opacity: 1, y: 0 }}
           className="relative z-10 flex items-center gap-3"
         >
-          {/* Logo with animated glow */}
-          <motion.div
-            className="relative h-10 w-10"
-            animate={{
-              boxShadow: [
-                "0 0 0 0 hsl(var(--primary) / 0.2)",
-                "0 0 20px 4px hsl(var(--primary) / 0.15)",
-                "0 0 0 0 hsl(var(--primary) / 0.2)",
-              ],
-            }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <div className="h-10 w-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
-              <Zap className="h-5 w-5 text-primary" />
-            </div>
-          </motion.div>
+          {/* Logo */}
+          <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Zap className="h-5 w-5 text-primary" />
+          </div>
           <h1 className="font-display text-2xl font-bold text-white">
             Meta<span className="text-primary">Finance</span>
           </h1>
@@ -88,10 +76,10 @@ export default function Auth() {
             transition={{ delay: 0.2, duration: 0.6 }}
           >
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-4">Planejamento Financeiro</p>
-            <h2 className="font-display text-5xl font-bold text-white leading-[1.1] mb-4">
-              Seu patrimônio,<br />
-              <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">engenheirado.</span>
-            </h2>
+          <h2 className="font-display text-4xl font-bold text-white leading-[1.1] mb-4">
+            Seu patrimônio,<br />
+            <span className="text-white/70">engenheirado.</span>
+          </h2>
             <p className="text-base text-white/40 max-w-md leading-relaxed">
               Organize suas finanças, defina metas e tome decisões inteligentes para construir seu futuro financeiro.
             </p>
@@ -104,7 +92,7 @@ export default function Auth() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.5 + i * 0.1, duration: 0.4 }}
-                className="flex items-start gap-4 p-4 rounded-xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm hover:bg-white/[0.05] transition-colors"
+                className="flex items-start gap-4 p-4 rounded-lg bg-card border border-border hover:border-primary/30 transition-colors"
               >
                 <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
                   <Icon className="h-5 w-5 text-primary" />
@@ -144,21 +132,9 @@ export default function Auth() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
             >
-              <motion.div
-                className="relative h-9 w-9"
-                animate={{
-                  boxShadow: [
-                    "0 0 0 0 hsl(var(--primary) / 0.2)",
-                    "0 0 20px 4px hsl(var(--primary) / 0.15)",
-                    "0 0 0 0 hsl(var(--primary) / 0.2)",
-                  ],
-                }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <div className="h-9 w-9 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
-                  <Zap className="h-4 w-4 text-primary" />
-                </div>
-              </motion.div>
+              <div className="h-9 w-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+                <Zap className="h-4 w-4 text-primary" />
+              </div>
               <h1 className="text-xl font-bold font-display text-white">
                 Meta<span className="text-primary">Finance</span>
               </h1>

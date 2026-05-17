@@ -8,10 +8,9 @@ export function RecommendationBlock({ rec }: { rec: Recommendation }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="rounded-2xl border-2 border-primary bg-primary/5 p-5 sm:p-6 relative overflow-hidden"
+      className="rounded-xl border border-border bg-card p-5 sm:p-6 relative"
     >
-      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
-      <div className="relative z-10 space-y-3">
+      <div className="relative space-y-3">
         {/* Line 1: Recommended scenario */}
         <div className="flex items-center gap-2 flex-wrap">
           <span

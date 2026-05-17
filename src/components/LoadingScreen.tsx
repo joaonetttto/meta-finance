@@ -61,33 +61,8 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" as const }}
         >
-          {/* Glow ring */}
-          <motion.div
-            className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut" as const,
-            }}
-          />
-          
-          <div className="relative h-16 w-16 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center">
-            <motion.div
-              animate={{
-                rotate: [0, 10, -10, 0],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-              ease: "easeInOut" as const,
-              }}
-            >
-              <Zap className="h-8 w-8 text-primary" />
-            </motion.div>
+          <div className="relative h-14 w-14 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Zap className="h-7 w-7 text-primary" />
           </div>
         </motion.div>
 
@@ -141,7 +116,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
         {/* Progress bar */}
         <div className="mt-8 w-48 h-[2px] bg-white/[0.06] rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+            className="h-full bg-primary rounded-full"
             initial={{ width: "0%" }}
             animate={{ width: "100%" }}
             transition={{ duration: 2.5, ease: "easeInOut" as const }}

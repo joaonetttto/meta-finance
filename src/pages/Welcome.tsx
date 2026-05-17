@@ -81,34 +81,24 @@ export default function Welcome() {
           className="text-center mb-12 sm:mb-16"
         >
           {/* Logo */}
-          <motion.div
-            className="inline-flex items-center gap-2 mb-6"
-            animate={{
-              boxShadow: [
-                "0 0 0 0 hsl(var(--primary) / 0.2)",
-                "0 0 30px 6px hsl(var(--primary) / 0.1)",
-                "0 0 0 0 hsl(var(--primary) / 0.2)",
-              ],
-            }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <div className="h-10 w-10 rounded-xl bg-primary/20 border border-primary/30 flex items-center justify-center">
+          <div className="inline-flex items-center gap-2 mb-6">
+            <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
               <Zap className="h-5 w-5 text-primary" />
             </div>
             <h1 className="font-display text-2xl font-bold text-white">
               Meta<span className="text-primary">Finance</span>
             </h1>
-          </motion.div>
+          </div>
 
           {/* Welcome badge */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.2, duration: 0.4 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6"
+            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-6"
           >
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium text-primary">Bem-vindo ao seu novo começo</span>
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            <span className="text-xs font-medium text-primary">Bem-vindo</span>
           </motion.div>
 
           {/* Headline */}
@@ -116,13 +106,11 @@ export default function Welcome() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3, duration: 0.5 }}
-            className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-[1.1] mb-6"
+            className="font-display text-4xl sm:text-5xl font-bold text-white leading-[1.1] mb-6"
           >
-            Seu patrimônio
+            Seu patrimônio,
             <br />
-            <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">
-              engenheirado.
-            </span>
+            <span className="text-white/60">engenheirado.</span>
           </motion.h2>
 
           <motion.p
@@ -143,32 +131,28 @@ export default function Welcome() {
           animate="visible"
           className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-12 sm:mb-16"
         >
-          {benefits.map((benefit, index) => (
+          {benefits.map((benefit) => (
             <motion.div
               key={benefit.title}
               variants={itemVariants}
-              whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="group relative p-6 sm:p-8 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm hover:bg-white/[0.05] hover:border-white/[0.1] transition-all duration-300"
+              className="group relative p-6 rounded-xl bg-card border border-border hover:border-primary/30 transition-colors"
             >
-              {/* Gradient background on hover */}
-              <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${benefit.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-              
-              <div className="relative z-10">
-                <div className={`h-12 w-12 rounded-xl bg-white/[0.05] border border-white/[0.1] flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                  <benefit.icon className={`h-6 w-6 ${benefit.iconColor}`} />
+              <div className="relative">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
+                  <benefit.icon className={`h-5 w-5 ${benefit.iconColor}`} />
                 </div>
-                
-                <h3 className="text-lg font-semibold text-white mb-2">
+
+                <h3 className="text-base font-semibold text-white mb-1.5">
                   {benefit.title}
                 </h3>
-                
-                <p className="text-sm text-white/40 leading-relaxed">
+
+                <p className="text-sm text-white/50 leading-relaxed">
                   {benefit.description}
                 </p>
               </div>
 
               {/* Corner accent */}
-              <div className="absolute top-4 right-4 h-2 w-2 rounded-full bg-primary/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+              
             </motion.div>
           ))}
         </motion.div>
