@@ -76,10 +76,10 @@ export default function Auth() {
             transition={{ delay: 0.2, duration: 0.6 }}
           >
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary mb-4">Planejamento Financeiro</p>
-            <h2 className="font-display text-5xl font-bold text-white leading-[1.1] mb-4">
-              Seu patrimônio,<br />
-              <span className="bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">engenheirado.</span>
-            </h2>
+          <h2 className="font-display text-4xl font-bold text-white leading-[1.1] mb-4">
+            Seu patrimônio,<br />
+            <span className="text-white/70">engenheirado.</span>
+          </h2>
             <p className="text-base text-white/40 max-w-md leading-relaxed">
               Organize suas finanças, defina metas e tome decisões inteligentes para construir seu futuro financeiro.
             </p>
