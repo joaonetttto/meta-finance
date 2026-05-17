@@ -61,33 +61,8 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.5, ease: "easeOut" as const }}
         >
-          {/* Glow ring */}
-          <motion.div
-            className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut" as const,
-            }}
-          />
-          
-          <div className="relative h-16 w-16 rounded-2xl bg-primary/10 border border-primary/30 flex items-center justify-center">
-            <motion.div
-              animate={{
-                rotate: [0, 10, -10, 0],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-              ease: "easeInOut" as const,
-              }}
-            >
-              <Zap className="h-8 w-8 text-primary" />
-            </motion.div>
+          <div className="relative h-14 w-14 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <Zap className="h-7 w-7 text-primary" />
           </div>
         </motion.div>
 
