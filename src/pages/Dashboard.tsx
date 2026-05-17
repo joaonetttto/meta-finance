@@ -284,7 +284,7 @@ export default function Dashboard() {
                         initial={{ width: 0 }}
                         animate={{ width: `${pct}%` }}
                         transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="h-full rounded-full bg-gradient-to-r from-primary to-accent"
+                        className="h-full rounded-full bg-primary"
                       />
                     </div>
                     <div className="flex justify-between text-xs text-muted-foreground mt-1.5">
