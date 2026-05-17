@@ -131,26 +131,22 @@ export default function Welcome() {
           animate="visible"
           className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-12 sm:mb-16"
         >
-          {benefits.map((benefit, index) => (
+          {benefits.map((benefit) => (
             <motion.div
               key={benefit.title}
               variants={itemVariants}
-              whileHover={{ y: -4, transition: { duration: 0.2 } }}
-              className="group relative p-6 sm:p-8 rounded-2xl bg-white/[0.03] border border-white/[0.06] backdrop-blur-sm hover:bg-white/[0.05] hover:border-white/[0.1] transition-all duration-300"
+              className="group relative p-6 rounded-xl bg-card border border-border hover:border-primary/30 transition-colors"
             >
-              {/* Gradient background on hover */}
-              <div className={`absolute inset-0 rounded-2xl bg-gradient-to-br ${benefit.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-              
-              <div className="relative z-10">
-                <div className={`h-12 w-12 rounded-xl bg-white/[0.05] border border-white/[0.1] flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                  <benefit.icon className={`h-6 w-6 ${benefit.iconColor}`} />
+              <div className="relative">
+                <div className="h-10 w-10 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
+                  <benefit.icon className={`h-5 w-5 ${benefit.iconColor}`} />
                 </div>
-                
-                <h3 className="text-lg font-semibold text-white mb-2">
+
+                <h3 className="text-base font-semibold text-white mb-1.5">
                   {benefit.title}
                 </h3>
-                
-                <p className="text-sm text-white/40 leading-relaxed">
+
+                <p className="text-sm text-white/50 leading-relaxed">
                   {benefit.description}
                 </p>
               </div>
