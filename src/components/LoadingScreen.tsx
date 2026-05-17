@@ -42,21 +42,15 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[hsl(222,30%,4%)]"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background"
       initial={{ opacity: 1 }}
       animate={{ opacity: fadeOut ? 0 : 1 }}
       transition={{ duration: 0.5, ease: "easeInOut" as const }}
     >
-      {/* Background glow */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[120px]" />
-        <div className="absolute top-1/3 left-1/3 w-[300px] h-[300px] bg-accent/3 rounded-full blur-[80px]" />
-      </div>
-
-      {/* Grid pattern */}
-      <div className="absolute inset-0 opacity-[0.02]" style={{
-        backgroundImage: "linear-gradient(hsl(217,91%,60%) 1px, transparent 1px), linear-gradient(90deg, hsl(217,91%,60%) 1px, transparent 1px)",
-        backgroundSize: "60px 60px"
+      {/* Subtle grid pattern */}
+      <div className="absolute inset-0 opacity-[0.025]" style={{
+        backgroundImage: "linear-gradient(hsl(0,0%,100%) 1px, transparent 1px), linear-gradient(90deg, hsl(0,0%,100%) 1px, transparent 1px)",
+        backgroundSize: "64px 64px"
       }} />
 
       <div className="relative z-10 flex flex-col items-center">

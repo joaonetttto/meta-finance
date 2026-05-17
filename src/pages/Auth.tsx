@@ -46,18 +46,13 @@ export default function Auth() {
 
 
   return (
-    <div className="min-h-screen flex bg-[hsl(222,30%,4%)]">
+    <div className="min-h-screen flex bg-background">
       {/* Left panel - branding */}
-      <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden flex-col justify-between p-12">
-        {/* Animated background orbs */}
-        <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] bg-primary/8 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[-15%] left-[-5%] w-[400px] h-[400px] bg-accent/6 rounded-full blur-[100px] animate-pulse" style={{ animationDelay: "1s" }} />
-        <div className="absolute top-[40%] left-[30%] w-[300px] h-[300px] bg-primary/5 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: "2s" }} />
-
-        {/* Grid pattern overlay */}
-        <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: "linear-gradient(hsl(217,91%,60%) 1px, transparent 1px), linear-gradient(90deg, hsl(217,91%,60%) 1px, transparent 1px)",
-          backgroundSize: "60px 60px"
+      <div className="hidden lg:flex lg:w-[55%] relative overflow-hidden flex-col justify-between p-12 border-r border-border">
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 opacity-[0.025]" style={{
+          backgroundImage: "linear-gradient(hsl(0,0%,100%) 1px, transparent 1px), linear-gradient(90deg, hsl(0,0%,100%) 1px, transparent 1px)",
+          backgroundSize: "64px 64px"
         }} />
 
         <motion.div
@@ -134,7 +129,7 @@ export default function Auth() {
       </div>
 
       {/* Right panel - form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12 bg-[hsl(222,30%,6%)]">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12 bg-background">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
