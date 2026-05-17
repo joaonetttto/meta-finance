@@ -156,16 +156,13 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 + i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
-            className="relative overflow-hidden rounded-xl border border-border/50 bg-card p-6 cursor-pointer hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300 group"
+            className="relative rounded-xl border border-border bg-card p-6 cursor-pointer hover:border-primary/40 transition-colors group"
             onClick={() => navigate("/transacoes")}
           >
-            {/* Gradient accent */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${c.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
-            
-            <div className="relative z-10">
+            <div className="relative">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">{c.label}</span>
-                <div className={`h-9 w-9 rounded-lg ${c.iconBg} flex items-center justify-center group-hover:scale-110 transition-transform duration-200`}>
+                <div className={`h-9 w-9 rounded-lg ${c.iconBg} flex items-center justify-center`}>
                   <c.icon className={`h-4 w-4 ${c.textColor}`} />
                 </div>
               </div>
