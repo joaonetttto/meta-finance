@@ -152,7 +152,7 @@ export default function Welcome() {
               </div>
 
               {/* Corner accent */}
-              <div className="absolute top-4 right-4 h-2 w-2 rounded-full bg-primary/30 opacity-0 group-hover:opacity-100 transition-opacity" />
+              
             </motion.div>
           ))}
         </motion.div>
