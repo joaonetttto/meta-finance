@@ -129,7 +129,7 @@ export default function Auth() {
       </div>
 
       {/* Right panel - form */}
-      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12 bg-[hsl(222,30%,6%)]">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 lg:p-12 bg-background">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

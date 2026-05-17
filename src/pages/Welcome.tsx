@@ -65,7 +65,7 @@ export default function Welcome() {
   };
 
   return (
-    <div className="min-h-screen bg-[hsl(222,30%,4%)] relative overflow-hidden">
+    <div className="min-h-screen bg-background relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute top-[-10%] right-[-5%] w-[400px] h-[400px] bg-primary/6 rounded-full blur-[120px]" />
       <div className="absolute bottom-[-10%] left-[-5%] w-[300px] h-[300px] bg-accent/4 rounded-full blur-[100px]" />

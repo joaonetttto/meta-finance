@@ -42,7 +42,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
 
   return (
     <motion.div
-      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[hsl(222,30%,4%)]"
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background"
       initial={{ opacity: 1 }}
       animate={{ opacity: fadeOut ? 0 : 1 }}
       transition={{ duration: 0.5, ease: "easeInOut" as const }}
