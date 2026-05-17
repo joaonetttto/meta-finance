@@ -116,7 +116,7 @@ export default function LoadingScreen({ onComplete }: LoadingScreenProps) {
         {/* Progress bar */}
         <div className="mt-8 w-48 h-[2px] bg-white/[0.06] rounded-full overflow-hidden">
           <motion.div
-            className="h-full bg-gradient-to-r from-primary to-accent rounded-full"
+            className="h-full bg-primary rounded-full"
             initial={{ width: "0%" }}
             animate={{ width: "100%" }}
             transition={{ duration: 2.5, ease: "easeInOut" as const }}
