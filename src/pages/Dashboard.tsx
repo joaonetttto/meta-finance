@@ -108,17 +108,17 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10 md:space-y-12">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
-          <div className="flex items-center gap-2 mb-1">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-xs font-medium uppercase tracking-[0.15em] text-primary">Visão Geral</span>
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="h-3.5 w-3.5 text-primary" />
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/80">Visão Geral</span>
           </div>
-          <h1 className="text-3xl font-bold font-display">Dashboard</h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            {profile.salario ? `Salário mensal: ${fmt(profile.salario)}` : "Configure seu perfil para mais insights"}
+          <h1 className="text-4xl md:text-5xl font-bold font-display tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground text-xs mt-2">
+            {profile.salario ? `Salário mensal · ${fmt(profile.salario)}` : "Configure seu perfil para mais insights"}
           </p>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex gap-2">
@@ -139,7 +139,7 @@ export default function Dashboard() {
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <div className="bg-card border border-border/50 rounded-full px-6 py-2 min-w-[180px] text-center">
-          <span className="text-sm font-semibold tracking-ui">
+          <span className="text-xs font-semibold tracking-ui">
             {MONTHS[selectedMonth]} {selectedYear}
           </span>
         </div>
@@ -148,28 +148,54 @@ export default function Dashboard() {
         </Button>
       </motion.div>
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {cards.map((c, i) => (
-          <motion.div
-            key={c.label}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 + i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
-            className="relative rounded-xl border border-border bg-card p-6 cursor-pointer hover:border-primary/40 transition-colors group"
-            onClick={() => navigate("/transacoes")}
-          >
-            <div className="relative">
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">{c.label}</span>
-                <div className={`h-9 w-9 rounded-lg ${c.iconBg} flex items-center justify-center`}>
-                  <c.icon className={`h-4 w-4 ${c.textColor}`} />
+      {/* Hero balance + secondary cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, type: "spring", stiffness: 400, damping: 30 }}
+          className="lg:col-span-2 relative rounded-2xl border border-border bg-card p-8 cursor-pointer hover:border-primary/40 transition-colors"
+          onClick={() => navigate("/transacoes")}
+        >
+          <div className="flex items-start justify-between mb-6">
+            <div>
+              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Saldo do Mês</span>
+              <p className="text-xs text-muted-foreground/70 mt-1.5">
+                {MONTHS[selectedMonth]} · {selectedYear}
+              </p>
+            </div>
+            <div className={`h-10 w-10 rounded-lg ${cards[0].iconBg} flex items-center justify-center`}>
+              <Wallet className={`h-5 w-5 ${cards[0].textColor}`} />
+            </div>
+          </div>
+          <p className={`text-5xl md:text-6xl font-bold font-mono-nums tracking-tight ${cards[0].textColor}`}>
+            {fmt(saldo)}
+          </p>
+          <p className="text-xs text-muted-foreground mt-4">
+            {saldo >= 0 ? "Saldo positivo este mês" : "Despesas superiores às receitas"}
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
+          {cards.slice(1).map((c, i) => (
+            <motion.div
+              key={c.label}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 + i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
+              className="relative rounded-xl border border-border bg-card p-5 cursor-pointer hover:border-primary/40 transition-colors"
+              onClick={() => navigate("/transacoes")}
+            >
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">{c.label}</span>
+                <div className={`h-7 w-7 rounded-md ${c.iconBg} flex items-center justify-center`}>
+                  <c.icon className={`h-3.5 w-3.5 ${c.textColor}`} />
                 </div>
               </div>
-              <p className={`text-2xl font-bold font-mono-nums ${c.textColor}`}>{fmt(c.value)}</p>
-            </div>
-          </motion.div>
-        ))}
+              <p className={`text-xl font-bold font-mono-nums ${c.textColor}`}>{fmt(c.value)}</p>
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       {/* Quick Actions */}
@@ -203,7 +229,7 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-sm font-semibold tracking-ui">Gastos por Categoria</h2>
+              <h2 className="text-base font-semibold tracking-tight">Gastos por Categoria</h2>
               <p className="text-xs text-muted-foreground mt-0.5">Distribuição mensal</p>
             </div>
             <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground hover:text-primary">
@@ -262,7 +288,7 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-sm font-semibold tracking-ui">Metas Financeiras</h2>
+              <h2 className="text-base font-semibold tracking-tight">Metas Financeiras</h2>
               <p className="text-xs text-muted-foreground mt-0.5">{goals.length} meta{goals.length !== 1 ? "s" : ""} ativa{goals.length !== 1 ? "s" : ""}</p>
             </div>
             <Button variant="ghost" size="sm" onClick={() => navigate("/metas")} className="text-xs text-muted-foreground hover:text-primary">
@@ -314,7 +340,7 @@ export default function Dashboard() {
       >
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-sm font-semibold tracking-ui">Transações Recentes</h2>
+            <h2 className="text-base font-semibold tracking-tight">Transações Recentes</h2>
             <p className="text-xs text-muted-foreground mt-0.5">{transactions.length} transaç{transactions.length !== 1 ? "ões" : "ão"}</p>
           </div>
           <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground hover:text-primary">
