@@ -229,7 +229,7 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-sm font-semibold tracking-ui">Gastos por Categoria</h2>
+              <h2 className="text-base font-semibold tracking-tight">Gastos por Categoria</h2>
               <p className="text-xs text-muted-foreground mt-0.5">Distribuição mensal</p>
             </div>
             <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground hover:text-primary">
@@ -288,7 +288,7 @@ export default function Dashboard() {
         >
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-sm font-semibold tracking-ui">Metas Financeiras</h2>
+              <h2 className="text-base font-semibold tracking-tight">Metas Financeiras</h2>
               <p className="text-xs text-muted-foreground mt-0.5">{goals.length} meta{goals.length !== 1 ? "s" : ""} ativa{goals.length !== 1 ? "s" : ""}</p>
             </div>
             <Button variant="ghost" size="sm" onClick={() => navigate("/metas")} className="text-xs text-muted-foreground hover:text-primary">
@@ -340,7 +340,7 @@ export default function Dashboard() {
       >
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-sm font-semibold tracking-ui">Transações Recentes</h2>
+            <h2 className="text-base font-semibold tracking-tight">Transações Recentes</h2>
             <p className="text-xs text-muted-foreground mt-0.5">{transactions.length} transaç{transactions.length !== 1 ? "ões" : "ão"}</p>
           </div>
           <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground hover:text-primary">
