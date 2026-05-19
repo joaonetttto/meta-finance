@@ -6,7 +6,7 @@ import {
   ArrowUpRight, ArrowDownRight, Wallet, Plus, ChevronLeft, ChevronRight,
   ArrowRight, TrendingUp, Target, Sparkles
 } from "lucide-react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid, BarChart, Bar } from "recharts";
 import { Button } from "@/components/ui/button";
 import { AddTransactionDialog } from "@/components/dashboard/AddTransactionDialog";
 
