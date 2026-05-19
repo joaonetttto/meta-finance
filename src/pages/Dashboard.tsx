@@ -246,26 +246,109 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      {/* Insights */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Transações", icon: ArrowUpRight, to: "/transacoes" },
-          { label: "Metas", icon: Target, to: "/metas" },
-          { label: "Projeções", icon: TrendingUp, to: "/projecoes" },
-          { label: "Perfil", icon: Wallet, to: "/perfil" },
-        ].map((action, i) => (
-          <motion.div key={action.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 + i * 0.03 }}>
-            <Button
-              variant="outline"
-              className="w-full h-auto py-4 flex flex-col items-center gap-2 border-border/50 hover:border-primary/40 hover:bg-primary/5 hover:text-primary transition-all duration-200"
-              onClick={() => navigate(action.to)}
-            >
-              <action.icon className="h-5 w-5" />
-              <span className="text-xs font-medium">{action.label}</span>
-            </Button>
+          {
+            label: "Taxa de Poupança",
+            value: `${savingsRate.toFixed(1)}%`,
+            hint: savingsRate >= 20 ? "Excelente" : savingsRate >= 10 ? "Saudável" : "Pode melhorar",
+          },
+          {
+            label: "Gasto Médio Diário",
+            value: fmt(avgDaily),
+            hint: `${MONTHS[selectedMonth].slice(0, 3)}/${selectedYear}`,
+          },
+          {
+            label: "Maior Categoria",
+            value: topCategory ? topCategory.name : "—",
+            hint: topCategory ? fmt(topCategory.value) : "Sem despesas",
+          },
+          {
+            label: "Transações",
+            value: String(monthTransactions.length),
+            hint: "no mês",
+          },
+        ].map((k, i) => (
+          <motion.div
+            key={k.label}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 + i * 0.04 }}
+            className="rounded-xl border border-border bg-card p-5"
+          >
+            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">{k.label}</span>
+            <p className="text-xl font-bold font-mono-nums tracking-tight mt-3 truncate">{k.value}</p>
+            <p className="text-xs text-muted-foreground mt-1.5">{k.hint}</p>
           </motion.div>
         ))}
       </div>
+
+      {/* Cumulative balance chart */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="rounded-xl border border-border bg-card p-6"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-base font-semibold tracking-tight">Evolução do Saldo</h2>
+            <p className="text-xs text-muted-foreground mt-1">Saldo acumulado dia a dia · {MONTHS[selectedMonth]}</p>
+          </div>
+        </div>
+        <div className="h-64 w-full">
+          <ResponsiveContainer>
+            <AreaChart data={dailyData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <defs>
+                <linearGradient id="saldoFill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
+                  <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="day" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={60} tickFormatter={(v) => `R$ ${(v / 1000).toFixed(1)}k`} />
+              <Tooltip
+                formatter={(v: number) => fmt(v)}
+                labelFormatter={(l) => `Dia ${l}`}
+                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
+              />
+              <Area type="monotone" dataKey="saldo" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#saldoFill)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </motion.div>
+
+      {/* 6-month trend */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.35 }}
+        className="rounded-xl border border-border bg-card p-6"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-base font-semibold tracking-tight">Receitas vs Despesas</h2>
+            <p className="text-xs text-muted-foreground mt-1">Últimos 6 meses</p>
+          </div>
+        </div>
+        <div className="h-64 w-full">
+          <ResponsiveContainer>
+            <BarChart data={trendData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
+              <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={60} tickFormatter={(v) => `R$ ${(v / 1000).toFixed(1)}k`} />
+              <Tooltip
+                formatter={(v: number) => fmt(v)}
+                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
+              />
+              <Bar dataKey="receitas" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="despesas" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Category Chart */}
