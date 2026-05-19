@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowUpRight, ArrowDownRight, Wallet, Plus, ChevronLeft, ChevronRight,
-  ArrowRight, TrendingUp, Target, Sparkles
+  ArrowRight, Target, Sparkles
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid, BarChart, Bar } from "recharts";
 import { Button } from "@/components/ui/button";
