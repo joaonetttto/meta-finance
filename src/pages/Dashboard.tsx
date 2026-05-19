@@ -63,6 +63,54 @@ export default function Dashboard() {
     return Array.from(map, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
   }, [monthTransactions, categories]);
 
+  // Daily cumulative balance for the selected month
+  const dailyData = useMemo(() => {
+    const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+    const arr = Array.from({ length: daysInMonth }, (_, i) => ({
+      day: i + 1,
+      receitas: 0,
+      despesas: 0,
+      saldo: 0,
+    }));
+    monthTransactions.forEach((t) => {
+      const d = new Date(t.data).getDate();
+      const idx = d - 1;
+      if (!arr[idx]) return;
+      if (t.tipo === "receita") arr[idx].receitas += t.valor;
+      else arr[idx].despesas += t.valor;
+    });
+    let acc = 0;
+    arr.forEach((d) => {
+      acc += d.receitas - d.despesas;
+      d.saldo = acc;
+    });
+    return arr;
+  }, [monthTransactions, selectedMonth, selectedYear]);
+
+  // Last 6 months trend
+  const trendData = useMemo(() => {
+    const out: { mes: string; receitas: number; despesas: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(selectedYear, selectedMonth - i, 1);
+      const m = d.getMonth();
+      const y = d.getFullYear();
+      const list = transactions.filter((t) => {
+        const td = new Date(t.data);
+        return td.getMonth() === m && td.getFullYear() === y;
+      });
+      out.push({
+        mes: MONTHS[m].slice(0, 3),
+        receitas: list.filter((t) => t.tipo === "receita").reduce((s, t) => s + t.valor, 0),
+        despesas: list.filter((t) => t.tipo === "despesa").reduce((s, t) => s + t.valor, 0),
+      });
+    }
+    return out;
+  }, [transactions, selectedMonth, selectedYear]);
+
+  const savingsRate = totalReceitas > 0 ? (saldo / totalReceitas) * 100 : 0;
+  const avgDaily = monthTransactions.length > 0 ? totalDespesas / new Date(selectedYear, selectedMonth + 1, 0).getDate() : 0;
+  const topCategory = categoryData[0];
+
   const fmt = (v: number) =>
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
