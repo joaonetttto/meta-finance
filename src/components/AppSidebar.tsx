@@ -2,6 +2,7 @@ import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { LayoutDashboard, ArrowLeftRight, Target, TrendingUp, CreditCard, User, LogOut, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { type } from "@/lib/typography";
 
 const links = [
   { to: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -22,7 +23,7 @@ export function AppSidebar() {
         <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
           <Zap className="h-4 w-4 text-primary-foreground" />
         </div>
-        <h1 className="font-display text-lg font-bold text-white">
+        <h1 className={cn(type.sectionTitle, "text-white")}>
           Meta<span className="text-primary">Finance</span>
         </h1>
       </div>
@@ -35,10 +36,11 @@ export function AppSidebar() {
               key={to}
               to={to}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium tracking-ui transition-all duration-200",
+                type.nav,
+                "flex items-center gap-3 rounded-lg px-3 py-2.5 transition-all duration-200",
                 active
-                  ? "bg-sidebar-accent text-white shadow-sm"
-                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-white/90"
+                  ? "bg-sidebar-accent text-white"
+                  : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-white/90",
               )}
             >
               <Icon className={cn("h-4 w-4", active && "text-primary")} />
@@ -49,7 +51,7 @@ export function AppSidebar() {
       </nav>
 
       <div className="p-3 mx-3 mb-3 rounded-lg bg-sidebar-accent/30 border border-sidebar-border">
-        <p className="text-xs text-sidebar-foreground mb-2">Plano Gratuito</p>
+        <p className={cn(type.caption, "text-sidebar-foreground mb-2")}>Plano Gratuito</p>
         <div className="h-1 w-full rounded-full bg-sidebar-border overflow-hidden">
           <div className="h-full w-1/3 rounded-full bg-accent" />
         </div>
@@ -58,7 +60,10 @@ export function AppSidebar() {
       <div className="p-3 border-t border-sidebar-border">
         <button
           onClick={signOut}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium tracking-ui text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-white/90 transition-all duration-200"
+          className={cn(
+            type.nav,
+            "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sidebar-foreground transition-all duration-200 hover:bg-sidebar-accent/50 hover:text-white/90",
+          )}
         >
           <LogOut className="h-4 w-4" />
           Sair

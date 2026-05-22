@@ -10,7 +10,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, AreaChart, Area, XAx
 import { Button } from "@/components/ui/button";
 import { AddTransactionDialog } from "@/components/dashboard/AddTransactionDialog";
 import { PageShell, PanelCardHeader } from "@/components/layout/page";
-import { layout } from "@/lib/layout";
+import { layout, type } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 import { FinancialChartTooltip } from "@/components/charts/FinancialChartTooltip";
 import {
@@ -158,7 +158,7 @@ export default function Dashboard() {
       <div className="flex items-center justify-center h-64">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-muted-foreground">Carregando dados...</p>
+          <p className={type.bodyMuted}>Carregando dados...</p>
         </div>
       </div>
     );
@@ -170,10 +170,10 @@ export default function Dashboard() {
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
-            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-primary/80">Visão Geral</span>
+            <span className={type.overlineAccent}>Visão Geral</span>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold font-display tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground text-xs mt-2">
+          <h1 className={type.pageTitleHero}>Dashboard</h1>
+          <p className={cn(type.pageDesc, "mt-2")}>
             {profile.salario ? `Salário mensal · ${fmt(profile.salario)}` : "Configure seu perfil para mais insights"}
           </p>
         </motion.div>
@@ -195,7 +195,7 @@ export default function Dashboard() {
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <div className="bg-card border border-border/50 rounded-full px-6 py-2 min-w-[180px] text-center">
-          <span className="text-xs font-semibold tracking-ui">
+          <span className={cn(type.body, "font-medium")}>
             {MONTHS[selectedMonth]} {selectedYear}
           </span>
         </div>
@@ -215,8 +215,8 @@ export default function Dashboard() {
         >
           <div className="flex items-start justify-between mb-6">
             <div>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Saldo do Mês</span>
-              <p className="text-xs text-muted-foreground/70 mt-1.5">
+              <span className={type.overline}>Saldo do Mês</span>
+              <p className={cn(type.caption, "mt-1.5")}>
                 {MONTHS[selectedMonth]} · {selectedYear}
               </p>
             </div>
@@ -224,10 +224,10 @@ export default function Dashboard() {
               <Wallet className={`h-5 w-5 ${cards[0].textColor}`} />
             </div>
           </div>
-          <p className={`text-5xl md:text-6xl font-bold font-mono-nums tracking-tight ${cards[0].textColor}`}>
+          <p className={cn(type.financialHero, cards[0].textColor)}>
             {fmt(saldo)}
           </p>
-          <p className="text-xs text-muted-foreground mt-4">
+          <p className={cn(type.caption, "mt-4")}>
             {saldo >= 0 ? "Saldo positivo este mês" : "Despesas superiores às receitas"}
           </p>
         </motion.div>
@@ -243,12 +243,12 @@ export default function Dashboard() {
               onClick={() => navigate("/transacoes")}
             >
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">{c.label}</span>
+                <span className={type.overline}>{c.label}</span>
                 <div className={`h-7 w-7 rounded-md ${c.iconBg} flex items-center justify-center`}>
                   <c.icon className={`h-3.5 w-3.5 ${c.textColor}`} />
                 </div>
               </div>
-              <p className={`text-xl font-bold font-mono-nums ${c.textColor}`}>{fmt(c.value)}</p>
+              <p className={cn(type.financial, c.textColor)}>{fmt(c.value)}</p>
             </motion.div>
           ))}
         </div>
@@ -285,9 +285,9 @@ export default function Dashboard() {
             transition={{ delay: 0.25 + i * 0.04 }}
             className={layout.card}
           >
-            <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">{k.label}</span>
-            <p className="text-xl font-bold font-mono-nums tracking-tight mt-3 truncate">{k.value}</p>
-            <p className="text-xs text-muted-foreground mt-1.5">{k.hint}</p>
+            <span className={type.overline}>{k.label}</span>
+            <p className={cn(type.statValue, "mt-3 truncate")}>{k.value}</p>
+            <p className={cn(type.statHint, "mt-1.5")}>{k.hint}</p>
           </motion.div>
         ))}
       </div>
@@ -430,9 +430,9 @@ export default function Dashboard() {
                   <div key={d.name} className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
                       <div className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: CHART_CATEGORY_COLORS[i % CHART_CATEGORY_COLORS.length] }} />
-                      <span className="text-foreground/80 text-xs">{d.name}</span>
+                      <span className={type.caption}>{d.name}</span>
                     </div>
-                    <span className="font-mono-nums text-xs font-semibold">{fmt(d.value)}</span>
+                    <span className={type.financialSm}>{fmt(d.value)}</span>
                   </div>
                 ))}
               </div>
@@ -468,9 +468,9 @@ export default function Dashboard() {
                 const pct = Math.min((g.valor_atual / g.valor_objetivo) * 100, 100);
                 return (
                   <div key={g.id} className="cursor-pointer hover:bg-muted/50 rounded-lg p-3 -mx-3 transition-colors" onClick={() => navigate("/metas")}>
-                    <div className="flex justify-between text-sm mb-2">
-                      <span className="font-medium">{g.nome}</span>
-                      <span className="font-mono-nums text-primary font-semibold text-xs">{pct.toFixed(0)}%</span>
+                    <div className="flex justify-between mb-2">
+                      <span className={type.body}>{g.nome}</span>
+                      <span className={cn(type.financialSm, "text-primary")}>{pct.toFixed(0)}%</span>
                     </div>
                     <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                       <motion.div
@@ -480,9 +480,9 @@ export default function Dashboard() {
                         className="h-full rounded-full bg-primary"
                       />
                     </div>
-                    <div className="flex justify-between text-xs text-muted-foreground mt-1.5">
-                      <span className="font-mono-nums">{fmt(g.valor_atual)}</span>
-                      <span className="font-mono-nums">{fmt(g.valor_objetivo)}</span>
+                    <div className={cn("flex justify-between mt-1.5", type.caption)}>
+                      <span className="font-mono-nums tabular-nums">{fmt(g.valor_atual)}</span>
+                      <span className="font-mono-nums tabular-nums">{fmt(g.valor_objetivo)}</span>
                     </div>
                   </div>
                 );
@@ -533,13 +533,13 @@ export default function Dashboard() {
                       )}
                     </div>
                     <div>
-                      <p className="text-sm font-medium">{t.descricao}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className={cn(type.body, "font-medium")}>{t.descricao}</p>
+                      <p className={type.caption}>
                         {cat?.nome ?? "Sem categoria"} · {new Date(t.data).toLocaleDateString("pt-BR")}
                       </p>
                     </div>
                   </div>
-                  <span className={`font-mono-nums text-sm font-semibold ${t.tipo === "receita" ? "text-accent" : "text-destructive"}`}>
+                  <span className={cn(type.financialSm, t.tipo === "receita" ? "text-accent" : "text-destructive")}>
                     {t.tipo === "receita" ? "+" : "-"}{fmt(t.valor)}
                   </span>
                 </div>
@@ -566,7 +566,7 @@ function EmptyState({ message, action, onClick }: { message: string; action: str
       <div className="h-12 w-12 rounded-xl bg-muted/50 flex items-center justify-center mx-auto mb-3">
         <Plus className="h-5 w-5 text-muted-foreground" />
       </div>
-      <p className="text-sm text-muted-foreground mb-4">{message}</p>
+      <p className={cn(type.bodyMuted, "mb-4")}>{message}</p>
       <Button size="sm" variant="outline" onClick={onClick} className="border-border/50 hover:border-primary/40 hover:bg-primary/5">
         <Plus className="h-4 w-4 mr-1" /> {action}
       </Button>

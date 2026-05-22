@@ -8,7 +8,7 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { PageShell, PageHeader } from "@/components/layout/page";
-import { layout } from "@/lib/layout";
+import { layout, type } from "@/lib/layout";
 
 export default function ProfilePage() {
   const { profile, updateProfile } = useFinance();
@@ -36,7 +36,7 @@ export default function ProfilePage() {
         animate={{ opacity: 1, y: 0 }}
         className={layout.card}
       >
-        <p className="text-sm text-muted-foreground mb-6">{user?.email}</p>
+        <p className={cn(type.bodyMuted, "mb-6")}>{user?.email}</p>
 
         <form onSubmit={handleSubmit} className={layout.stack}>
           <div>
@@ -57,8 +57,8 @@ export default function ProfilePage() {
         transition={{ delay: 0.1 }}
         className={layout.card}
       >
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Plano Atual</p>
-        <p className="text-lg font-bold capitalize">{profile.plano}</p>
+        <p className={cn(type.overline, "mb-2")}>Plano Atual</p>
+        <p className={cn(type.financial, "capitalize")}>{profile.plano}</p>
       </motion.div>
     </PageShell>
   );

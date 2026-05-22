@@ -1,5 +1,6 @@
 import type { LegendProps } from "recharts";
 import { chartLegendStyle } from "@/lib/chart-theme";
+import { type } from "@/lib/typography";
 
 type FinancialChartLegendProps = LegendProps & {
   nameMap?: Record<string, string>;
@@ -19,7 +20,7 @@ export function FinancialChartLegend({ payload, nameMap }: FinancialChartLegendP
               className="inline-block h-2.5 w-2.5 rounded-sm shrink-0"
               style={{ backgroundColor: entry.color }}
             />
-            <span style={{ ...chartLegendStyle, fontWeight: 500 }}>{label}</span>
+            <span className={type.caption} style={{ ...chartLegendStyle, fontWeight: 500 }}>{label}</span>
           </div>
         );
       })}

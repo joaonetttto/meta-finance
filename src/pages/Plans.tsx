@@ -4,7 +4,7 @@ import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { PageShell, PageHeader } from "@/components/layout/page";
-import { layout } from "@/lib/layout";
+import { layout, type } from "@/lib/layout";
 
 const plans = [
   {
@@ -56,16 +56,16 @@ export default function Plans() {
             )}
           >
             {plan.featured && (
-              <span className="text-xs font-semibold uppercase tracking-wider text-primary mb-2">Mais popular</span>
+              <span className={cn(type.overlineAccent, "mb-2 block")}>Mais popular</span>
             )}
-            <h3 className="text-lg font-bold font-display">{plan.name}</h3>
+            <h3 className={type.sectionTitle}>{plan.name}</h3>
             <div className="mt-2 mb-6">
-              <span className="text-3xl font-bold font-mono-nums">{plan.price}</span>
-              <span className="text-muted-foreground text-sm">{plan.period}</span>
+              <span className={type.financialLg}>{plan.price}</span>
+              <span className={type.caption}>{plan.period}</span>
             </div>
             <ul className="space-y-3 flex-1 mb-6">
               {plan.features.map((f) => (
-                <li key={f} className="flex items-start gap-2 text-sm">
+                <li key={f} className={cn("flex items-start gap-2", type.body)}>
                   <Check className="h-4 w-4 text-success mt-0.5 shrink-0" />
                   <span>{f}</span>
                 </li>

@@ -2,7 +2,8 @@ import { Switch } from "@/components/ui/switch";
 import { ArrowRight } from "lucide-react";
 import { fmt, calcYearsNeeded, ScenarioResult } from "@/lib/projections";
 import { PanelCard, PanelCardHeader } from "@/components/layout/page";
-import { layout } from "@/lib/layout";
+import { layout, type } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 
 interface Props {
   delayStart: boolean;
@@ -60,13 +61,13 @@ export function ImpactSimulations({
           {impacts.map((item) => (
             <div key={item.label}>
               <div className="flex items-center justify-between">
-                <p className="text-sm font-medium">{item.label}</p>
+                <p className={cn(type.body, "font-medium")}>{item.label}</p>
                 <Switch checked={item.active} onCheckedChange={item.toggle} />
               </div>
               {item.active && (item.result || item.detail) && (
-                <div className="mt-2 rounded-lg bg-destructive/5 border border-destructive/15 px-3 py-2 text-xs space-y-0.5">
-                  {item.result && <p className="text-destructive font-semibold">{item.result}</p>}
-                  {item.detail && <p className="text-muted-foreground">{item.detail}</p>}
+                <div className={cn("mt-2 rounded-lg bg-destructive/5 border border-destructive/15 px-3 py-2 space-y-0.5", type.caption)}>
+                  {item.result && <p className="font-semibold text-destructive">{item.result}</p>}
+                  {item.detail && <p className={type.bodyMuted}>{item.detail}</p>}
                 </div>
               )}
             </div>
@@ -84,20 +85,20 @@ export function ImpactSimulations({
             }
           />
           <div className={layout.stack}>
-            <p className="text-sm">
-              Investindo <span className="font-semibold text-primary font-mono-nums">{fmt(reverseAporte)}/mês</span> a 7% a.a.:
+            <p className={type.body}>
+              Investindo <span className={cn(type.financialSm, "text-primary")}>{fmt(reverseAporte)}/mês</span> a 7% a.a.:
             </p>
-            <p className="text-2xl font-bold font-mono-nums text-accent">
+            <p className={cn(type.financialLg, "text-accent")}>
               {reverseYears === Infinity ? "∞" : `${Math.round(reverseYears * 10) / 10} anos`}
             </p>
             {anos > 0 && reverseDiff > 0 && (
-              <p className="text-xs text-muted-foreground">
+              <p className={type.caption}>
                 Para o prazo de {anos} anos, faltam{" "}
-                <span className="text-destructive font-semibold">{fmt(reverseDiff)}/mês</span>.
+                <span className="font-semibold text-destructive">{fmt(reverseDiff)}/mês</span>.
               </p>
             )}
             {anos > 0 && reverseDiff <= 0 && (
-              <p className="text-xs text-accent font-semibold">✓ Aporte suficiente para atingir a meta no prazo!</p>
+              <p className={cn(type.caption, "font-semibold text-accent")}>✓ Aporte suficiente para atingir a meta no prazo!</p>
             )}
           </div>
         </PanelCard>

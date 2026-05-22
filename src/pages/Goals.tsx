@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { PageShell, PageHeader } from "@/components/layout/page";
-import { layout } from "@/lib/layout";
+import { layout, type } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 
 export default function Goals() {
@@ -73,13 +73,13 @@ export default function Goals() {
               </div>
             </div>
             {form.valor_objetivo && form.prazo && (
-              <div className="rounded-lg bg-accent/50 p-4 text-sm">
-                <span className="text-muted-foreground">Economia mensal necessária: </span>
-                <span className="font-mono-nums font-semibold text-primary">
+              <div className="rounded-lg bg-accent/10 border border-accent/20 p-4">
+                <span className={type.bodyMuted}>Economia mensal necessária: </span>
+                <span className={cn(type.financialSm, "text-primary")}>
                   {fmt(calcMonthly({ valor_objetivo: parseFloat(form.valor_objetivo) || 0, valor_atual: parseFloat(form.valor_atual) || 0, prazo: form.prazo }))}
                 </span>
                 {profile.salario && (
-                  <span className="text-muted-foreground ml-2">
+                  <span className={cn(type.caption, "ml-2")}>
                     ({((calcMonthly({ valor_objetivo: parseFloat(form.valor_objetivo) || 0, valor_atual: parseFloat(form.valor_atual) || 0, prazo: form.prazo }) / profile.salario) * 100).toFixed(0)}% do salário)
                   </span>
                 )}
@@ -108,24 +108,24 @@ export default function Goals() {
               </button>
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  <p className={type.overline}>
                     {new Date(g.prazo).toLocaleDateString("pt-BR")}
                   </p>
-                  <h3 className="text-lg font-bold">{g.nome}</h3>
+                  <h3 className={type.sectionTitle}>{g.nome}</h3>
                 </div>
-                <span className="text-sm font-mono-nums font-bold text-primary">{pct.toFixed(0)}%</span>
+                <span className={cn(type.financialSm, "text-primary")}>{pct.toFixed(0)}%</span>
               </div>
               <div className="space-y-1 mb-3">
-                <div className="flex justify-between text-sm">
-                  <span className="font-mono-nums">{fmt(g.valor_atual)}</span>
-                  <span className="text-muted-foreground font-mono-nums">{fmt(g.valor_objetivo)}</span>
+                <div className="flex justify-between">
+                  <span className={type.financialSm}>{fmt(g.valor_atual)}</span>
+                  <span className={cn(type.financialSm, "text-muted-foreground")}>{fmt(g.valor_objetivo)}</span>
                 </div>
                 <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
                   <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} className="h-full rounded-full bg-primary" />
                 </div>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Economizar <span className="font-mono-nums font-medium text-foreground">{fmt(monthly)}</span>/mês
+              <p className={type.caption}>
+                Economizar <span className={cn(type.financialSm, "text-foreground")}>{fmt(monthly)}</span>/mês
               </p>
               <div className="mt-3">
                 <Input

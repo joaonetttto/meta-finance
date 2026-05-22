@@ -4,6 +4,8 @@ import {
   chartTooltipLabelStyle,
   chartTooltipItemStyle,
 } from "@/lib/chart-theme";
+import { type } from "@/lib/typography";
+import { cn } from "@/lib/utils";
 
 type FinancialTooltipProps = TooltipProps<number, string> & {
   labelFormatter?: (label: string | number) => string;
@@ -46,10 +48,7 @@ export function FinancialChartTooltip({
                 />
                 {name}
               </span>
-              <span
-                className="font-mono-nums font-semibold tabular-nums"
-                style={{ color: "hsl(var(--foreground))", fontSize: 12 }}
-              >
+              <span className={type.financialSm}>
                 {valueFormatter(value)}
               </span>
             </div>

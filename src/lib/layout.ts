@@ -1,3 +1,5 @@
+import { type } from "@/lib/typography";
+
 /**
  * Tokens de espaçamento — escala 4/8px para consistência entre telas.
  *
@@ -18,9 +20,11 @@ export const layout = {
   card: "rounded-xl border border-border bg-card p-6",
   cardHeader: "mb-5",
   pageHeader: "flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between",
-  pageTitle: "text-3xl font-bold font-display tracking-tight",
-  pageDescription: "text-sm text-muted-foreground",
-  panelTitle: "text-base font-semibold tracking-tight",
-  panelDescription: "text-xs text-muted-foreground mt-1",
-  emptyState: "py-12 text-center text-sm text-muted-foreground",
+  pageTitle: type.pageTitle,
+  pageDescription: type.pageDesc,
+  panelTitle: type.panelTitle,
+  panelDescription: type.panelDesc,
+  emptyState: `py-12 text-center ${type.empty}`,
 } as const;
+
+export { type };

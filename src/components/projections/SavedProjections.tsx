@@ -12,6 +12,7 @@ import { SCENARIOS, calcPMT, fmt } from "@/lib/projections";
 import { layout } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 import { PanelCardHeader } from "@/components/layout/page";
+import { type } from "@/lib/layout";
 
 interface SavedProjection {
   id: string;
@@ -160,7 +161,7 @@ export function SavedProjections({ onReopen }: Props) {
         description="Simulações guardadas — explore cenários antes de criar metas reais."
         action={
           limit !== Infinity ? (
-            <span className="text-xs text-muted-foreground font-mono-nums">
+            <span className={cn(type.caption, "font-mono-nums tabular-nums")}>
               {active.length}/{limit}
             </span>
           ) : undefined
@@ -168,7 +169,7 @@ export function SavedProjections({ onReopen }: Props) {
       />
 
       {!canCreate && (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 flex items-center gap-2 text-sm">
+        <div className={cn("rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 flex items-center gap-2", type.body)}>
           <Crown className="h-4 w-4 text-amber-500 shrink-0" />
           <span>
             Você atingiu o limite de projeções do seu plano.{" "}
@@ -182,7 +183,7 @@ export function SavedProjections({ onReopen }: Props) {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-sm text-muted-foreground text-center py-6"
+            className={cn(type.bodyMuted, "text-center py-6")}
           >
             Nenhuma projeção salva. Use o simulador acima e clique em "Salvar projeção".
           </motion.p>
@@ -225,7 +226,7 @@ export function SavedProjections({ onReopen }: Props) {
                         </Button>
                       </div>
                     ) : (
-                      <h3 className="font-semibold text-sm truncate">{p.nome}</h3>
+                      <h3 className={cn(type.panelTitle, "truncate")}>{p.nome}</h3>
                     )}
                   </div>
                   <div className="flex items-center gap-1 ml-2">
@@ -250,18 +251,18 @@ export function SavedProjections({ onReopen }: Props) {
                 )}
 
                 {/* Info */}
-                <div className="grid grid-cols-3 gap-2 text-xs mb-4">
+                <div className={cn("grid grid-cols-3 gap-2 mb-4", type.caption)}>
                   <div>
                     <p className="text-muted-foreground">Objetivo</p>
-                    <p className="font-mono-nums font-semibold">{fmt(p.valor_desejado)}</p>
+                    <p className={type.financialSm}>{fmt(p.valor_desejado)}</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Prazo</p>
-                    <p className="font-mono-nums font-semibold">{p.prazo_anos} anos</p>
+                    <p className={type.financialSm}>{p.prazo_anos} anos</p>
                   </div>
                   <div>
                     <p className="text-muted-foreground">Mensal</p>
-                    <p className="font-mono-nums font-semibold">{fmt(pmt)}</p>
+                    <p className={type.financialSm}>{fmt(pmt)}</p>
                   </div>
                 </div>
 
@@ -302,7 +303,7 @@ export function SavedProjections({ onReopen }: Props) {
         {/* Converted projections */}
         {converted.length > 0 && (
           <div className="pt-2">
-            <p className="text-xs text-muted-foreground mb-2">Convertidas em meta</p>
+            <p className={cn(type.overline, "mb-2")}>Convertidas em meta</p>
             <div className="space-y-1">
               {converted.map((p) => (
                 <div key={p.id} className="flex items-center justify-between text-xs rounded-lg border border-border/50 bg-card/50 px-3 py-2 opacity-60">

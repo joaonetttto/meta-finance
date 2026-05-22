@@ -37,7 +37,7 @@ import { ProgressBlock } from "@/components/projections/ProgressBlock";
 import { ImpactSimulations } from "@/components/projections/ImpactSimulations";
 import { InsightsBlock } from "@/components/projections/InsightsBlock";
 import { PageShell, PageHeader, PanelCard, PanelCardHeader } from "@/components/layout/page";
-import { layout } from "@/lib/layout";
+import { layout, type } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 
 export default function Projections() {
@@ -303,8 +303,8 @@ export default function Projections() {
                         return (
                           <div key={i} className="text-center">
                             <div className="w-2 h-2 rounded-sm bg-primary mx-auto mb-1" />
-                            <p className="text-xs font-semibold">Ano {yr}</p>
-                            <p className="text-xs text-muted-foreground font-mono-nums">{point ? fmtShort(point.valor) : "—"}</p>
+                            <p className={cn(type.caption, "font-semibold")}>Ano {yr}</p>
+                            <p className={cn(type.caption, "font-mono-nums tabular-nums")}>{point ? fmtShort(point.valor) : "—"}</p>
                           </div>
                         );
                       })}
@@ -325,7 +325,7 @@ export default function Projections() {
                       }
                     />
                     <div className={layout.stack}>
-                      <p className="text-sm text-muted-foreground">{allocation.reason}</p>
+                      <p className={type.bodyMuted}>{allocation.reason}</p>
                       <div className={layout.stack}>
                         {[
                           { label: "Renda Variável", pct: allocation.rv, color: "hsl(var(--primary))" },
@@ -333,9 +333,9 @@ export default function Projections() {
                           { label: "Renda Fixa", pct: allocation.rf, color: "hsl(var(--muted-foreground))" },
                         ].map((a) => (
                           <div key={a.label}>
-                            <div className="flex justify-between text-sm mb-1">
+                            <div className={cn("flex justify-between mb-1", type.body)}>
                               <span>{a.label}</span>
-                              <span className="font-mono-nums font-semibold">{a.pct}%</span>
+                              <span className={type.financialSm}>{a.pct}%</span>
                             </div>
                             <div className="h-2 rounded-full bg-secondary overflow-hidden">
                               <motion.div

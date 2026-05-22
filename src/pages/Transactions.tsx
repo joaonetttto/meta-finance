@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageShell, PageHeader } from "@/components/layout/page";
-import { layout } from "@/lib/layout";
+import { layout, type } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 
 interface FormData {
@@ -131,16 +131,16 @@ export default function Transactions() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: i * 0.02 }}
-                  className="flex items-center justify-between px-6 py-4 hover:bg-accent/30 transition-colors group"
+                  className="flex items-center justify-between px-6 py-4 hover:bg-muted/40 transition-colors group"
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{t.descricao}</p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className={cn(type.body, "font-medium truncate")}>{t.descricao}</p>
+                    <p className={type.caption}>
                       {cat?.nome ?? "Sem categoria"} · {new Date(t.data).toLocaleDateString("pt-BR")}
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`font-mono-nums text-sm font-semibold ${t.tipo === "receita" ? "text-success" : "text-destructive"}`}>
+                    <span className={cn(type.financialSm, t.tipo === "receita" ? "text-success" : "text-destructive")}>
                       {t.tipo === "receita" ? "+" : "-"}{fmt(t.valor)}
                     </span>
                     <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">

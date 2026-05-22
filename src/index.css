@@ -20,7 +20,7 @@
     --secondary-foreground: 220 25% 10%;
 
     --muted: 220 15% 93%;
-    --muted-foreground: 220 10% 46%;
+    --muted-foreground: 220 12% 42%;
 
     --accent: 155 60% 42%;
     --accent-foreground: 0 0% 100%;
@@ -74,7 +74,7 @@
     --secondary: 240 11% 13%;
     --secondary-foreground: 0 0% 96%;
     --muted: 240 11% 12%;
-    --muted-foreground: 240 5% 64%;
+    --muted-foreground: 240 6% 72%;
     --accent: 155 45% 46%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 65% 52%;
@@ -109,12 +109,21 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground text-sm font-normal leading-relaxed antialiased;
     font-family: var(--font-body);
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
-    letter-spacing: -0.04em;
+    @apply font-semibold tracking-tight text-foreground;
+  }
+  h1 {
+    @apply text-3xl font-bold leading-[1.15] md:text-4xl;
+  }
+  h2 {
+    @apply text-lg leading-snug;
+  }
+  h3 {
+    @apply text-sm leading-snug;
   }
 }
 
@@ -126,9 +135,51 @@
   .font-mono-nums {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
   }
   .tracking-ui {
     letter-spacing: -0.02em;
+  }
+
+  /* Tipografia semântica — usar via type.* em TS ou classes abaixo */
+  .type-page-title {
+    @apply font-display text-3xl font-bold tracking-tight leading-[1.15] text-foreground md:text-4xl;
+  }
+  .type-page-desc {
+    @apply text-sm font-normal leading-relaxed text-muted-foreground;
+  }
+  .type-panel-title {
+    @apply font-display text-sm font-semibold tracking-tight leading-snug text-foreground;
+  }
+  .type-panel-desc {
+    @apply mt-1 text-xs font-normal leading-relaxed text-muted-foreground;
+  }
+  .type-overline {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-muted-foreground;
+  }
+  .type-label {
+    @apply text-xs font-medium leading-none text-foreground/90;
+  }
+  .type-caption {
+    @apply text-xs font-normal leading-normal text-muted-foreground;
+  }
+  .type-body-muted {
+    @apply text-sm font-normal leading-relaxed text-muted-foreground;
+  }
+  .type-financial-hero {
+    @apply font-mono-nums text-4xl font-bold tracking-tight leading-none md:text-5xl;
+  }
+  .type-financial-lg {
+    @apply font-mono-nums text-2xl font-bold tracking-tight leading-tight text-foreground;
+  }
+  .type-financial {
+    @apply font-mono-nums text-xl font-semibold tracking-tight leading-tight text-foreground;
+  }
+  .type-financial-sm {
+    @apply font-mono-nums text-sm font-semibold tabular-nums tracking-tight text-foreground;
+  }
+  .type-stat-value {
+    @apply font-mono-nums text-xl font-bold tracking-tight leading-tight text-foreground;
   }
   .glass-card {
     @apply bg-card border border-border;

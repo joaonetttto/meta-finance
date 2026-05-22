@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Shield, BarChart3, Zap, Percent, CheckCircle } from "lucide-react";
 import { ScenarioResult, fmt } from "@/lib/projections";
-import { layout } from "@/lib/layout";
+import { layout, type } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 
 const iconMap: Record<string, typeof Shield> = { Shield, BarChart3, Zap };
@@ -34,44 +34,44 @@ export function ScenarioCards({
             <div className={layout.stack}>
 
             {s.recommended && (
-              <span className="absolute top-3 right-3 flex items-center gap-1 text-xs font-semibold text-primary">
+              <span className={cn("absolute top-3 right-3 flex items-center gap-1", type.caption, "font-semibold text-primary")}>
                 <CheckCircle className="h-3.5 w-3.5" /> Recomendado
               </span>
             )}
 
             <div className="flex items-center gap-2">
               <Icon className="h-4 w-4" style={{ color: s.color }} />
-              <h3 className="text-sm font-semibold">{s.label}</h3>
+              <h3 className={type.panelTitle}>{s.label}</h3>
             </div>
-            <span className="text-xs text-muted-foreground rounded-full border border-border px-2 py-0.5 inline-block">
+            <span className={cn(type.caption, "rounded-full border border-border px-2 py-0.5 inline-block")}>
               {s.tag}
             </span>
 
-            <p className="text-2xl font-bold font-mono-nums" style={{ color: s.color }}>
+            <p className={type.financialLg} style={{ color: s.color }}>
               {fmt(s.pmt)}
-              <span className="text-xs font-normal text-muted-foreground">/mês</span>
+              <span className={cn(type.caption, "font-normal")}>/mês</span>
             </p>
 
-            <div className="text-xs space-y-1 text-muted-foreground">
+            <div className={cn(type.caption, "space-y-1")}>
               <p>{(s.rate * 100).toFixed(0)}% a.a. — {s.desc}</p>
               <p>
-                Total investido: <span className="font-mono-nums font-semibold text-foreground">{fmt(s.totalInvested)}</span>
+                Total investido: <span className={type.financialSm}>{fmt(s.totalInvested)}</span>
               </p>
               <p>
-                Rendimento: <span className="font-mono-nums font-semibold text-accent">{fmt(s.totalRendimento)}</span>{" "}
+                Rendimento: <span className={cn(type.financialSm, "text-accent")}>{fmt(s.totalRendimento)}</span>{" "}
                 ({s.pctRendimento.toFixed(0)}%)
               </p>
             </div>
 
             {s.reduced && (
-              <div className="rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2 text-xs">
+              <div className={cn("rounded-lg bg-destructive/10 border border-destructive/20 px-3 py-2", type.caption)}>
                 <span className="text-destructive font-semibold">-20%:</span>{" "}
                 acumula {fmt(s.finalValue)} ao invés de {fmt(valor)}
               </div>
             )}
 
             {salario && (
-              <p className="text-xs text-muted-foreground">
+              <p className={type.caption}>
                 <Percent className="inline h-3 w-3 mr-1" />
                 {((s.pmt / salario) * 100).toFixed(1)}% do salário
               </p>
