@@ -1,5 +1,6 @@
 import { TrendingUp, Shield, Lightbulb, Clock, DollarSign, Zap, AlertTriangle, Sparkles } from "lucide-react";
 import { Insight } from "@/lib/projections";
+import { layout } from "@/lib/layout";
 
 const iconMap: Record<string, typeof Lightbulb> = {
   TrendingUp, Shield, Lightbulb, Clock, DollarSign, Zap, AlertTriangle, Sparkles,
@@ -9,7 +10,8 @@ export function InsightsBlock({ insights }: { insights: Insight[] }) {
   if (!insights.length) return null;
 
   return (
-    <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+    <div className={layout.card}>
+      <div className={layout.stack}>
       <div className="flex items-center gap-2">
         <Lightbulb className="h-4 w-4 text-accent" />
         <h3 className="text-sm font-semibold">Insights</h3>
@@ -24,6 +26,7 @@ export function InsightsBlock({ insights }: { insights: Insight[] }) {
             </div>
           );
         })}
+      </div>
       </div>
     </div>
   );

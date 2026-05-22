@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { PageShell, PageHeader } from "@/components/layout/page";
+import { layout } from "@/lib/layout";
 
 const plans = [
   {
@@ -33,15 +35,14 @@ export default function Plans() {
   const { profile, updateProfile } = useFinance();
 
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold font-display">Planos</h1>
-        <p className="text-muted-foreground text-sm mt-1 tracking-ui">
-          Escolha o plano ideal para o seu planejamento financeiro.
-        </p>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Planos"
+        description="Escolha o plano ideal para o seu planejamento financeiro."
+        className="sm:flex-col sm:items-center sm:text-center"
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+      <div className={cn(layout.gridLg, "mx-auto max-w-4xl grid-cols-1 md:grid-cols-3")}>
         {plans.map((plan, i) => (
           <motion.div
             key={plan.id}
@@ -49,8 +50,9 @@ export default function Plans() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
             className={cn(
-              "rounded-xl border p-6 shadow-sm flex flex-col",
-              plan.featured ? "border-primary bg-card ring-1 ring-primary/20" : "border-border bg-card"
+              layout.card,
+              "flex flex-col",
+              plan.featured ? "border-primary ring-1 ring-primary/20" : ""
             )}
           >
             {plan.featured && (
@@ -80,6 +82,6 @@ export default function Plans() {
           </motion.div>
         ))}
       </div>
-    </div>
+    </PageShell>
   );
 }

@@ -1,5 +1,6 @@
 import { Progress } from "@/components/ui/progress";
 import { fmt, getProgressStatus, calcYearsNeeded } from "@/lib/projections";
+import { layout } from "@/lib/layout";
 
 export function ProgressBlock({
   valor,
@@ -24,7 +25,8 @@ export function ProgressBlock({
   const yrsNeeded = effectivePmt > 0 ? calcYearsNeeded(valor, effectivePmt, recommendedRate, valorInicial) : Infinity;
 
   return (
-    <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+    <div className={layout.card}>
+      <div className={layout.stack}>
       {/* Header with status */}
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Progresso da meta</span>
@@ -101,6 +103,7 @@ export function ProgressBlock({
           );
         }
       })()}
+      </div>
     </div>
   );
 }

@@ -3,7 +3,7 @@
 export const SCENARIOS = [
   { key: "conservador", label: "Conservador", tag: "Mais seguro", rate: 0.04, color: "hsl(var(--accent))", icon: "Shield", desc: "Renda fixa, CDBs, Tesouro Selic" },
   { key: "moderado", label: "Moderado", tag: "Equilibrado", rate: 0.07, icon: "BarChart3", color: "hsl(var(--primary))", desc: "Mix balanceado de renda fixa e variável" },
-  { key: "agressivo", label: "Agressivo", tag: "Maior retorno", rate: 0.10, icon: "Zap", color: "#f59e0b", desc: "Ações, ETFs, maior exposição a risco" },
+  { key: "agressivo", label: "Agressivo", tag: "Maior retorno", rate: 0.10, icon: "Zap", color: "hsl(var(--chart-warning))", desc: "Ações, ETFs, maior exposição a risco" },
 ] as const;
 
 export type ScenarioKey = typeof SCENARIOS[number]["key"];

@@ -9,6 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { SCENARIOS, calcPMT, fmt } from "@/lib/projections";
+import { layout } from "@/lib/layout";
+import { cn } from "@/lib/utils";
+import { PanelCardHeader } from "@/components/layout/page";
 
 interface SavedProjection {
   id: string;
@@ -151,20 +154,18 @@ export function SavedProjections({ onReopen }: Props) {
   const converted = projections.filter((p) => p.convertida);
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-lg font-bold font-display">Projeções Salvas</h2>
-          <p className="text-xs text-muted-foreground">
-            Simulações guardadas — explore cenários antes de criar metas reais.
-          </p>
-        </div>
-        {limit !== Infinity && (
-          <span className="text-xs text-muted-foreground font-mono-nums">
-            {active.length}/{limit}
-          </span>
-        )}
-      </div>
+    <div className={layout.section}>
+      <PanelCardHeader
+        title="Projeções Salvas"
+        description="Simulações guardadas — explore cenários antes de criar metas reais."
+        action={
+          limit !== Infinity ? (
+            <span className="text-xs text-muted-foreground font-mono-nums">
+              {active.length}/{limit}
+            </span>
+          ) : undefined
+        }
+      />
 
       {!canCreate && (
         <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 flex items-center gap-2 text-sm">
@@ -187,7 +188,7 @@ export function SavedProjections({ onReopen }: Props) {
           </motion.p>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div className={cn(layout.grid, "grid-cols-1 md:grid-cols-2")}>
           {active.map((p, i) => {
             const sc = SCENARIOS.find((s) => s.key === p.cenario);
             const pmt = p.aporte_mensal || calcPMT(p.valor_desejado, sc?.rate ?? 0.07, p.prazo_anos);
@@ -202,7 +203,7 @@ export function SavedProjections({ onReopen }: Props) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ delay: i * 0.05 }}
-                className="group relative rounded-xl border border-border bg-card p-5 shadow-sm hover:shadow-md transition-shadow"
+                className={cn(layout.card, "group relative transition-colors hover:border-primary/30")}
               >
                 {/* Header */}
                 <div className="flex items-start justify-between mb-3">

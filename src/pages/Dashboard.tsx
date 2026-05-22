@@ -6,15 +6,24 @@ import {
   ArrowUpRight, ArrowDownRight, Wallet, Plus, ChevronLeft, ChevronRight,
   ArrowRight, Target, Sparkles
 } from "lucide-react";
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid, BarChart, Bar } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid, BarChart, Bar, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
 import { AddTransactionDialog } from "@/components/dashboard/AddTransactionDialog";
-
-const CHART_COLORS = [
-  "hsl(217, 91%, 60%)", "hsl(155, 60%, 45%)", "hsl(45, 70%, 55%)",
-  "hsl(200, 65%, 50%)", "hsl(280, 50%, 55%)", "hsl(340, 55%, 50%)",
-  "hsl(0, 72%, 55%)", "hsl(120, 40%, 45%)",
-];
+import { PageShell, PanelCardHeader } from "@/components/layout/page";
+import { layout } from "@/lib/layout";
+import { cn } from "@/lib/utils";
+import { FinancialChartTooltip } from "@/components/charts/FinancialChartTooltip";
+import {
+  CHART_CATEGORY_COLORS,
+  CHART_COLORS,
+  CHART_MARGIN,
+  CHART_STROKE_WIDTH,
+  CHART_AREA_FILL_OPACITY,
+  chartAxisProps,
+  chartAxisTick,
+  chartGridProps,
+  chartYAxisFormatter,
+} from "@/lib/chart-theme";
 
 const MONTHS = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -156,9 +165,8 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="space-y-10 md:space-y-12">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+    <PageShell>
+      <div className={layout.pageHeader}>
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="h-3.5 w-3.5 text-primary" />
@@ -197,12 +205,12 @@ export default function Dashboard() {
       </motion.div>
 
       {/* Hero balance + secondary cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className={cn(layout.grid, "grid-cols-1 lg:grid-cols-3")}>
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, type: "spring", stiffness: 400, damping: 30 }}
-          className="lg:col-span-2 relative rounded-2xl border border-border bg-card p-8 cursor-pointer hover:border-primary/40 transition-colors"
+          className={cn(layout.card, "lg:col-span-2 relative cursor-pointer transition-colors hover:border-primary/40")}
           onClick={() => navigate("/transacoes")}
         >
           <div className="flex items-start justify-between mb-6">
@@ -224,14 +232,14 @@ export default function Dashboard() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-1 gap-4">
+        <div className={cn(layout.grid, "grid-cols-2 lg:grid-cols-1")}>
           {cards.slice(1).map((c, i) => (
             <motion.div
               key={c.label}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 + i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
-              className="relative rounded-xl border border-border bg-card p-5 cursor-pointer hover:border-primary/40 transition-colors"
+              className={cn(layout.card, "relative cursor-pointer transition-colors hover:border-primary/40")}
               onClick={() => navigate("/transacoes")}
             >
               <div className="flex items-center justify-between mb-3">
@@ -247,7 +255,7 @@ export default function Dashboard() {
       </div>
 
       {/* Insights */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className={cn(layout.grid, "grid-cols-2 lg:grid-cols-4")}>
         {[
           {
             label: "Taxa de Poupança",
@@ -275,7 +283,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 + i * 0.04 }}
-            className="rounded-xl border border-border bg-card p-5"
+            className={layout.card}
           >
             <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">{k.label}</span>
             <p className="text-xl font-bold font-mono-nums tracking-tight mt-3 truncate">{k.value}</p>
@@ -289,32 +297,43 @@ export default function Dashboard() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="rounded-xl border border-border bg-card p-6"
+        className={layout.card}
       >
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-base font-semibold tracking-tight">Evolução do Saldo</h2>
-            <p className="text-xs text-muted-foreground mt-1">Saldo acumulado dia a dia · {MONTHS[selectedMonth]}</p>
-          </div>
-        </div>
+        <PanelCardHeader
+          title="Evolução do Saldo"
+          description={`Saldo acumulado dia a dia · ${MONTHS[selectedMonth]}`}
+        />
         <div className="h-64 w-full">
           <ResponsiveContainer>
-            <AreaChart data={dailyData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <AreaChart data={dailyData} margin={CHART_MARGIN}>
               <defs>
                 <linearGradient id="saldoFill" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="hsl(var(--primary))" stopOpacity={0.25} />
-                  <stop offset="100%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                  <stop offset="0%" stopColor={CHART_COLORS.primary} stopOpacity={CHART_AREA_FILL_OPACITY.top} />
+                  <stop offset="100%" stopColor={CHART_COLORS.primary} stopOpacity={CHART_AREA_FILL_OPACITY.bottom} />
                 </linearGradient>
               </defs>
-              <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={60} tickFormatter={(v) => `R$ ${(v / 1000).toFixed(1)}k`} />
+              <CartesianGrid {...chartGridProps} />
+              <XAxis dataKey="day" tick={chartAxisTick} {...chartAxisProps} />
+              <YAxis tick={chartAxisTick} {...chartAxisProps} width={64} tickFormatter={chartYAxisFormatter} />
               <Tooltip
-                formatter={(v: number) => fmt(v)}
-                labelFormatter={(l) => `Dia ${l}`}
-                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
+                content={
+                  <FinancialChartTooltip
+                    labelFormatter={(l) => `Dia ${l}`}
+                    valueFormatter={fmt}
+                    nameFormatter={() => "Saldo"}
+                  />
+                }
+                cursor={{ stroke: CHART_COLORS.grid, strokeWidth: 1 }}
               />
-              <Area type="monotone" dataKey="saldo" stroke="hsl(var(--primary))" strokeWidth={2} fill="url(#saldoFill)" />
+              <Area
+                type="monotone"
+                dataKey="saldo"
+                stroke={CHART_COLORS.primary}
+                strokeWidth={CHART_STROKE_WIDTH}
+                fill="url(#saldoFill)"
+                dot={false}
+                activeDot={{ r: 4, strokeWidth: 0, fill: CHART_COLORS.primary }}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -325,66 +344,83 @@ export default function Dashboard() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.35 }}
-        className="rounded-xl border border-border bg-card p-6"
+        className={layout.card}
       >
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-base font-semibold tracking-tight">Receitas vs Despesas</h2>
-            <p className="text-xs text-muted-foreground mt-1">Últimos 6 meses</p>
-          </div>
-        </div>
+        <PanelCardHeader title="Receitas vs Despesas" description="Últimos 6 meses" />
         <div className="h-64 w-full">
           <ResponsiveContainer>
-            <BarChart data={trendData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
-              <CartesianGrid stroke="hsl(var(--border))" strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} axisLine={false} tickLine={false} width={60} tickFormatter={(v) => `R$ ${(v / 1000).toFixed(1)}k`} />
+            <BarChart data={trendData} margin={CHART_MARGIN} barGap={4} barCategoryGap="20%">
+              <CartesianGrid {...chartGridProps} />
+              <XAxis dataKey="mes" tick={chartAxisTick} {...chartAxisProps} />
+              <YAxis tick={chartAxisTick} {...chartAxisProps} width={64} tickFormatter={chartYAxisFormatter} />
               <Tooltip
-                formatter={(v: number) => fmt(v)}
-                contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "12px" }}
+                content={
+                  <FinancialChartTooltip
+                    valueFormatter={fmt}
+                    nameFormatter={(n) => (n === "receitas" ? "Receitas" : "Despesas")}
+                  />
+                }
+                cursor={{ fill: "hsl(var(--muted) / 0.35)" }}
               />
-              <Bar dataKey="receitas" fill="hsl(var(--accent))" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="despesas" fill="hsl(var(--destructive))" radius={[4, 4, 0, 0]} />
+              <Legend
+                verticalAlign="top"
+                align="right"
+                iconType="square"
+                iconSize={8}
+                wrapperStyle={{ fontSize: 11, color: "hsl(var(--foreground))", paddingBottom: 8 }}
+                formatter={(v) => (v === "receitas" ? "Receitas" : "Despesas")}
+              />
+              <Bar dataKey="receitas" fill={CHART_COLORS.accent} radius={[2, 2, 0, 0]} maxBarSize={32} />
+              <Bar dataKey="despesas" fill={CHART_COLORS.destructive} radius={[2, 2, 0, 0]} maxBarSize={32} />
             </BarChart>
           </ResponsiveContainer>
         </div>
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className={cn(layout.gridLg, "grid-cols-1 lg:grid-cols-2")}>
         {/* Category Chart */}
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="rounded-xl border border-border/50 bg-card p-6"
+          className={layout.card}
         >
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-base font-semibold tracking-tight">Gastos por Categoria</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Distribuição mensal</p>
-            </div>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground hover:text-primary">
-              Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
-            </Button>
-          </div>
+          <PanelCardHeader
+            title="Gastos por Categoria"
+            description="Distribuição mensal"
+            action={
+              <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground hover:text-primary">
+                Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
+              </Button>
+            }
+          />
           {categoryData.length > 0 ? (
             <div className="flex items-center gap-6">
               <div className="w-40 h-40">
                 <ResponsiveContainer>
                   <PieChart>
-                    <Pie data={categoryData} dataKey="value" cx="50%" cy="50%" outerRadius={70} innerRadius={42} strokeWidth={2} stroke="hsl(var(--card))">
+                    <Pie
+                      data={categoryData}
+                      dataKey="value"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={70}
+                      innerRadius={44}
+                      strokeWidth={1}
+                      stroke={CHART_COLORS.card}
+                      paddingAngle={1}
+                    >
                       {categoryData.map((_, i) => (
-                        <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                        <Cell key={i} fill={CHART_CATEGORY_COLORS[i % CHART_CATEGORY_COLORS.length]} />
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(v: number) => fmt(v)}
-                      contentStyle={{
-                        background: "hsl(var(--card))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: "8px",
-                        fontSize: "12px",
-                      }}
+                      content={
+                        <FinancialChartTooltip
+                          valueFormatter={fmt}
+                          nameFormatter={(n) => n}
+                        />
+                      }
                     />
                   </PieChart>
                 </ResponsiveContainer>
@@ -393,8 +429,8 @@ export default function Dashboard() {
                 {categoryData.slice(0, 5).map((d, i) => (
                   <div key={d.name} className="flex items-center justify-between text-sm">
                     <div className="flex items-center gap-2">
-                      <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: CHART_COLORS[i % CHART_COLORS.length] }} />
-                      <span className="text-muted-foreground text-xs">{d.name}</span>
+                      <div className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: CHART_CATEGORY_COLORS[i % CHART_CATEGORY_COLORS.length] }} />
+                      <span className="text-foreground/80 text-xs">{d.name}</span>
                     </div>
                     <span className="font-mono-nums text-xs font-semibold">{fmt(d.value)}</span>
                   </div>
@@ -415,17 +451,17 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="rounded-xl border border-border/50 bg-card p-6"
+          className={layout.card}
         >
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-base font-semibold tracking-tight">Metas Financeiras</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">{goals.length} meta{goals.length !== 1 ? "s" : ""} ativa{goals.length !== 1 ? "s" : ""}</p>
-            </div>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/metas")} className="text-xs text-muted-foreground hover:text-primary">
-              Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
-            </Button>
-          </div>
+          <PanelCardHeader
+            title="Metas Financeiras"
+            description={`${goals.length} meta${goals.length !== 1 ? "s" : ""} ativa${goals.length !== 1 ? "s" : ""}`}
+            action={
+              <Button variant="ghost" size="sm" onClick={() => navigate("/metas")} className="text-xs text-muted-foreground hover:text-primary">
+                Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
+              </Button>
+            }
+          />
           {goals.length > 0 ? (
             <div className="space-y-4">
               {goals.slice(0, 4).map((g) => {
@@ -467,17 +503,17 @@ export default function Dashboard() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="rounded-xl border border-border/50 bg-card p-6"
+        className={layout.card}
       >
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 className="text-base font-semibold tracking-tight">Transações Recentes</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">{transactions.length} transaç{transactions.length !== 1 ? "ões" : "ão"}</p>
-          </div>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground hover:text-primary">
-            Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
-          </Button>
-        </div>
+        <PanelCardHeader
+          title="Transações Recentes"
+          description={`${transactions.length} transaç${transactions.length !== 1 ? "ões" : "ão"}`}
+          action={
+            <Button variant="ghost" size="sm" onClick={() => navigate("/transacoes")} className="text-xs text-muted-foreground hover:text-primary">
+              Ver tudo <ArrowRight className="h-3 w-3 ml-1" />
+            </Button>
+          }
+        />
         {transactions.length > 0 ? (
           <div className="space-y-0 divide-y divide-border/30">
             {transactions.slice(0, 8).map((t) => {
@@ -520,7 +556,7 @@ export default function Dashboard() {
       </motion.div>
 
       <AddTransactionDialog open={showAddTransaction} onOpenChange={setShowAddTransaction} />
-    </div>
+    </PageShell>
   );
 }
 

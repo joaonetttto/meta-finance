@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CurrencyInput } from "@/components/ui/currency-input";
+import { PageShell, PageHeader } from "@/components/layout/page";
+import { layout } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 
 export default function Goals() {
   const { goals, addGoal, updateGoal, deleteGoal, profile } = useFinance();
@@ -34,14 +37,13 @@ export default function Goals() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold font-display">Metas Financeiras</h1>
+    <PageShell>
+      <PageHeader title="Metas Financeiras">
         <Button onClick={() => setShowForm(!showForm)} size="sm" className="gap-2">
           {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           {showForm ? "Fechar" : "Nova Meta"}
         </Button>
-      </div>
+      </PageHeader>
 
       <AnimatePresence>
         {showForm && (
@@ -50,9 +52,9 @@ export default function Goals() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             onSubmit={handleSubmit}
-            className="rounded-xl border border-border bg-card p-6 shadow-sm space-y-4 overflow-hidden"
+            className={cn(layout.card, layout.stack, "overflow-hidden")}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className={cn(layout.grid, "grid-cols-1 sm:grid-cols-2")}>
               <div>
                 <Label>Nome da Meta</Label>
                 <Input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} placeholder="Ex: Viagem para Europa" required />
@@ -88,7 +90,7 @@ export default function Goals() {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className={cn(layout.grid, "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3")}>
         {goals.map((g, i) => {
           const pct = Math.min((g.valor_atual / g.valor_objetivo) * 100, 100);
           const monthly = calcMonthly(g);
@@ -99,7 +101,7 @@ export default function Goals() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
               whileHover={{ y: -2 }}
-              className="group relative overflow-hidden rounded-xl border border-border bg-card p-6 shadow-sm transition-shadow hover:shadow-md"
+              className={cn(layout.card, "group relative overflow-hidden transition-colors hover:border-primary/30")}
             >
               <button onClick={() => deleteGoal(g.id)} className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 p-1 rounded hover:bg-destructive/10 transition-opacity">
                 <Trash2 className="h-3.5 w-3.5 text-destructive" />
@@ -147,11 +149,11 @@ export default function Goals() {
           );
         })}
         {goals.length === 0 && (
-          <div className="col-span-full text-center py-12 text-muted-foreground text-sm">
+          <div className={cn("col-span-full", layout.emptyState)}>
             Nenhuma meta criada. Crie sua primeira meta financeira.
           </div>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }

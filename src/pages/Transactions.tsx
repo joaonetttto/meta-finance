@@ -7,6 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PageShell, PageHeader } from "@/components/layout/page";
+import { layout } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 
 interface FormData {
   valor: string;
@@ -53,14 +56,13 @@ export default function Transactions() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold font-display">Transações</h1>
+    <PageShell>
+      <PageHeader title="Transações">
         <Button onClick={() => { setShowForm(!showForm); setEditing(null); setForm(empty); }} size="sm" className="gap-2">
           {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           {showForm ? "Fechar" : "Nova Transação"}
         </Button>
-      </div>
+      </PageHeader>
 
       <AnimatePresence>
         {showForm && (
@@ -69,9 +71,9 @@ export default function Transactions() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             onSubmit={handleSubmit}
-            className="rounded-xl border border-border bg-card p-6 shadow-sm space-y-4 overflow-hidden"
+            className={cn(layout.card, layout.stack, "overflow-hidden")}
           >
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className={cn(layout.grid, "grid-cols-1 sm:grid-cols-2")}>
               <div>
                 <Label>Descrição</Label>
                 <Input value={form.descricao} onChange={(e) => setForm({ ...form, descricao: e.target.value })} required />
@@ -118,7 +120,7 @@ export default function Transactions() {
         )}
       </AnimatePresence>
 
-      <div className="rounded-xl border border-border bg-card shadow-sm overflow-hidden">
+      <div className={cn(layout.card, "overflow-hidden p-0")}>
         {transactions.length > 0 ? (
           <div className="divide-y divide-border">
             {transactions.map((t, i) => {
@@ -151,11 +153,11 @@ export default function Transactions() {
             })}
           </div>
         ) : (
-          <div className="p-12 text-center text-muted-foreground text-sm">
+          <div className={layout.emptyState}>
             Nenhuma transação registrada. Adicione sua primeira transação.
           </div>
         )}
       </div>
-    </div>
+    </PageShell>
   );
 }

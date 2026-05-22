@@ -7,15 +7,25 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Target, BarChart3, Save, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { SavedProjections } from "@/components/projections/SavedProjections";
 import {
   XAxis, YAxis, CartesianGrid, Tooltip,
-  ResponsiveContainer, Area, AreaChart, Legend, ReferenceLine
+  ResponsiveContainer, LineChart, Legend, ReferenceLine, Line
 } from "recharts";
+import { FinancialChartTooltip } from "@/components/charts/FinancialChartTooltip";
+import { FinancialChartLegend } from "@/components/charts/FinancialChartLegend";
+import {
+  CHART_COLORS,
+  CHART_MARGIN,
+  CHART_STROKE_WIDTH,
+  CHART_STROKE_WIDTH_SECONDARY,
+  chartAxisProps,
+  chartAxisTick,
+  chartGridProps,
+} from "@/lib/chart-theme";
 
 import {
   SCENARIOS, buildScenarios, getRecommendation, generateInsights,
@@ -26,6 +36,9 @@ import { ScenarioCards } from "@/components/projections/ScenarioCards";
 import { ProgressBlock } from "@/components/projections/ProgressBlock";
 import { ImpactSimulations } from "@/components/projections/ImpactSimulations";
 import { InsightsBlock } from "@/components/projections/InsightsBlock";
+import { PageShell, PageHeader, PanelCard, PanelCardHeader } from "@/components/layout/page";
+import { layout } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 
 export default function Projections() {
   const { profile } = useFinance();
@@ -113,25 +126,22 @@ export default function Projections() {
   const recScenario = scenarios?.find(s => s.recommended);
 
   return (
-    <div className="space-y-8 max-w-6xl mx-auto">
-      <div>
-        <h1 className="text-3xl font-bold font-display">Projeções Financeiras</h1>
-        <p className="text-muted-foreground text-sm mt-1 tracking-ui">
-          Simule cenários, compare estratégias e descubra o melhor caminho para sua meta.
-        </p>
-      </div>
+    <PageShell>
+      <PageHeader
+        title="Projeções Financeiras"
+        description="Simule cenários, compare estratégias e descubra o melhor caminho para sua meta."
+      />
 
-      {/* INPUT FORM */}
       <motion.form
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         onSubmit={(e) => e.preventDefault()}
-        className="rounded-xl border border-border bg-card p-6 shadow-sm"
+        className={layout.card}
       >
-        <h2 className="text-sm font-semibold tracking-ui mb-4 flex items-center gap-2">
+        <h2 className={cn(layout.panelTitle, "mb-4 flex items-center gap-2")}>
           <Target className="h-4 w-4 text-primary" /> Simulador
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className={cn(layout.grid, "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4")}>
           <div>
             <Label>Valor Desejado (R$)</Label>
             <CurrencyInput value={valorDesejado} onValueChange={setValorDesejado} placeholder="0,00" className="font-mono-nums" required />
@@ -180,7 +190,7 @@ export default function Projections() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="space-y-6"
+            className={layout.section}
           >
             {/* RECOMMENDATION */}
             <RecommendationBlock rec={recommendation} />
@@ -204,68 +214,86 @@ export default function Projections() {
                 <TabsTrigger value="impacto">Impacto</TabsTrigger>
               </TabsList>
 
-              <TabsContent value="cenarios" className="space-y-4 mt-4">
+              <TabsContent value="cenarios" className={cn(layout.stack, "mt-4")}>
                 <ScenarioCards scenarios={scenarios} valor={valor} salario={profile.salario} />
               </TabsContent>
 
               <TabsContent value="grafico" className="mt-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm">Evolução do Patrimônio</CardTitle>
-                  </CardHeader>
-                  <CardContent>
+                <PanelCard>
+                  <PanelCardHeader title="Evolução do Patrimônio" />
+                  <div>
                     <div className="h-72 sm:h-80">
                       <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={chartData}>
-                          <defs>
-                            {SCENARIOS.map((s) => (
-                              <linearGradient key={s.key} id={`grad-${s.key}`} x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor={s.color} stopOpacity={0.3} />
-                                <stop offset="95%" stopColor={s.color} stopOpacity={0} />
-                              </linearGradient>
-                            ))}
-                          </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                          <XAxis dataKey="ano" stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={(v) => `${v}a`} />
-                          <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} tickFormatter={fmtShort} />
-                          <Tooltip
-                            contentStyle={{
-                              backgroundColor: "hsl(var(--card))",
-                              border: "1px solid hsl(var(--border))",
-                              borderRadius: 8,
-                              fontSize: 12,
-                            }}
-                            formatter={(value: number, name: string) => {
-                              if (name === "investido") return [fmt(value), "Valor Investido"];
-                              const sc = SCENARIOS.find((s) => s.key === name);
-                              return [fmt(value), sc?.label ?? name];
-                            }}
-                            labelFormatter={(l) => `Ano ${l}`}
+                        <LineChart data={chartData} margin={CHART_MARGIN}>
+                          <CartesianGrid {...chartGridProps} />
+                          <XAxis
+                            dataKey="ano"
+                            tick={chartAxisTick}
+                            {...chartAxisProps}
+                            tickFormatter={(v) => `${v}a`}
                           />
-                          <Legend formatter={(value) => {
-                            if (value === "investido") return "Valor Investido";
-                            return SCENARIOS.find((s) => s.key === value)?.label ?? value;
-                          }} />
-                          <Area
+                          <YAxis
+                            tick={chartAxisTick}
+                            {...chartAxisProps}
+                            width={72}
+                            tickFormatter={fmtShort}
+                          />
+                          <Tooltip
+                            content={
+                              <FinancialChartTooltip
+                                labelFormatter={(l) => `Ano ${l}`}
+                                valueFormatter={fmt}
+                                nameFormatter={(name) => {
+                                  if (name === "investido") return "Valor Investido";
+                                  return SCENARIOS.find((s) => s.key === name)?.label ?? name;
+                                }}
+                              />
+                            }
+                            cursor={{ stroke: CHART_COLORS.grid, strokeWidth: 1 }}
+                          />
+                          <Legend
+                            content={
+                              <FinancialChartLegend
+                                nameMap={{
+                                  investido: "Valor Investido",
+                                  ...Object.fromEntries(SCENARIOS.map((s) => [s.key, s.label])),
+                                }}
+                              />
+                            }
+                          />
+                          <Line
                             type="monotone"
                             dataKey="investido"
-                            stroke="hsl(var(--muted-foreground))"
-                            fill="none"
-                            strokeWidth={2}
-                            strokeDasharray="5 5"
+                            stroke={CHART_COLORS.muted}
+                            strokeWidth={CHART_STROKE_WIDTH_SECONDARY}
+                            strokeDasharray="6 4"
+                            dot={false}
                           />
                           {SCENARIOS.map((s) => (
-                            <Area
+                            <Line
                               key={s.key}
                               type="monotone"
                               dataKey={s.key}
                               stroke={s.color}
-                              fill={`url(#grad-${s.key})`}
-                              strokeWidth={2}
+                              strokeWidth={CHART_STROKE_WIDTH}
+                              dot={false}
+                              activeDot={{ r: 4, strokeWidth: 0, fill: s.color }}
                             />
                           ))}
-                          <ReferenceLine y={valor} stroke="hsl(var(--accent))" strokeDasharray="3 3" label={{ value: "Meta", fill: "hsl(var(--accent))", fontSize: 11 }} />
-                        </AreaChart>
+                          <ReferenceLine
+                            y={valor}
+                            stroke={CHART_COLORS.accent}
+                            strokeDasharray="4 4"
+                            strokeWidth={1.5}
+                            strokeOpacity={0.7}
+                            label={{
+                              value: "Meta",
+                              fill: "hsl(var(--muted-foreground))",
+                              fontSize: 11,
+                              position: "insideTopRight",
+                            }}
+                          />
+                        </LineChart>
                       </ResponsiveContainer>
                     </div>
                     <div className="flex justify-between mt-4 px-2">
@@ -274,29 +302,31 @@ export default function Projections() {
                         const point = modTimeline.find((p) => p.ano === yr);
                         return (
                           <div key={i} className="text-center">
-                            <div className="w-2 h-2 rounded-full bg-primary mx-auto mb-1" />
+                            <div className="w-2 h-2 rounded-sm bg-primary mx-auto mb-1" />
                             <p className="text-xs font-semibold">Ano {yr}</p>
                             <p className="text-xs text-muted-foreground font-mono-nums">{point ? fmtShort(point.valor) : "—"}</p>
                           </div>
                         );
                       })}
                     </div>
-                  </CardContent>
-                </Card>
+                  </div>
+                </PanelCard>
               </TabsContent>
 
               <TabsContent value="alocacao" className="mt-4">
                 {allocation && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="text-sm flex items-center gap-2">
-                        <BarChart3 className="h-4 w-4 text-primary" />
-                        Alocação Sugerida — Perfil {allocation.label}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
+                  <PanelCard>
+                    <PanelCardHeader
+                      title={
+                        <span className="flex items-center gap-2">
+                          <BarChart3 className="h-4 w-4 text-primary" />
+                          Alocação Sugerida — Perfil {allocation.label}
+                        </span>
+                      }
+                    />
+                    <div className={layout.stack}>
                       <p className="text-sm text-muted-foreground">{allocation.reason}</p>
-                      <div className="space-y-3">
+                      <div className={layout.stack}>
                         {[
                           { label: "Renda Variável", pct: allocation.rv, color: "hsl(var(--primary))" },
                           { label: "Fundos Imobiliários", pct: allocation.fiis, color: "hsl(var(--accent))" },
@@ -319,8 +349,8 @@ export default function Projections() {
                           </div>
                         ))}
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </PanelCard>
                 )}
               </TabsContent>
 
@@ -348,6 +378,6 @@ export default function Projections() {
 
       {/* SAVED PROJECTIONS */}
       <SavedProjections key={savedKey} onReopen={handleReopen} />
-    </div>
+    </PageShell>
   );
 }

@@ -1,7 +1,8 @@
 import { Switch } from "@/components/ui/switch";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
 import { fmt, calcYearsNeeded, ScenarioResult } from "@/lib/projections";
+import { PanelCard, PanelCardHeader } from "@/components/layout/page";
+import { layout } from "@/lib/layout";
 
 interface Props {
   delayStart: boolean;
@@ -52,12 +53,10 @@ export function ImpactSimulations({
   const reverseDiff = reverseAporte > 0 && anos > 0 ? mod.originalPmt - reverseAporte : 0;
 
   return (
-    <div className="space-y-4">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm">Simulações de Impacto</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <div className={layout.stack}>
+      <PanelCard>
+        <PanelCardHeader title="Simulações de Impacto" />
+        <div className={layout.stack}>
           {impacts.map((item) => (
             <div key={item.label}>
               <div className="flex items-center justify-between">
@@ -72,17 +71,19 @@ export function ImpactSimulations({
               )}
             </div>
           ))}
-        </CardContent>
-      </Card>
+        </div>
+      </PanelCard>
 
       {reverseAporte > 0 && reverseYears !== null && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-sm flex items-center gap-2">
-              <ArrowRight className="h-4 w-4 text-accent" /> Modo Inverso
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
+        <PanelCard>
+          <PanelCardHeader
+            title={
+              <span className="flex items-center gap-2">
+                <ArrowRight className="h-4 w-4 text-accent" /> Modo Inverso
+              </span>
+            }
+          />
+          <div className={layout.stack}>
             <p className="text-sm">
               Investindo <span className="font-semibold text-primary font-mono-nums">{fmt(reverseAporte)}/mês</span> a 7% a.a.:
             </p>
@@ -98,8 +99,8 @@ export function ImpactSimulations({
             {anos > 0 && reverseDiff <= 0 && (
               <p className="text-xs text-accent font-semibold">✓ Aporte suficiente para atingir a meta no prazo!</p>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </PanelCard>
       )}
     </div>
   );

@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Sparkles, ArrowUp, CheckCircle, TrendingUp } from "lucide-react";
 import { Recommendation, fmt } from "@/lib/projections";
+import { layout } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 
 export function RecommendationBlock({ rec }: { rec: Recommendation }) {
   return (
@@ -8,9 +10,9 @@ export function RecommendationBlock({ rec }: { rec: Recommendation }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="rounded-xl border border-border bg-card p-5 sm:p-6 relative"
+      className={layout.card}
     >
-      <div className="relative space-y-3">
+      <div className={cn("relative", layout.stack)}>
         {/* Line 1: Recommended scenario */}
         <div className="flex items-center gap-2 flex-wrap">
           <span

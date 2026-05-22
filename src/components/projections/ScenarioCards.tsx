@@ -1,6 +1,8 @@
 import { motion } from "framer-motion";
 import { Shield, BarChart3, Zap, Percent, CheckCircle } from "lucide-react";
 import { ScenarioResult, fmt } from "@/lib/projections";
+import { layout } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 
 const iconMap: Record<string, typeof Shield> = { Shield, BarChart3, Zap };
 
@@ -14,7 +16,7 @@ export function ScenarioCards({
   salario: number | null;
 }) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div className={cn(layout.grid, "grid-cols-1 md:grid-cols-3")}>
       {scenarios.map((s) => {
         const Icon = iconMap[s.icon] ?? BarChart3;
         return (
@@ -22,11 +24,14 @@ export function ScenarioCards({
             key={s.key}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className={`rounded-xl border bg-card p-5 space-y-3 relative overflow-hidden transition-shadow ${
-              s.recommended ? "border-primary ring-2 ring-primary/30 shadow-lg" : "border-border"
-            }`}
+            className={cn(
+              layout.card,
+              "relative overflow-hidden",
+              s.recommended ? "border-primary ring-1 ring-primary/25" : ""
+            )}
           >
             <div className="absolute top-0 left-0 w-full h-1" style={{ background: s.color }} />
+            <div className={layout.stack}>
 
             {s.recommended && (
               <span className="absolute top-3 right-3 flex items-center gap-1 text-xs font-semibold text-primary">
@@ -71,6 +76,7 @@ export function ScenarioCards({
                 {((s.pmt / salario) * 100).toFixed(1)}% do salário
               </p>
             )}
+            </div>
           </motion.div>
         );
       })}

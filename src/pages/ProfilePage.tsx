@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { PageShell, PageHeader } from "@/components/layout/page";
+import { layout } from "@/lib/layout";
 
 export default function ProfilePage() {
   const { profile, updateProfile } = useFinance();
@@ -26,17 +28,17 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="space-y-6 max-w-lg">
-      <h1 className="text-3xl font-bold font-display">Perfil</h1>
+    <PageShell narrow>
+      <PageHeader title="Perfil" />
 
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-xl border border-border bg-card p-6 shadow-sm"
+        className={layout.card}
       >
         <p className="text-sm text-muted-foreground mb-6">{user?.email}</p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className={layout.stack}>
           <div>
             <Label>Idade</Label>
             <Input type="number" min="1" max="120" value={idade} onChange={(e) => setIdade(e.target.value)} className="font-mono-nums" />
@@ -53,11 +55,11 @@ export default function ProfilePage() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
-        className="rounded-xl border border-border bg-card p-6 shadow-sm"
+        className={layout.card}
       >
         <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Plano Atual</p>
         <p className="text-lg font-bold capitalize">{profile.plano}</p>
       </motion.div>
-    </div>
+    </PageShell>
   );
 }
