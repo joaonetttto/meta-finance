@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { PageShell, PageHeader } from "@/components/layout/page";
 import { layout, type } from "@/lib/layout";
+import { cn } from "@/lib/utils";
 
 export default function ProfilePage() {
   const { profile, updateProfile } = useFinance();
