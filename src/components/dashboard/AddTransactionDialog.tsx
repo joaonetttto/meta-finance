@@ -21,10 +21,13 @@ export function AddTransactionDialog({ open, onOpenChange }: Props) {
   const [categoriaId, setCategoriaId] = useState("");
   const [data, setData] = useState(new Date().toISOString().split("T")[0]);
   const [newCategory, setNewCategory] = useState("");
+  const [parcelado, setParcelado] = useState(false);
+  const [parcelas, setParcelas] = useState("2");
   const [submitting, setSubmitting] = useState(false);
 
   const reset = () => {
     setDescricao(""); setValor(""); setTipo("despesa"); setCategoriaId(""); setNewCategory("");
+    setParcelado(false); setParcelas("2");
     setData(new Date().toISOString().split("T")[0]);
   };
 
@@ -37,17 +40,27 @@ export function AddTransactionDialog({ open, onOpenChange }: Props) {
       let catId = categoriaId || null;
       if (newCategory.trim()) {
         await addCategory(newCategory.trim());
-        // Category will be available after refresh, use null for now
         catId = null;
       }
-      await addTransaction({
-        descricao,
-        valor: parseFloat(valor),
-        tipo,
-        categoria_id: catId,
-        data,
-      });
-      toast.success("Transação adicionada!");
+
+      const total = parseFloat(valor);
+      const n = parcelado ? Math.max(2, Math.min(60, parseInt(parcelas) || 2)) : 1;
+      const valorParcela = total / n;
+      const [yy, mm, dd] = data.split("-").map(Number);
+
+      for (let i = 0; i < n; i++) {
+        const d = new Date(yy, mm - 1 + i, dd);
+        const iso = d.toISOString().split("T")[0];
+        await addTransaction({
+          descricao: n > 1 ? `${descricao} (${i + 1}/${n})` : descricao,
+          valor: valorParcela,
+          tipo,
+          categoria_id: catId,
+          data: iso,
+        });
+      }
+
+      toast.success(n > 1 ? `${n} parcelas adicionadas!` : "Transação adicionada!");
       reset();
       onOpenChange(false);
     } catch {
@@ -117,6 +130,44 @@ export function AddTransactionDialog({ open, onOpenChange }: Props) {
               onChange={(e) => { setNewCategory(e.target.value); if (e.target.value) setCategoriaId(""); }}
               placeholder="Ex: Alimentação"
             />
+          </div>
+
+          <div className="space-y-2 rounded-lg border border-border bg-secondary/30 p-3">
+            <label className="flex items-center justify-between gap-3 cursor-pointer">
+              <div>
+                <p className="text-sm font-medium">Parcelado</p>
+                <p className="text-xs text-muted-foreground">Dividir o valor em vários meses</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={parcelado}
+                onChange={(e) => setParcelado(e.target.checked)}
+                className="h-4 w-4 accent-primary"
+              />
+            </label>
+            {parcelado && (
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">Nº de parcelas</Label>
+                  <Input
+                    type="number"
+                    min={2}
+                    max={60}
+                    value={parcelas}
+                    onChange={(e) => setParcelas(e.target.value)}
+                    className="font-mono-nums"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Valor por parcela</Label>
+                  <div className="h-10 flex items-center px-3 rounded-lg border border-border bg-background text-sm font-mono-nums text-muted-foreground">
+                    {valor && parseInt(parcelas) > 0
+                      ? (parseFloat(valor) / parseInt(parcelas)).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                      : "—"}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-2 pt-2">
