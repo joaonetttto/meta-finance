@@ -94,18 +94,29 @@ export function AddTransactionDialog({ open, onOpenChange }: Props) {
 
           <div className="space-y-2">
             <Label>Categoria</Label>
-            {categories.length > 0 ? (
-              <Select value={categoriaId} onValueChange={setCategoriaId}>
-                <SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+            {categories.length > 0 && (
+              <Select
+                value={categoriaId}
+                onValueChange={(v) => { setCategoriaId(v); setNewCategory(""); }}
+              >
+                <SelectTrigger><SelectValue placeholder="Selecione uma categoria existente..." /></SelectTrigger>
                 <SelectContent>
                   {categories.map((c) => (
                     <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-            ) : (
-              <Input value={newCategory} onChange={(e) => setNewCategory(e.target.value)} placeholder="Criar categoria (ex: Alimentação)" />
             )}
+            <div className="flex items-center gap-2">
+              <div className="h-px flex-1 bg-border" />
+              <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">ou criar nova</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+            <Input
+              value={newCategory}
+              onChange={(e) => { setNewCategory(e.target.value); if (e.target.value) setCategoriaId(""); }}
+              placeholder="Ex: Alimentação"
+            />
           </div>
 
           <div className="flex gap-2 pt-2">
