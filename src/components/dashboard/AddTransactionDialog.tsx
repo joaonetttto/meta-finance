@@ -132,6 +132,44 @@ export function AddTransactionDialog({ open, onOpenChange }: Props) {
             />
           </div>
 
+          <div className="space-y-2 rounded-lg border border-border bg-secondary/30 p-3">
+            <label className="flex items-center justify-between gap-3 cursor-pointer">
+              <div>
+                <p className="text-sm font-medium">Parcelado</p>
+                <p className="text-xs text-muted-foreground">Dividir o valor em vários meses</p>
+              </div>
+              <input
+                type="checkbox"
+                checked={parcelado}
+                onChange={(e) => setParcelado(e.target.checked)}
+                className="h-4 w-4 accent-primary"
+              />
+            </label>
+            {parcelado && (
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">Nº de parcelas</Label>
+                  <Input
+                    type="number"
+                    min={2}
+                    max={60}
+                    value={parcelas}
+                    onChange={(e) => setParcelas(e.target.value)}
+                    className="font-mono-nums"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs">Valor por parcela</Label>
+                  <div className="h-10 flex items-center px-3 rounded-lg border border-border bg-background text-sm font-mono-nums text-muted-foreground">
+                    {valor && parseInt(parcelas) > 0
+                      ? (parseFloat(valor) / parseInt(parcelas)).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })
+                      : "—"}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-2 pt-2">
             <Button type="button" variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
               Cancelar
