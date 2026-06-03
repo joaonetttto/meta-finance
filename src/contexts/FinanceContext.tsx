@@ -130,9 +130,39 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     fetchAll();
   };
 
+  const transactionsWithSalary = useMemo<Transaction[]>(() => {
+    const salario = profile.salario ?? 0;
+    if (!salario || salario <= 0) return transactions;
+    const now = new Date();
+    let earliest = new Date(now.getFullYear(), now.getMonth(), 1);
+    transactions.forEach((t) => {
+      const d = new Date(t.data);
+      if (d < earliest) earliest = new Date(d.getFullYear(), d.getMonth(), 1);
+    });
+    // Extend a couple months forward so future months show salary too
+    const end = new Date(now.getFullYear(), now.getMonth() + 2, 1);
+    const virtual: Transaction[] = [];
+    const cur = new Date(earliest);
+    while (cur <= end) {
+      const y = cur.getFullYear();
+      const m = cur.getMonth();
+      virtual.push({
+        id: `${SALARY_TX_PREFIX}${y}-${String(m + 1).padStart(2, "0")}`,
+        descricao: "Salário",
+        valor: salario,
+        tipo: "receita",
+        categoria_id: null,
+        data: `${y}-${String(m + 1).padStart(2, "0")}-01`,
+        virtual: true,
+      });
+      cur.setMonth(cur.getMonth() + 1);
+    }
+    return [...virtual, ...transactions];
+  }, [transactions, profile.salario]);
+
   return (
     <FinanceContext.Provider value={{
-      transactions, categories, goals, profile, loading,
+      transactions, transactionsWithSalary, categories, goals, profile, loading,
       addTransaction, updateTransaction, deleteTransaction,
       addCategory, deleteCategory,
       addGoal, updateGoal, deleteGoal,
