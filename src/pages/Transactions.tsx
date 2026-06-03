@@ -22,7 +22,7 @@ interface FormData {
 const empty: FormData = { valor: "", tipo: "despesa", categoria_id: "", data: new Date().toISOString().slice(0, 10), descricao: "" };
 
 export default function Transactions() {
-  const { transactions, categories, addTransaction, updateTransaction, deleteTransaction, addCategory } = useFinance();
+  const { transactionsWithSalary: transactions, categories, addTransaction, updateTransaction, deleteTransaction, addCategory } = useFinance();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>(empty);
