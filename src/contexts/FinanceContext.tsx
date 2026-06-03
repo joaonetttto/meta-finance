@@ -81,16 +81,20 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
   useEffect(() => { fetchAll(); }, [fetchAll]);
 
   const addTransaction = async (t: Omit<Transaction, "id">) => {
-    await supabase.from("transactions").insert({ ...t, user_id: user!.id });
+    const { virtual: _v, ...rest } = t as Omit<Transaction, "id"> & { virtual?: boolean };
+    await supabase.from("transactions").insert({ ...rest, user_id: user!.id });
     fetchAll();
   };
 
   const updateTransaction = async (id: string, t: Partial<Transaction>) => {
-    await supabase.from("transactions").update(t).eq("id", id);
+    if (isVirtualTx(id)) return;
+    const { virtual: _v, ...rest } = t as Partial<Transaction> & { virtual?: boolean };
+    await supabase.from("transactions").update(rest).eq("id", id);
     fetchAll();
   };
 
   const deleteTransaction = async (id: string) => {
+    if (isVirtualTx(id)) return;
     await supabase.from("transactions").delete().eq("id", id);
     fetchAll();
   };
