@@ -135,12 +135,14 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     if (!salario || salario <= 0) return transactions;
     const now = new Date();
     let earliest = new Date(now.getFullYear(), now.getMonth(), 1);
+    let latest = new Date(now.getFullYear(), now.getMonth() + 2, 1);
     transactions.forEach((t) => {
       const d = new Date(t.data);
-      if (d < earliest) earliest = new Date(d.getFullYear(), d.getMonth(), 1);
+      const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
+      if (monthStart < earliest) earliest = monthStart;
+      if (monthStart > latest) latest = monthStart;
     });
-    // Extend a couple months forward so future months show salary too
-    const end = new Date(now.getFullYear(), now.getMonth() + 2, 1);
+    const end = latest;
     const virtual: Transaction[] = [];
     const cur = new Date(earliest);
     while (cur <= end) {
