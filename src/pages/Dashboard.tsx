@@ -31,7 +31,7 @@ const MONTHS = [
 ];
 
 export default function Dashboard() {
-  const { transactions, categories, goals, profile, loading } = useFinance();
+  const { transactionsWithSalary: transactions, categories, goals, profile, loading } = useFinance();
   const navigate = useNavigate();
 
   const now = new Date();

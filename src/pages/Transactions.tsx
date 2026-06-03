@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useFinance, type Transaction } from "@/contexts/FinanceContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +22,7 @@ interface FormData {
 const empty: FormData = { valor: "", tipo: "despesa", categoria_id: "", data: new Date().toISOString().slice(0, 10), descricao: "" };
 
 export default function Transactions() {
-  const { transactions, categories, addTransaction, updateTransaction, deleteTransaction, addCategory } = useFinance();
+  const { transactionsWithSalary: transactions, categories, addTransaction, updateTransaction, deleteTransaction, addCategory } = useFinance();
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>(empty);
@@ -143,10 +143,16 @@ export default function Transactions() {
                     <span className={cn(type.financialSm, t.tipo === "receita" ? "text-success" : "text-destructive")}>
                       {t.tipo === "receita" ? "+" : "-"}{fmt(t.valor)}
                     </span>
-                    <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
-                      <button onClick={() => startEdit(t)} className="p-1 rounded hover:bg-accent"><Pencil className="h-3.5 w-3.5 text-muted-foreground" /></button>
-                      <button onClick={() => deleteTransaction(t.id)} className="p-1 rounded hover:bg-destructive/10"><Trash2 className="h-3.5 w-3.5 text-destructive" /></button>
-                    </div>
+                    {t.virtual ? (
+                      <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground px-2 py-1 rounded border border-border/50">
+                        <Lock className="h-3 w-3" /> Auto
+                      </div>
+                    ) : (
+                      <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
+                        <button onClick={() => startEdit(t)} className="p-1 rounded hover:bg-accent"><Pencil className="h-3.5 w-3.5 text-muted-foreground" /></button>
+                        <button onClick={() => deleteTransaction(t.id)} className="p-1 rounded hover:bg-destructive/10"><Trash2 className="h-3.5 w-3.5 text-destructive" /></button>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               );
