@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "./AuthContext";
 
@@ -9,7 +9,11 @@ export interface Transaction {
   categoria_id: string | null;
   data: string;
   descricao: string;
+  virtual?: boolean;
 }
+
+export const SALARY_TX_PREFIX = "salary-";
+export const isVirtualTx = (id: string) => id.startsWith(SALARY_TX_PREFIX);
 
 export interface Category {
   id: string;
