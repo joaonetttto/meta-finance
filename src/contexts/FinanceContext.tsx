@@ -36,6 +36,7 @@ export interface Profile {
 
 interface FinanceContextType {
   transactions: Transaction[];
+  transactionsWithSalary: Transaction[];
   categories: Category[];
   goals: Goal[];
   profile: Profile;
