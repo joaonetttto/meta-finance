@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowUpRight, ArrowDownRight, Wallet, Plus, ChevronLeft, ChevronRight,
-  ArrowRight, Target, Sparkles
+  ArrowRight, Target, Sparkles, TrendingUp, TrendingDown, Minus, Lightbulb, FileText, Flag
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid, BarChart, Bar, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
@@ -56,9 +56,33 @@ export default function Dashboard() {
     [transactions, selectedMonth, selectedYear]
   );
 
+  // Previous month transactions for comparison
+  const prevMonthDate = useMemo(() => {
+    const d = new Date(selectedYear, selectedMonth - 1, 1);
+    return { month: d.getMonth(), year: d.getFullYear() };
+  }, [selectedMonth, selectedYear]);
+
+  const prevMonthTransactions = useMemo(
+    () => transactions.filter((t) => {
+      const d = new Date(t.data);
+      return d.getMonth() === prevMonthDate.month && d.getFullYear() === prevMonthDate.year;
+    }),
+    [transactions, prevMonthDate]
+  );
+
   const totalReceitas = monthTransactions.filter((t) => t.tipo === "receita").reduce((s, t) => s + t.valor, 0);
   const totalDespesas = monthTransactions.filter((t) => t.tipo === "despesa").reduce((s, t) => s + t.valor, 0);
   const saldo = totalReceitas - totalDespesas;
+
+  const prevReceitas = prevMonthTransactions.filter((t) => t.tipo === "receita").reduce((s, t) => s + t.valor, 0);
+  const prevDespesas = prevMonthTransactions.filter((t) => t.tipo === "despesa").reduce((s, t) => s + t.valor, 0);
+  const prevSaldo = prevReceitas - prevDespesas;
+  const hasPrev = prevMonthTransactions.length > 0;
+
+  const pctChange = (curr: number, prev: number): number | null => {
+    if (!prev || prev === 0) return null;
+    return ((curr - prev) / Math.abs(prev)) * 100;
+  };
 
   const categoryData = useMemo(() => {
     const map = new Map<string, number>();
@@ -117,8 +141,15 @@ export default function Dashboard() {
   }, [transactions, selectedMonth, selectedYear]);
 
   const savingsRate = totalReceitas > 0 ? (saldo / totalReceitas) * 100 : 0;
-  const avgDaily = monthTransactions.length > 0 ? totalDespesas / new Date(selectedYear, selectedMonth + 1, 0).getDate() : 0;
+  const daysInMonth = new Date(selectedYear, selectedMonth + 1, 0).getDate();
+  const avgDaily = monthTransactions.length > 0 ? totalDespesas / daysInMonth : 0;
   const topCategory = categoryData[0];
+
+  // Projected end-of-month savings based on current pace
+  const isCurrentMonth = selectedMonth === now.getMonth() && selectedYear === now.getFullYear();
+  const elapsedDays = isCurrentMonth ? Math.min(now.getDate(), daysInMonth) : daysInMonth;
+  const projectedDespesas = elapsedDays > 0 ? (totalDespesas / elapsedDays) * daysInMonth : totalDespesas;
+  const projectedSaldo = totalReceitas - projectedDespesas;
 
   const fmt = (v: number) =>
     v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -127,27 +158,28 @@ export default function Dashboard() {
     {
       label: "Saldo do Mês",
       value: saldo,
+      prev: prevSaldo,
       icon: Wallet,
-      positive: saldo >= 0,
-      gradient: saldo >= 0 ? "from-accent/20 to-accent/5" : "from-destructive/20 to-destructive/5",
+      // for saldo, increase is "good"
+      positiveIsGood: true,
       iconBg: saldo >= 0 ? "bg-accent/15" : "bg-destructive/15",
       textColor: saldo >= 0 ? "text-accent" : "text-destructive",
     },
     {
       label: "Receitas",
       value: totalReceitas,
+      prev: prevReceitas,
       icon: ArrowUpRight,
-      positive: true,
-      gradient: "from-accent/20 to-accent/5",
+      positiveIsGood: true,
       iconBg: "bg-accent/15",
       textColor: "text-accent",
     },
     {
       label: "Despesas",
       value: totalDespesas,
+      prev: prevDespesas,
       icon: ArrowDownRight,
-      positive: false,
-      gradient: "from-destructive/20 to-destructive/5",
+      positiveIsGood: false, // increase is bad
       iconBg: "bg-destructive/15",
       textColor: "text-destructive",
     },
@@ -227,9 +259,18 @@ export default function Dashboard() {
           <p className={cn(type.financialHero, cards[0].textColor)}>
             {fmt(saldo)}
           </p>
-          <p className={cn(type.caption, "mt-4")}>
-            {saldo >= 0 ? "Saldo positivo este mês" : "Despesas superiores às receitas"}
-          </p>
+          <div className="mt-4 flex items-center gap-3 flex-wrap">
+            <p className={type.caption}>
+              {saldo >= 0 ? "Saldo positivo este mês" : "Despesas superiores às receitas"}
+            </p>
+            {hasPrev && (
+              <DeltaBadge
+                pct={pctChange(saldo, prevSaldo)}
+                positiveIsGood={cards[0].positiveIsGood}
+                label="vs mês anterior"
+              />
+            )}
+          </div>
         </motion.div>
 
         <div className={cn(layout.grid, "grid-cols-2 lg:grid-cols-1")}>
@@ -249,12 +290,47 @@ export default function Dashboard() {
                 </div>
               </div>
               <p className={cn(type.financial, c.textColor)}>{fmt(c.value)}</p>
+              {hasPrev && (
+                <div className="mt-2">
+                  <DeltaBadge
+                    pct={pctChange(c.value, c.prev)}
+                    positiveIsGood={c.positiveIsGood}
+                  />
+                </div>
+              )}
             </motion.div>
           ))}
         </div>
       </div>
 
-      {/* Insights */}
+      {/* Insights + Month Summary */}
+      <div className={cn(layout.gridLg, "grid-cols-1 lg:grid-cols-2")}>
+        <InsightsCard
+          monthName={MONTHS[selectedMonth]}
+          monthCount={monthTransactions.length}
+          totalDespesas={totalDespesas}
+          prevDespesas={prevDespesas}
+          hasPrev={hasPrev}
+          topCategory={topCategory}
+          savingsRate={savingsRate}
+          projectedSaldo={projectedSaldo}
+          isCurrentMonth={isCurrentMonth}
+          fmt={fmt}
+        />
+        <MonthSummaryCard
+          monthName={MONTHS[selectedMonth]}
+          year={selectedYear}
+          totalCount={monthTransactions.length}
+          savingsRate={savingsRate}
+          totalReceitas={totalReceitas}
+          totalDespesas={totalDespesas}
+          topCategory={topCategory}
+          goals={goals}
+          fmt={fmt}
+        />
+      </div>
+
+      {/* Insights stats */}
       <div className={cn(layout.grid, "grid-cols-2 lg:grid-cols-4")}>
         {[
           {
@@ -464,29 +540,9 @@ export default function Dashboard() {
           />
           {goals.length > 0 ? (
             <div className="space-y-4">
-              {goals.slice(0, 4).map((g) => {
-                const pct = Math.min((g.valor_atual / g.valor_objetivo) * 100, 100);
-                return (
-                  <div key={g.id} className="cursor-pointer hover:bg-muted/50 rounded-lg p-3 -mx-3 transition-colors" onClick={() => navigate("/metas")}>
-                    <div className="flex justify-between mb-2">
-                      <span className={type.body}>{g.nome}</span>
-                      <span className={cn(type.financialSm, "text-primary")}>{pct.toFixed(0)}%</span>
-                    </div>
-                    <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${pct}%` }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="h-full rounded-full bg-primary"
-                      />
-                    </div>
-                    <div className={cn("flex justify-between mt-1.5", type.caption)}>
-                      <span className="font-mono-nums tabular-nums">{fmt(g.valor_atual)}</span>
-                      <span className="font-mono-nums tabular-nums">{fmt(g.valor_objetivo)}</span>
-                    </div>
-                  </div>
-                );
-              })}
+              {goals.slice(0, 4).map((g) => (
+                <GoalRow key={g.id} goal={g} fmt={fmt} onClick={() => navigate("/metas")} />
+              ))}
             </div>
           ) : (
             <EmptyState
@@ -557,6 +613,248 @@ export default function Dashboard() {
 
       <AddTransactionDialog open={showAddTransaction} onOpenChange={setShowAddTransaction} />
     </PageShell>
+  );
+}
+
+function DeltaBadge({
+  pct,
+  positiveIsGood,
+  label,
+}: {
+  pct: number | null;
+  positiveIsGood: boolean;
+  label?: string;
+}) {
+  if (pct === null || !isFinite(pct)) return null;
+  const isUp = pct > 0.05;
+  const isDown = pct < -0.05;
+  const isFlat = !isUp && !isDown;
+  const Icon = isFlat ? Minus : isUp ? TrendingUp : TrendingDown;
+  const good = isFlat ? false : (isUp ? positiveIsGood : !positiveIsGood);
+  const color = isFlat
+    ? "text-muted-foreground bg-muted/40 border-border/50"
+    : good
+      ? "text-accent bg-accent/10 border-accent/20"
+      : "text-destructive bg-destructive/10 border-destructive/20";
+  const sign = isUp ? "+" : isDown ? "" : "";
+  return (
+    <span className={cn("inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[11px] font-medium font-mono-nums tabular-nums", color)}>
+      <Icon className="h-3 w-3" />
+      {sign}{pct.toFixed(1)}%
+      {label && <span className="text-muted-foreground font-normal ml-1">{label}</span>}
+    </span>
+  );
+}
+
+function InsightsCard({
+  monthName, monthCount, totalDespesas, prevDespesas, hasPrev,
+  topCategory, savingsRate, projectedSaldo, isCurrentMonth, fmt,
+}: {
+  monthName: string;
+  monthCount: number;
+  totalDespesas: number;
+  prevDespesas: number;
+  hasPrev: boolean;
+  topCategory?: { name: string; value: number };
+  savingsRate: number;
+  projectedSaldo: number;
+  isCurrentMonth: boolean;
+  fmt: (v: number) => string;
+}) {
+  const insights: { text: string; good?: boolean }[] = [];
+
+  if (hasPrev && prevDespesas > 0) {
+    const diff = ((totalDespesas - prevDespesas) / prevDespesas) * 100;
+    if (Math.abs(diff) >= 1) {
+      insights.push({
+        text: diff < 0
+          ? `Você gastou ${Math.abs(diff).toFixed(1)}% menos que no mês passado.`
+          : `Seus gastos aumentaram ${diff.toFixed(1)}% em relação ao mês passado.`,
+        good: diff < 0,
+      });
+    }
+  }
+
+  if (topCategory) {
+    insights.push({ text: `Sua maior categoria foi ${topCategory.name} (${fmt(topCategory.value)}).` });
+  }
+
+  if (monthCount > 0) {
+    insights.push({
+      text: `Sua taxa de poupança foi ${savingsRate.toFixed(1)}%.`,
+      good: savingsRate >= 10,
+    });
+  }
+
+  if (isCurrentMonth && monthCount > 1) {
+    insights.push({
+      text: `Mantendo esse ritmo, sua economia prevista será de ${fmt(projectedSaldo)}.`,
+      good: projectedSaldo >= 0,
+    });
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.22 }}
+      className={layout.card}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Lightbulb className="h-3.5 w-3.5 text-primary" />
+            <span className={type.overlineAccent}>Insights Financeiros</span>
+          </div>
+          <p className={type.panelDesc}>Análise automática do mês de {monthName}</p>
+        </div>
+      </div>
+      {insights.length === 0 ? (
+        <p className={cn(type.bodyMuted, "py-4")}>
+          Registre mais transações para desbloquear análises automáticas do seu mês.
+        </p>
+      ) : (
+        <ul className="space-y-2.5">
+          {insights.map((i, idx) => (
+            <li key={idx} className="flex items-start gap-2.5">
+              <span className={cn(
+                "mt-1.5 h-1.5 w-1.5 rounded-full shrink-0",
+                i.good === undefined ? "bg-primary" : i.good ? "bg-accent" : "bg-destructive"
+              )} />
+              <span className={type.body}>{i.text}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </motion.div>
+  );
+}
+
+function MonthSummaryCard({
+  monthName, year, totalCount, savingsRate, totalReceitas, totalDespesas, topCategory, goals, fmt,
+}: {
+  monthName: string;
+  year: number;
+  totalCount: number;
+  savingsRate: number;
+  totalReceitas: number;
+  totalDespesas: number;
+  topCategory?: { name: string; value: number };
+  goals: { id: string; nome: string; valor_atual: number; valor_objetivo: number }[];
+  fmt: (v: number) => string;
+}) {
+  const saldo = totalReceitas - totalDespesas;
+  const mood = saldo > 0 && savingsRate >= 15
+    ? `${monthName} foi um ótimo mês.`
+    : saldo > 0
+      ? `${monthName} fechou no positivo.`
+      : totalCount > 0
+        ? `${monthName} pediu mais atenção aos gastos.`
+        : `${monthName} ainda não tem transações.`;
+
+  const nearGoal = goals
+    .map((g) => ({ ...g, pct: g.valor_objetivo > 0 ? (g.valor_atual / g.valor_objetivo) * 100 : 0 }))
+    .filter((g) => g.pct >= 80 && g.pct < 100)
+    .sort((a, b) => b.pct - a.pct)[0];
+
+  const bullets: string[] = [];
+  if (totalCount > 0) bullets.push(`Você realizou ${totalCount} transaç${totalCount === 1 ? "ão" : "ões"}.`);
+  if (totalReceitas > 0) bullets.push(`Economizou ${savingsRate.toFixed(0)}% da renda.`);
+  if (topCategory) bullets.push(`Sua maior despesa foi ${topCategory.name}.`);
+  if (nearGoal) bullets.push(`Está próximo de concluir a meta "${nearGoal.nome}" (${nearGoal.pct.toFixed(0)}%).`);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.26 }}
+      className={layout.card}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <FileText className="h-3.5 w-3.5 text-primary" />
+            <span className={type.overlineAccent}>Resumo do Mês</span>
+          </div>
+          <p className={type.panelDesc}>{monthName} · {year}</p>
+        </div>
+      </div>
+      <p className={cn(type.body, "font-medium mb-3")}>{mood}</p>
+      {bullets.length > 0 ? (
+        <ul className="space-y-1.5">
+          {bullets.map((b, i) => (
+            <li key={i} className={cn(type.bodyMuted, "flex gap-2")}>
+              <span className="text-primary">•</span>
+              <span>{b}</span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className={type.bodyMuted}>Adicione transações para ver um resumo completo.</p>
+      )}
+    </motion.div>
+  );
+}
+
+function GoalRow({
+  goal, fmt, onClick,
+}: {
+  goal: { id: string; nome: string; valor_atual: number; valor_objetivo: number; prazo: string };
+  fmt: (v: number) => string;
+  onClick: () => void;
+}) {
+  const pct = goal.valor_objetivo > 0 ? Math.min((goal.valor_atual / goal.valor_objetivo) * 100, 100) : 0;
+  const restante = Math.max(goal.valor_objetivo - goal.valor_atual, 0);
+  const completed = pct >= 100;
+  const almost = !completed && pct >= 80;
+
+  // Forecast completion date (based on linear progress so far)
+  let forecast: string | null = null;
+  if (!completed && goal.valor_atual > 0 && goal.prazo) {
+    const prazoDate = new Date(goal.prazo);
+    // simple: if at current pace they reach target on/before deadline → show deadline,
+    // otherwise estimate using months elapsed since "now" isn't trackable here, so just show deadline as forecast
+    if (!isNaN(prazoDate.getTime())) {
+      forecast = prazoDate.toLocaleDateString("pt-BR", { month: "short", year: "numeric" });
+    }
+  }
+
+  return (
+    <div className="cursor-pointer hover:bg-muted/50 rounded-lg p-3 -mx-3 transition-colors" onClick={onClick}>
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className={cn(type.body, "truncate")}>{goal.nome}</span>
+          {completed && (
+            <span className="inline-flex items-center gap-1 rounded-md border border-accent/20 bg-accent/10 px-1.5 py-0.5 text-[10px] font-medium text-accent">
+              <Flag className="h-2.5 w-2.5" /> Concluída
+            </span>
+          )}
+          {almost && (
+            <span className="inline-flex items-center gap-1 rounded-md border border-primary/20 bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+              Falta pouco
+            </span>
+          )}
+        </div>
+        <span className={cn(type.financialSm, "text-primary shrink-0")}>{pct.toFixed(0)}%</span>
+      </div>
+      <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className={cn("h-full rounded-full", completed ? "bg-accent" : almost ? "bg-primary" : "bg-primary/80")}
+        />
+      </div>
+      <div className={cn("flex justify-between mt-1.5", type.caption)}>
+        <span className="font-mono-nums tabular-nums">{fmt(goal.valor_atual)} / {fmt(goal.valor_objetivo)}</span>
+        <span className="font-mono-nums tabular-nums">
+          {completed ? "Meta atingida" : `Faltam ${fmt(restante)}`}
+        </span>
+      </div>
+      {forecast && !completed && (
+        <p className={cn(type.caption, "mt-1")}>Previsão: {forecast}</p>
+      )}
+    </div>
   );
 }
 
