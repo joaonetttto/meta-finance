@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useFinance, type Transaction } from "@/contexts/FinanceContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Pencil, Trash2, X, Lock } from "lucide-react";
@@ -10,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PageShell, PageHeader } from "@/components/layout/page";
 import { layout, type } from "@/lib/layout";
 import { cn } from "@/lib/utils";
+
 
 interface FormData {
   valor: string;
