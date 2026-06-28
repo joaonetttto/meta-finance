@@ -920,3 +920,134 @@ function EmptyState({ message, action, onClick }: { message: string; action: str
     </div>
   );
 }
+
+function StatCard({
+  label, value, hint, delay, onClick,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+  delay: number;
+  onClick?: () => void;
+}) {
+  const interactive = !!onClick;
+  const Component = interactive ? motion.button : motion.div;
+  return (
+    <Component
+      type={interactive ? "button" : undefined}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay }}
+      whileHover={interactive ? { y: -2 } : undefined}
+      whileTap={interactive ? { scale: 0.98 } : undefined}
+      onClick={onClick}
+      className={cn(
+        layout.card,
+        "text-left",
+        interactive && "cursor-pointer transition-all hover:border-primary/40 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+      )}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className={type.overline}>{label}</span>
+        {interactive && <ArrowRight className="h-3 w-3 text-muted-foreground/60" />}
+      </div>
+      <p className={cn(type.statValue, "mt-3 truncate")}>{value}</p>
+      <p className={cn(type.statHint, "mt-1.5")}>{hint}</p>
+    </Component>
+  );
+}
+
+function SavingsRateStat({
+  rate, totalReceitas, saldo, fmt, delay,
+}: {
+  rate: number;
+  totalReceitas: number;
+  saldo: number;
+  fmt: (v: number) => string;
+  delay: number;
+}) {
+  const hint = rate >= 20 ? "Excelente" : rate >= 10 ? "Saudável" : "Pode melhorar";
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <motion.button
+          type="button"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay }}
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.98 }}
+          className={cn(
+            layout.card,
+            "text-left cursor-pointer transition-all hover:border-primary/40 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          )}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <span className={type.overline}>Taxa de Poupança</span>
+            <HelpCircle className="h-3 w-3 text-muted-foreground/60" />
+          </div>
+          <p className={cn(type.statValue, "mt-3 truncate tabular-nums")}>{rate.toFixed(1)}%</p>
+          <p className={cn(type.statHint, "mt-1.5")}>{hint}</p>
+        </motion.button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80" align="start">
+        <div className="flex items-start gap-2 mb-3">
+          <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+          <div>
+            <p className={cn(type.body, "font-medium")}>Como é calculada?</p>
+            <p className={cn(type.caption, "mt-1")}>
+              É o percentual da sua renda que sobrou no mês.
+            </p>
+          </div>
+        </div>
+        <div className="rounded-md border border-border bg-muted/30 px-3 py-2.5 space-y-1.5 text-xs font-mono-nums tabular-nums">
+          <div className="flex justify-between"><span className="text-muted-foreground">Saldo</span><span>{fmt(saldo)}</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">÷ Receitas</span><span>{fmt(totalReceitas)}</span></div>
+          <div className="flex justify-between border-t border-border pt-1.5 mt-1.5 font-medium">
+            <span>= Taxa</span><span className="text-primary">{rate.toFixed(1)}%</span>
+          </div>
+        </div>
+        <p className={cn(type.caption, "mt-3")}>
+          Referência: acima de 20% é excelente; entre 10–20% é saudável.
+        </p>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function TrendBarTooltip({
+  active, payload, label, fmt,
+}: {
+  active?: boolean;
+  payload?: Array<{ value: number; name: string; color?: string; dataKey?: string }>;
+  label?: string | number;
+  fmt: (v: number) => string;
+}) {
+  if (!active || !payload?.length) return null;
+  const receitas = payload.find((p) => p.dataKey === "receitas")?.value ?? 0;
+  const despesas = payload.find((p) => p.dataKey === "despesas")?.value ?? 0;
+  const saldo = receitas - despesas;
+  return (
+    <div style={chartTooltipStyle}>
+      <p style={chartTooltipLabelStyle}>{label}</p>
+      <div className="space-y-1">
+        {payload.map((entry) => (
+          <div key={String(entry.dataKey)} className="flex items-center justify-between gap-4">
+            <span className="flex items-center gap-2" style={chartTooltipItemStyle}>
+              <span className="inline-block h-2 w-2 rounded-sm shrink-0" style={{ backgroundColor: entry.color }} />
+              {entry.dataKey === "receitas" ? "Receitas" : "Despesas"}
+            </span>
+            <span className="text-xs font-mono-nums tabular-nums text-foreground">{fmt(entry.value)}</span>
+          </div>
+        ))}
+        <div className="flex items-center justify-between gap-4 border-t border-border pt-1.5 mt-1">
+          <span style={chartTooltipItemStyle}>Saldo</span>
+          <span className={cn("text-xs font-mono-nums tabular-nums font-medium", saldo >= 0 ? "text-accent" : "text-destructive")}>
+            {fmt(saldo)}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
