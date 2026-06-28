@@ -87,6 +87,37 @@ export default function Transactions() {
       </PageHeader>
 
       <AnimatePresence>
+        {hasFilters && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            className="flex flex-wrap items-center gap-2"
+          >
+            <span className={type.caption}>Filtros ativos:</span>
+            {tipoFilter && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs">
+                Tipo: <strong className="capitalize">{tipoFilter}</strong>
+              </span>
+            )}
+            {activeCategoryName && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs">
+                Categoria: <strong>{activeCategoryName}</strong>
+              </span>
+            )}
+            <button
+              onClick={clearFilters}
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-3 w-3" /> Limpar
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+
+
+      <AnimatePresence>
         {showForm && (
           <motion.form
             initial={{ opacity: 0, height: 0 }}
