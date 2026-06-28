@@ -25,12 +25,32 @@ const empty: FormData = { valor: "", tipo: "despesa", categoria_id: "", data: ne
 
 export default function Transactions() {
   const { transactionsWithSalary: transactions, categories, addTransaction, updateTransaction, deleteTransaction, addCategory } = useFinance();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tipoFilter = searchParams.get("tipo");
+  const categoriaFilter = searchParams.get("categoria");
+
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>(empty);
   const [newCat, setNewCat] = useState("");
 
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((t) => {
+      if (tipoFilter && t.tipo !== tipoFilter) return false;
+      if (categoriaFilter && t.categoria_id !== categoriaFilter) return false;
+      return true;
+    });
+  }, [transactions, tipoFilter, categoriaFilter]);
+
+  const activeCategoryName = categoriaFilter
+    ? categories.find((c) => c.id === categoriaFilter)?.nome
+    : null;
+
+  const clearFilters = () => setSearchParams({});
+  const hasFilters = !!(tipoFilter || categoriaFilter);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
