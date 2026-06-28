@@ -194,16 +194,31 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className={type.bodyMuted}>Carregando dados...</p>
+      <PageShell>
+        <div className="flex flex-col gap-3">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-10 w-56" />
+          <Skeleton className="h-4 w-72" />
         </div>
-      </div>
+        <Skeleton className="h-10 w-72 mx-auto rounded-full" />
+        <div className={cn(layout.grid, "grid-cols-1 lg:grid-cols-3")}>
+          <Skeleton className="h-40 lg:col-span-2 rounded-xl" />
+          <div className={cn(layout.grid, "grid-cols-2 lg:grid-cols-1")}>
+            <Skeleton className="h-28 rounded-xl" />
+            <Skeleton className="h-28 rounded-xl" />
+          </div>
+        </div>
+        <div className={cn(layout.gridLg, "grid-cols-1 lg:grid-cols-2")}>
+          <Skeleton className="h-48 rounded-xl" />
+          <Skeleton className="h-48 rounded-xl" />
+        </div>
+        <Skeleton className="h-72 rounded-xl" />
+      </PageShell>
     );
   }
 
   return (
+
     <PageShell>
       <div className={layout.pageHeader}>
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
