@@ -465,14 +465,10 @@ export default function Dashboard() {
               <XAxis dataKey="mes" tick={chartAxisTick} {...chartAxisProps} />
               <YAxis tick={chartAxisTick} {...chartAxisProps} width={64} tickFormatter={chartYAxisFormatter} />
               <Tooltip
-                content={
-                  <FinancialChartTooltip
-                    valueFormatter={fmt}
-                    nameFormatter={(n) => (n === "receitas" ? "Receitas" : "Despesas")}
-                  />
-                }
+                content={<TrendBarTooltip fmt={fmt} />}
                 cursor={{ fill: "hsl(var(--muted) / 0.35)" }}
               />
+
               <Legend
                 verticalAlign="top"
                 align="right"
