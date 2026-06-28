@@ -4,12 +4,15 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowUpRight, ArrowDownRight, Wallet, Plus, ChevronLeft, ChevronRight,
-  ArrowRight, Target, Sparkles, TrendingUp, TrendingDown, Minus, Lightbulb, FileText, Flag
+  ArrowRight, Target, Sparkles, TrendingUp, TrendingDown, Minus, Lightbulb, FileText, Flag, Info, HelpCircle
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid, BarChart, Bar, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
 import { AddTransactionDialog } from "@/components/dashboard/AddTransactionDialog";
+import { CountUp } from "@/components/dashboard/CountUp";
 import { PageShell, PanelCardHeader } from "@/components/layout/page";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Skeleton } from "@/components/ui/skeleton";
 import { layout, type } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 import { FinancialChartTooltip } from "@/components/charts/FinancialChartTooltip";
@@ -22,8 +25,12 @@ import {
   chartAxisProps,
   chartAxisTick,
   chartGridProps,
+  chartTooltipStyle,
+  chartTooltipLabelStyle,
+  chartTooltipItemStyle,
   chartYAxisFormatter,
 } from "@/lib/chart-theme";
+
 
 const MONTHS = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -85,16 +92,19 @@ export default function Dashboard() {
   };
 
   const categoryData = useMemo(() => {
-    const map = new Map<string, number>();
+    const map = new Map<string, { id: string | null; value: number }>();
     monthTransactions
       .filter((t) => t.tipo === "despesa")
       .forEach((t) => {
         const cat = categories.find((c) => c.id === t.categoria_id);
         const name = cat?.nome ?? "Sem categoria";
-        map.set(name, (map.get(name) ?? 0) + t.valor);
+        const entry = map.get(name) ?? { id: cat?.id ?? null, value: 0 };
+        entry.value += t.valor;
+        map.set(name, entry);
       });
-    return Array.from(map, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+    return Array.from(map, ([name, v]) => ({ name, value: v.value, id: v.id })).sort((a, b) => b.value - a.value);
   }, [monthTransactions, categories]);
+
 
   // Daily cumulative balance for the selected month
   const dailyData = useMemo(() => {
@@ -187,16 +197,31 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className={type.bodyMuted}>Carregando dados...</p>
+      <PageShell>
+        <div className="flex flex-col gap-3">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-10 w-56" />
+          <Skeleton className="h-4 w-72" />
         </div>
-      </div>
+        <Skeleton className="h-10 w-72 mx-auto rounded-full" />
+        <div className={cn(layout.grid, "grid-cols-1 lg:grid-cols-3")}>
+          <Skeleton className="h-40 lg:col-span-2 rounded-xl" />
+          <div className={cn(layout.grid, "grid-cols-2 lg:grid-cols-1")}>
+            <Skeleton className="h-28 rounded-xl" />
+            <Skeleton className="h-28 rounded-xl" />
+          </div>
+        </div>
+        <div className={cn(layout.gridLg, "grid-cols-1 lg:grid-cols-2")}>
+          <Skeleton className="h-48 rounded-xl" />
+          <Skeleton className="h-48 rounded-xl" />
+        </div>
+        <Skeleton className="h-72 rounded-xl" />
+      </PageShell>
     );
   }
 
   return (
+
     <PageShell>
       <div className={layout.pageHeader}>
         <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
@@ -238,12 +263,19 @@ export default function Dashboard() {
 
       {/* Hero balance + secondary cards */}
       <div className={cn(layout.grid, "grid-cols-1 lg:grid-cols-3")}>
-        <motion.div
+        <motion.button
+          type="button"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, type: "spring", stiffness: 400, damping: 30 }}
-          className={cn(layout.card, "lg:col-span-2 relative cursor-pointer transition-colors hover:border-primary/40")}
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.995 }}
+          className={cn(
+            layout.card,
+            "lg:col-span-2 relative text-left cursor-pointer transition-all hover:border-primary/40 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          )}
           onClick={() => navigate("/transacoes")}
+          aria-label="Ver todas as transações"
         >
           <div className="flex items-start justify-between mb-6">
             <div>
@@ -256,9 +288,7 @@ export default function Dashboard() {
               <Wallet className={`h-5 w-5 ${cards[0].textColor}`} />
             </div>
           </div>
-          <p className={cn(type.financialHero, cards[0].textColor)}>
-            {fmt(saldo)}
-          </p>
+          <CountUp value={saldo} format={fmt} className={cn(type.financialHero, cards[0].textColor)} />
           <div className="mt-4 flex items-center gap-3 flex-wrap">
             <p className={type.caption}>
               {saldo >= 0 ? "Saldo positivo este mês" : "Despesas superiores às receitas"}
@@ -271,37 +301,48 @@ export default function Dashboard() {
               />
             )}
           </div>
-        </motion.div>
+        </motion.button>
 
         <div className={cn(layout.grid, "grid-cols-2 lg:grid-cols-1")}>
-          {cards.slice(1).map((c, i) => (
-            <motion.div
-              key={c.label}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
-              className={cn(layout.card, "relative cursor-pointer transition-colors hover:border-primary/40")}
-              onClick={() => navigate("/transacoes")}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <span className={type.overline}>{c.label}</span>
-                <div className={`h-7 w-7 rounded-md ${c.iconBg} flex items-center justify-center`}>
-                  <c.icon className={`h-3.5 w-3.5 ${c.textColor}`} />
+          {cards.slice(1).map((c, i) => {
+            const tipo = c.label === "Receitas" ? "receita" : "despesa";
+            return (
+              <motion.button
+                type="button"
+                key={c.label}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 + i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.985 }}
+                className={cn(
+                  layout.card,
+                  "relative text-left cursor-pointer transition-all hover:border-primary/40 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                )}
+                onClick={() => navigate(`/transacoes?tipo=${tipo}`)}
+                aria-label={`Ver ${c.label.toLowerCase()} do mês`}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className={type.overline}>{c.label}</span>
+                  <div className={`h-7 w-7 rounded-md ${c.iconBg} flex items-center justify-center`}>
+                    <c.icon className={`h-3.5 w-3.5 ${c.textColor}`} />
+                  </div>
                 </div>
-              </div>
-              <p className={cn(type.financial, c.textColor)}>{fmt(c.value)}</p>
-              {hasPrev && (
-                <div className="mt-2">
-                  <DeltaBadge
-                    pct={pctChange(c.value, c.prev)}
-                    positiveIsGood={c.positiveIsGood}
-                  />
-                </div>
-              )}
-            </motion.div>
-          ))}
+                <CountUp value={c.value} format={fmt} className={cn(type.financial, c.textColor)} />
+                {hasPrev && (
+                  <div className="mt-2">
+                    <DeltaBadge
+                      pct={pctChange(c.value, c.prev)}
+                      positiveIsGood={c.positiveIsGood}
+                    />
+                  </div>
+                )}
+              </motion.button>
+            );
+          })}
         </div>
       </div>
+
 
       {/* Insights + Month Summary */}
       <div className={cn(layout.gridLg, "grid-cols-1 lg:grid-cols-2")}>
@@ -332,41 +373,35 @@ export default function Dashboard() {
 
       {/* Insights stats */}
       <div className={cn(layout.grid, "grid-cols-2 lg:grid-cols-4")}>
-        {[
-          {
-            label: "Taxa de Poupança",
-            value: `${savingsRate.toFixed(1)}%`,
-            hint: savingsRate >= 20 ? "Excelente" : savingsRate >= 10 ? "Saudável" : "Pode melhorar",
-          },
-          {
-            label: "Gasto Médio Diário",
-            value: fmt(avgDaily),
-            hint: `${MONTHS[selectedMonth].slice(0, 3)}/${selectedYear}`,
-          },
-          {
-            label: "Maior Categoria",
-            value: topCategory ? topCategory.name : "—",
-            hint: topCategory ? fmt(topCategory.value) : "Sem despesas",
-          },
-          {
-            label: "Transações",
-            value: String(monthTransactions.length),
-            hint: "no mês",
-          },
-        ].map((k, i) => (
-          <motion.div
-            key={k.label}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 + i * 0.04 }}
-            className={layout.card}
-          >
-            <span className={type.overline}>{k.label}</span>
-            <p className={cn(type.statValue, "mt-3 truncate")}>{k.value}</p>
-            <p className={cn(type.statHint, "mt-1.5")}>{k.hint}</p>
-          </motion.div>
-        ))}
+        <SavingsRateStat
+          rate={savingsRate}
+          totalReceitas={totalReceitas}
+          saldo={saldo}
+          fmt={fmt}
+          delay={0.25}
+        />
+        <StatCard
+          label="Gasto Médio Diário"
+          value={fmt(avgDaily)}
+          hint={`${MONTHS[selectedMonth].slice(0, 3)}/${selectedYear}`}
+          delay={0.29}
+        />
+        <StatCard
+          label="Maior Categoria"
+          value={topCategory ? topCategory.name : "—"}
+          hint={topCategory ? fmt(topCategory.value) : "Sem despesas"}
+          delay={0.33}
+          onClick={topCategory?.id ? () => navigate(`/transacoes?categoria=${topCategory.id}`) : undefined}
+        />
+        <StatCard
+          label="Transações"
+          value={String(monthTransactions.length)}
+          hint="no mês"
+          delay={0.37}
+          onClick={monthTransactions.length > 0 ? () => navigate("/transacoes") : undefined}
+        />
       </div>
+
 
       {/* Cumulative balance chart */}
       <motion.div
@@ -430,14 +465,10 @@ export default function Dashboard() {
               <XAxis dataKey="mes" tick={chartAxisTick} {...chartAxisProps} />
               <YAxis tick={chartAxisTick} {...chartAxisProps} width={64} tickFormatter={chartYAxisFormatter} />
               <Tooltip
-                content={
-                  <FinancialChartTooltip
-                    valueFormatter={fmt}
-                    nameFormatter={(n) => (n === "receitas" ? "Receitas" : "Despesas")}
-                  />
-                }
+                content={<TrendBarTooltip fmt={fmt} />}
                 cursor={{ fill: "hsl(var(--muted) / 0.35)" }}
               />
+
               <Legend
                 verticalAlign="top"
                 align="right"
@@ -493,7 +524,7 @@ export default function Dashboard() {
                     <Tooltip
                       content={
                         <FinancialChartTooltip
-                          valueFormatter={fmt}
+                          valueFormatter={(v) => `${fmt(v)} · ${totalDespesas > 0 ? ((v / totalDespesas) * 100).toFixed(1) : "0"}%`}
                           nameFormatter={(n) => n}
                         />
                       }
@@ -501,17 +532,35 @@ export default function Dashboard() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="space-y-3 flex-1">
-                {categoryData.slice(0, 5).map((d, i) => (
-                  <div key={d.name} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: CHART_CATEGORY_COLORS[i % CHART_CATEGORY_COLORS.length] }} />
-                      <span className={type.caption}>{d.name}</span>
-                    </div>
-                    <span className={type.financialSm}>{fmt(d.value)}</span>
-                  </div>
-                ))}
+              <div className="space-y-3 flex-1 min-w-0">
+                {categoryData.slice(0, 5).map((d, i) => {
+                  const pct = totalDespesas > 0 ? (d.value / totalDespesas) * 100 : 0;
+                  const clickable = !!d.id;
+                  return (
+                    <button
+                      type="button"
+                      key={d.name}
+                      disabled={!clickable}
+                      onClick={() => clickable && navigate(`/transacoes?categoria=${d.id}`)}
+                      className={cn(
+                        "flex w-full items-center justify-between gap-3 text-sm rounded-md px-2 -mx-2 py-1.5 transition-colors",
+                        clickable && "hover:bg-muted/50 cursor-pointer",
+                        !clickable && "cursor-default"
+                      )}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: CHART_CATEGORY_COLORS[i % CHART_CATEGORY_COLORS.length] }} />
+                        <span className={cn(type.caption, "truncate")}>{d.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={cn(type.caption, "tabular-nums w-10 text-right")}>{pct.toFixed(0)}%</span>
+                        <span className={type.financialSm}>{fmt(d.value)}</span>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
+
             </div>
           ) : (
             <EmptyState
@@ -871,3 +920,134 @@ function EmptyState({ message, action, onClick }: { message: string; action: str
     </div>
   );
 }
+
+function StatCard({
+  label, value, hint, delay, onClick,
+}: {
+  label: string;
+  value: string;
+  hint: string;
+  delay: number;
+  onClick?: () => void;
+}) {
+  const interactive = !!onClick;
+  const Component = interactive ? motion.button : motion.div;
+  return (
+    <Component
+      type={interactive ? "button" : undefined}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay }}
+      whileHover={interactive ? { y: -2 } : undefined}
+      whileTap={interactive ? { scale: 0.98 } : undefined}
+      onClick={onClick}
+      className={cn(
+        layout.card,
+        "text-left",
+        interactive && "cursor-pointer transition-all hover:border-primary/40 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+      )}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className={type.overline}>{label}</span>
+        {interactive && <ArrowRight className="h-3 w-3 text-muted-foreground/60" />}
+      </div>
+      <p className={cn(type.statValue, "mt-3 truncate")}>{value}</p>
+      <p className={cn(type.statHint, "mt-1.5")}>{hint}</p>
+    </Component>
+  );
+}
+
+function SavingsRateStat({
+  rate, totalReceitas, saldo, fmt, delay,
+}: {
+  rate: number;
+  totalReceitas: number;
+  saldo: number;
+  fmt: (v: number) => string;
+  delay: number;
+}) {
+  const hint = rate >= 20 ? "Excelente" : rate >= 10 ? "Saudável" : "Pode melhorar";
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <motion.button
+          type="button"
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay }}
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.98 }}
+          className={cn(
+            layout.card,
+            "text-left cursor-pointer transition-all hover:border-primary/40 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          )}
+        >
+          <div className="flex items-center justify-between gap-2">
+            <span className={type.overline}>Taxa de Poupança</span>
+            <HelpCircle className="h-3 w-3 text-muted-foreground/60" />
+          </div>
+          <p className={cn(type.statValue, "mt-3 truncate tabular-nums")}>{rate.toFixed(1)}%</p>
+          <p className={cn(type.statHint, "mt-1.5")}>{hint}</p>
+        </motion.button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80" align="start">
+        <div className="flex items-start gap-2 mb-3">
+          <Info className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+          <div>
+            <p className={cn(type.body, "font-medium")}>Como é calculada?</p>
+            <p className={cn(type.caption, "mt-1")}>
+              É o percentual da sua renda que sobrou no mês.
+            </p>
+          </div>
+        </div>
+        <div className="rounded-md border border-border bg-muted/30 px-3 py-2.5 space-y-1.5 text-xs font-mono-nums tabular-nums">
+          <div className="flex justify-between"><span className="text-muted-foreground">Saldo</span><span>{fmt(saldo)}</span></div>
+          <div className="flex justify-between"><span className="text-muted-foreground">÷ Receitas</span><span>{fmt(totalReceitas)}</span></div>
+          <div className="flex justify-between border-t border-border pt-1.5 mt-1.5 font-medium">
+            <span>= Taxa</span><span className="text-primary">{rate.toFixed(1)}%</span>
+          </div>
+        </div>
+        <p className={cn(type.caption, "mt-3")}>
+          Referência: acima de 20% é excelente; entre 10–20% é saudável.
+        </p>
+      </PopoverContent>
+    </Popover>
+  );
+}
+
+function TrendBarTooltip({
+  active, payload, label, fmt,
+}: {
+  active?: boolean;
+  payload?: Array<{ value: number; name: string; color?: string; dataKey?: string }>;
+  label?: string | number;
+  fmt: (v: number) => string;
+}) {
+  if (!active || !payload?.length) return null;
+  const receitas = payload.find((p) => p.dataKey === "receitas")?.value ?? 0;
+  const despesas = payload.find((p) => p.dataKey === "despesas")?.value ?? 0;
+  const saldo = receitas - despesas;
+  return (
+    <div style={chartTooltipStyle}>
+      <p style={chartTooltipLabelStyle}>{label}</p>
+      <div className="space-y-1">
+        {payload.map((entry) => (
+          <div key={String(entry.dataKey)} className="flex items-center justify-between gap-4">
+            <span className="flex items-center gap-2" style={chartTooltipItemStyle}>
+              <span className="inline-block h-2 w-2 rounded-sm shrink-0" style={{ backgroundColor: entry.color }} />
+              {entry.dataKey === "receitas" ? "Receitas" : "Despesas"}
+            </span>
+            <span className="text-xs font-mono-nums tabular-nums text-foreground">{fmt(entry.value)}</span>
+          </div>
+        ))}
+        <div className="flex items-center justify-between gap-4 border-t border-border pt-1.5 mt-1">
+          <span style={chartTooltipItemStyle}>Saldo</span>
+          <span className={cn("text-xs font-mono-nums tabular-nums font-medium", saldo >= 0 ? "text-accent" : "text-destructive")}>
+            {fmt(saldo)}
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+

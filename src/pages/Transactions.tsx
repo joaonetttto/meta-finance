@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useFinance, type Transaction } from "@/contexts/FinanceContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Pencil, Trash2, X, Lock } from "lucide-react";
@@ -10,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PageShell, PageHeader } from "@/components/layout/page";
 import { layout, type } from "@/lib/layout";
 import { cn } from "@/lib/utils";
+
 
 interface FormData {
   valor: string;
@@ -23,12 +25,32 @@ const empty: FormData = { valor: "", tipo: "despesa", categoria_id: "", data: ne
 
 export default function Transactions() {
   const { transactionsWithSalary: transactions, categories, addTransaction, updateTransaction, deleteTransaction, addCategory } = useFinance();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tipoFilter = searchParams.get("tipo");
+  const categoriaFilter = searchParams.get("categoria");
+
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState<FormData>(empty);
   const [newCat, setNewCat] = useState("");
 
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((t) => {
+      if (tipoFilter && t.tipo !== tipoFilter) return false;
+      if (categoriaFilter && t.categoria_id !== categoriaFilter) return false;
+      return true;
+    });
+  }, [transactions, tipoFilter, categoriaFilter]);
+
+  const activeCategoryName = categoriaFilter
+    ? categories.find((c) => c.id === categoriaFilter)?.nome
+    : null;
+
+  const clearFilters = () => setSearchParams({});
+  const hasFilters = !!(tipoFilter || categoriaFilter);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,6 +85,37 @@ export default function Transactions() {
           {showForm ? "Fechar" : "Nova Transação"}
         </Button>
       </PageHeader>
+
+      <AnimatePresence>
+        {hasFilters && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            className="flex flex-wrap items-center gap-2"
+          >
+            <span className={type.caption}>Filtros ativos:</span>
+            {tipoFilter && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs">
+                Tipo: <strong className="capitalize">{tipoFilter}</strong>
+              </span>
+            )}
+            {activeCategoryName && (
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-xs">
+                Categoria: <strong>{activeCategoryName}</strong>
+              </span>
+            )}
+            <button
+              onClick={clearFilters}
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="h-3 w-3" /> Limpar
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+
 
       <AnimatePresence>
         {showForm && (
@@ -121,16 +174,16 @@ export default function Transactions() {
       </AnimatePresence>
 
       <div className={cn(layout.card, "overflow-hidden p-0")}>
-        {transactions.length > 0 ? (
+        {filteredTransactions.length > 0 ? (
           <div className="divide-y divide-border">
-            {transactions.map((t, i) => {
+            {filteredTransactions.map((t, i) => {
               const cat = categories.find((c) => c.id === t.categoria_id);
               return (
                 <motion.div
                   key={t.id}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: i * 0.02 }}
+                  transition={{ delay: Math.min(i * 0.02, 0.3) }}
                   className="flex items-center justify-between px-6 py-4 hover:bg-muted/40 transition-colors group"
                 >
                   <div className="flex-1 min-w-0">
@@ -159,11 +212,28 @@ export default function Transactions() {
             })}
           </div>
         ) : (
-          <div className={layout.emptyState}>
-            Nenhuma transação registrada. Adicione sua primeira transação.
+          <div className="py-12 text-center flex flex-col items-center gap-3">
+            <div className="h-12 w-12 rounded-xl bg-muted/50 flex items-center justify-center">
+              <Plus className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <p className={type.bodyMuted}>
+              {hasFilters
+                ? "Nenhuma transação encontrada com os filtros atuais."
+                : "Você ainda não possui movimentações. Adicione sua primeira transação."}
+            </p>
+            {hasFilters ? (
+              <Button size="sm" variant="outline" onClick={clearFilters} className="border-border/50">
+                Limpar filtros
+              </Button>
+            ) : (
+              <Button size="sm" onClick={() => { setShowForm(true); setEditing(null); setForm(empty); }} className="gap-2">
+                <Plus className="h-4 w-4" /> Adicionar transação
+              </Button>
+            )}
           </div>
         )}
       </div>
+
     </PageShell>
   );
 }
