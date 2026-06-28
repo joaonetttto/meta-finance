@@ -174,16 +174,16 @@ export default function Transactions() {
       </AnimatePresence>
 
       <div className={cn(layout.card, "overflow-hidden p-0")}>
-        {transactions.length > 0 ? (
+        {filteredTransactions.length > 0 ? (
           <div className="divide-y divide-border">
-            {transactions.map((t, i) => {
+            {filteredTransactions.map((t, i) => {
               const cat = categories.find((c) => c.id === t.categoria_id);
               return (
                 <motion.div
                   key={t.id}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: i * 0.02 }}
+                  transition={{ delay: Math.min(i * 0.02, 0.3) }}
                   className="flex items-center justify-between px-6 py-4 hover:bg-muted/40 transition-colors group"
                 >
                   <div className="flex-1 min-w-0">
@@ -212,11 +212,28 @@ export default function Transactions() {
             })}
           </div>
         ) : (
-          <div className={layout.emptyState}>
-            Nenhuma transação registrada. Adicione sua primeira transação.
+          <div className="py-12 text-center flex flex-col items-center gap-3">
+            <div className="h-12 w-12 rounded-xl bg-muted/50 flex items-center justify-center">
+              <Plus className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <p className={type.bodyMuted}>
+              {hasFilters
+                ? "Nenhuma transação encontrada com os filtros atuais."
+                : "Você ainda não possui movimentações. Adicione sua primeira transação."}
+            </p>
+            {hasFilters ? (
+              <Button size="sm" variant="outline" onClick={clearFilters} className="border-border/50">
+                Limpar filtros
+              </Button>
+            ) : (
+              <Button size="sm" onClick={() => { setShowForm(true); setEditing(null); setForm(empty); }} className="gap-2">
+                <Plus className="h-4 w-4" /> Adicionar transação
+              </Button>
+            )}
           </div>
         )}
       </div>
+
     </PageShell>
   );
 }
