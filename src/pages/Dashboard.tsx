@@ -260,12 +260,19 @@ export default function Dashboard() {
 
       {/* Hero balance + secondary cards */}
       <div className={cn(layout.grid, "grid-cols-1 lg:grid-cols-3")}>
-        <motion.div
+        <motion.button
+          type="button"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, type: "spring", stiffness: 400, damping: 30 }}
-          className={cn(layout.card, "lg:col-span-2 relative cursor-pointer transition-colors hover:border-primary/40")}
+          whileHover={{ y: -2 }}
+          whileTap={{ scale: 0.995 }}
+          className={cn(
+            layout.card,
+            "lg:col-span-2 relative text-left cursor-pointer transition-all hover:border-primary/40 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+          )}
           onClick={() => navigate("/transacoes")}
+          aria-label="Ver todas as transações"
         >
           <div className="flex items-start justify-between mb-6">
             <div>
@@ -278,9 +285,7 @@ export default function Dashboard() {
               <Wallet className={`h-5 w-5 ${cards[0].textColor}`} />
             </div>
           </div>
-          <p className={cn(type.financialHero, cards[0].textColor)}>
-            {fmt(saldo)}
-          </p>
+          <CountUp value={saldo} format={fmt} className={cn(type.financialHero, cards[0].textColor)} />
           <div className="mt-4 flex items-center gap-3 flex-wrap">
             <p className={type.caption}>
               {saldo >= 0 ? "Saldo positivo este mês" : "Despesas superiores às receitas"}
@@ -293,37 +298,48 @@ export default function Dashboard() {
               />
             )}
           </div>
-        </motion.div>
+        </motion.button>
 
         <div className={cn(layout.grid, "grid-cols-2 lg:grid-cols-1")}>
-          {cards.slice(1).map((c, i) => (
-            <motion.div
-              key={c.label}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 + i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
-              className={cn(layout.card, "relative cursor-pointer transition-colors hover:border-primary/40")}
-              onClick={() => navigate("/transacoes")}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <span className={type.overline}>{c.label}</span>
-                <div className={`h-7 w-7 rounded-md ${c.iconBg} flex items-center justify-center`}>
-                  <c.icon className={`h-3.5 w-3.5 ${c.textColor}`} />
+          {cards.slice(1).map((c, i) => {
+            const tipo = c.label === "Receitas" ? "receita" : "despesa";
+            return (
+              <motion.button
+                type="button"
+                key={c.label}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 + i * 0.05, type: "spring", stiffness: 400, damping: 30 }}
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.985 }}
+                className={cn(
+                  layout.card,
+                  "relative text-left cursor-pointer transition-all hover:border-primary/40 hover:shadow-[0_0_0_1px_hsl(var(--primary)/0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+                )}
+                onClick={() => navigate(`/transacoes?tipo=${tipo}`)}
+                aria-label={`Ver ${c.label.toLowerCase()} do mês`}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <span className={type.overline}>{c.label}</span>
+                  <div className={`h-7 w-7 rounded-md ${c.iconBg} flex items-center justify-center`}>
+                    <c.icon className={`h-3.5 w-3.5 ${c.textColor}`} />
+                  </div>
                 </div>
-              </div>
-              <p className={cn(type.financial, c.textColor)}>{fmt(c.value)}</p>
-              {hasPrev && (
-                <div className="mt-2">
-                  <DeltaBadge
-                    pct={pctChange(c.value, c.prev)}
-                    positiveIsGood={c.positiveIsGood}
-                  />
-                </div>
-              )}
-            </motion.div>
-          ))}
+                <CountUp value={c.value} format={fmt} className={cn(type.financial, c.textColor)} />
+                {hasPrev && (
+                  <div className="mt-2">
+                    <DeltaBadge
+                      pct={pctChange(c.value, c.prev)}
+                      positiveIsGood={c.positiveIsGood}
+                    />
+                  </div>
+                )}
+              </motion.button>
+            );
+          })}
         </div>
       </div>
+
 
       {/* Insights + Month Summary */}
       <div className={cn(layout.gridLg, "grid-cols-1 lg:grid-cols-2")}>
