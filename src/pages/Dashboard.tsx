@@ -524,7 +524,7 @@ export default function Dashboard() {
                     <Tooltip
                       content={
                         <FinancialChartTooltip
-                          valueFormatter={fmt}
+                          valueFormatter={(v) => `${fmt(v)} · ${totalDespesas > 0 ? ((v / totalDespesas) * 100).toFixed(1) : "0"}%`}
                           nameFormatter={(n) => n}
                         />
                       }
@@ -532,17 +532,35 @@ export default function Dashboard() {
                   </PieChart>
                 </ResponsiveContainer>
               </div>
-              <div className="space-y-3 flex-1">
-                {categoryData.slice(0, 5).map((d, i) => (
-                  <div key={d.name} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: CHART_CATEGORY_COLORS[i % CHART_CATEGORY_COLORS.length] }} />
-                      <span className={type.caption}>{d.name}</span>
-                    </div>
-                    <span className={type.financialSm}>{fmt(d.value)}</span>
-                  </div>
-                ))}
+              <div className="space-y-3 flex-1 min-w-0">
+                {categoryData.slice(0, 5).map((d, i) => {
+                  const pct = totalDespesas > 0 ? (d.value / totalDespesas) * 100 : 0;
+                  const clickable = !!d.id;
+                  return (
+                    <button
+                      type="button"
+                      key={d.name}
+                      disabled={!clickable}
+                      onClick={() => clickable && navigate(`/transacoes?categoria=${d.id}`)}
+                      className={cn(
+                        "flex w-full items-center justify-between gap-3 text-sm rounded-md px-2 -mx-2 py-1.5 transition-colors",
+                        clickable && "hover:bg-muted/50 cursor-pointer",
+                        !clickable && "cursor-default"
+                      )}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ backgroundColor: CHART_CATEGORY_COLORS[i % CHART_CATEGORY_COLORS.length] }} />
+                        <span className={cn(type.caption, "truncate")}>{d.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className={cn(type.caption, "tabular-nums w-10 text-right")}>{pct.toFixed(0)}%</span>
+                        <span className={type.financialSm}>{fmt(d.value)}</span>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
+
             </div>
           ) : (
             <EmptyState
