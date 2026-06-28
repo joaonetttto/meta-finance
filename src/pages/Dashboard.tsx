@@ -92,16 +92,19 @@ export default function Dashboard() {
   };
 
   const categoryData = useMemo(() => {
-    const map = new Map<string, number>();
+    const map = new Map<string, { id: string | null; value: number }>();
     monthTransactions
       .filter((t) => t.tipo === "despesa")
       .forEach((t) => {
         const cat = categories.find((c) => c.id === t.categoria_id);
         const name = cat?.nome ?? "Sem categoria";
-        map.set(name, (map.get(name) ?? 0) + t.valor);
+        const entry = map.get(name) ?? { id: cat?.id ?? null, value: 0 };
+        entry.value += t.valor;
+        map.set(name, entry);
       });
-    return Array.from(map, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
+    return Array.from(map, ([name, v]) => ({ name, value: v.value, id: v.id })).sort((a, b) => b.value - a.value);
   }, [monthTransactions, categories]);
+
 
   // Daily cumulative balance for the selected month
   const dailyData = useMemo(() => {
