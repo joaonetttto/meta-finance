@@ -373,41 +373,35 @@ export default function Dashboard() {
 
       {/* Insights stats */}
       <div className={cn(layout.grid, "grid-cols-2 lg:grid-cols-4")}>
-        {[
-          {
-            label: "Taxa de Poupança",
-            value: `${savingsRate.toFixed(1)}%`,
-            hint: savingsRate >= 20 ? "Excelente" : savingsRate >= 10 ? "Saudável" : "Pode melhorar",
-          },
-          {
-            label: "Gasto Médio Diário",
-            value: fmt(avgDaily),
-            hint: `${MONTHS[selectedMonth].slice(0, 3)}/${selectedYear}`,
-          },
-          {
-            label: "Maior Categoria",
-            value: topCategory ? topCategory.name : "—",
-            hint: topCategory ? fmt(topCategory.value) : "Sem despesas",
-          },
-          {
-            label: "Transações",
-            value: String(monthTransactions.length),
-            hint: "no mês",
-          },
-        ].map((k, i) => (
-          <motion.div
-            key={k.label}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 + i * 0.04 }}
-            className={layout.card}
-          >
-            <span className={type.overline}>{k.label}</span>
-            <p className={cn(type.statValue, "mt-3 truncate")}>{k.value}</p>
-            <p className={cn(type.statHint, "mt-1.5")}>{k.hint}</p>
-          </motion.div>
-        ))}
+        <SavingsRateStat
+          rate={savingsRate}
+          totalReceitas={totalReceitas}
+          saldo={saldo}
+          fmt={fmt}
+          delay={0.25}
+        />
+        <StatCard
+          label="Gasto Médio Diário"
+          value={fmt(avgDaily)}
+          hint={`${MONTHS[selectedMonth].slice(0, 3)}/${selectedYear}`}
+          delay={0.29}
+        />
+        <StatCard
+          label="Maior Categoria"
+          value={topCategory ? topCategory.name : "—"}
+          hint={topCategory ? fmt(topCategory.value) : "Sem despesas"}
+          delay={0.33}
+          onClick={topCategory?.id ? () => navigate(`/transacoes?categoria=${topCategory.id}`) : undefined}
+        />
+        <StatCard
+          label="Transações"
+          value={String(monthTransactions.length)}
+          hint="no mês"
+          delay={0.37}
+          onClick={monthTransactions.length > 0 ? () => navigate("/transacoes") : undefined}
+        />
       </div>
+
 
       {/* Cumulative balance chart */}
       <motion.div
