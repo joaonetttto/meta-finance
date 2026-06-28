@@ -4,12 +4,15 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowUpRight, ArrowDownRight, Wallet, Plus, ChevronLeft, ChevronRight,
-  ArrowRight, Target, Sparkles, TrendingUp, TrendingDown, Minus, Lightbulb, FileText, Flag
+  ArrowRight, Target, Sparkles, TrendingUp, TrendingDown, Minus, Lightbulb, FileText, Flag, Info, HelpCircle
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, AreaChart, Area, XAxis, YAxis, CartesianGrid, BarChart, Bar, Legend } from "recharts";
 import { Button } from "@/components/ui/button";
 import { AddTransactionDialog } from "@/components/dashboard/AddTransactionDialog";
+import { CountUp } from "@/components/dashboard/CountUp";
 import { PageShell, PanelCardHeader } from "@/components/layout/page";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Skeleton } from "@/components/ui/skeleton";
 import { layout, type } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 import { FinancialChartTooltip } from "@/components/charts/FinancialChartTooltip";
@@ -22,8 +25,12 @@ import {
   chartAxisProps,
   chartAxisTick,
   chartGridProps,
+  chartTooltipStyle,
+  chartTooltipLabelStyle,
+  chartTooltipItemStyle,
   chartYAxisFormatter,
 } from "@/lib/chart-theme";
+
 
 const MONTHS = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
