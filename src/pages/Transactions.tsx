@@ -184,26 +184,31 @@ export default function Transactions() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: Math.min(i * 0.02, 0.3) }}
-                  className="flex items-center justify-between px-6 py-4 hover:bg-muted/40 transition-colors group"
+                  className="group flex items-center justify-between gap-4 px-6 py-5 hover:bg-muted/40 transition-colors"
                 >
-                  <div className="flex-1 min-w-0">
-                    <p className={cn(type.body, "font-medium truncate")}>{t.descricao}</p>
-                    <p className={type.caption}>
-                      {cat?.nome ?? "Sem categoria"} · {new Date(t.data).toLocaleDateString("pt-BR")}
-                    </p>
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <p className="text-sm font-medium text-foreground truncate">{t.descricao}</p>
+                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                      <span>{cat?.nome ?? "Sem categoria"}</span>
+                      <span className="w-px h-3 bg-border" />
+                      <span>{new Date(t.data).toLocaleDateString("pt-BR")}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className={cn(type.financialSm, t.tipo === "receita" ? "text-success" : "text-destructive")}>
+                  <div className="flex items-center gap-3 shrink-0">
+                    <span className={cn(
+                      "font-mono-nums text-lg font-semibold tabular-nums tracking-tight",
+                      t.virtual ? "text-primary" : t.tipo === "receita" ? "text-success" : "text-destructive"
+                    )}>
                       {t.tipo === "receita" ? "+" : "-"}{fmt(t.valor)}
                     </span>
                     {t.virtual ? (
-                      <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-muted-foreground px-2 py-1 rounded border border-border/50">
+                      <div className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-primary px-2 py-1 rounded border border-primary/20 bg-primary/5">
                         <Lock className="h-3 w-3" /> Auto
                       </div>
                     ) : (
                       <div className="opacity-0 group-hover:opacity-100 flex gap-1 transition-opacity">
-                        <button onClick={() => startEdit(t)} className="p-1 rounded hover:bg-accent"><Pencil className="h-3.5 w-3.5 text-muted-foreground" /></button>
-                        <button onClick={() => deleteTransaction(t.id)} className="p-1 rounded hover:bg-destructive/10"><Trash2 className="h-3.5 w-3.5 text-destructive" /></button>
+                        <button onClick={() => startEdit(t)} className="p-1.5 rounded-md hover:bg-accent"><Pencil className="h-3.5 w-3.5 text-muted-foreground" /></button>
+                        <button onClick={() => deleteTransaction(t.id)} className="p-1.5 rounded-md hover:bg-destructive/10"><Trash2 className="h-3.5 w-3.5 text-destructive" /></button>
                       </div>
                     )}
                   </div>
