@@ -2,6 +2,7 @@ import { useFinance } from "@/contexts/FinanceContext";
 import { motion } from "framer-motion";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { PageShell, PageHeader } from "@/components/layout/page";
 import { layout, type } from "@/lib/layout";
@@ -32,7 +33,7 @@ const plans = [
 ];
 
 export default function Plans() {
-  const { profile, updateProfile } = useFinance();
+  const { profile } = useFinance();
 
   return (
     <PageShell>
@@ -71,14 +72,19 @@ export default function Plans() {
                 </li>
               ))}
             </ul>
-            <Button
-              variant={plan.featured ? "default" : "outline"}
-              className="w-full"
-              disabled={profile.plano === plan.id}
-              onClick={() => updateProfile({ plano: plan.id })}
-            >
-              {profile.plano === plan.id ? "Plano Atual" : "Selecionar"}
-            </Button>
+            {profile.plano === plan.id ? (
+              <Button variant={plan.featured ? "default" : "outline"} className="w-full" disabled>
+                Plano Atual
+              </Button>
+            ) : plan.id === "gratuito" ? null : (
+              <Button
+                variant={plan.featured ? "default" : "outline"}
+                className="w-full"
+                onClick={() => toast.info("Checkout em breve", { description: "A assinatura do plano " + plan.name + " ainda não está disponível." })}
+              >
+                Em breve
+              </Button>
+            )}
           </motion.div>
         ))}
       </div>

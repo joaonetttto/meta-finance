@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, useMemo, type ReactNode } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "./AuthContext";
+import { toast } from "sonner";
 
 export interface Transaction {
   id: string;
@@ -49,7 +50,7 @@ interface FinanceContextType {
   addGoal: (g: Omit<Goal, "id">) => Promise<void>;
   updateGoal: (id: string, g: Partial<Goal>) => Promise<void>;
   deleteGoal: (id: string) => Promise<void>;
-  updateProfile: (p: Partial<Profile>) => Promise<void>;
+  updateProfile: (p: Partial<Omit<Profile, "plano">>) => Promise<boolean>;
   refresh: () => void;
 }
 
@@ -125,9 +126,16 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     fetchAll();
   };
 
-  const updateProfile = async (p: Partial<Profile>) => {
-    await supabase.from("profiles").update(p).eq("id", user!.id);
+  const updateProfile = async (p: Partial<Omit<Profile, "plano">>) => {
+    // "plano" is server-controlled; never send it from the client.
+    const { plano: _ignored, ...safe } = p as Partial<Profile>;
+    const { error } = await supabase.from("profiles").update(safe).eq("id", user!.id);
+    if (error) {
+      toast.error("Não foi possível atualizar o perfil", { description: error.message });
+      return false;
+    }
     fetchAll();
+    return true;
   };
 
   const transactionsWithSalary = useMemo<Transaction[]>(() => {

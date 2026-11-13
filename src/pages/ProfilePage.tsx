@@ -24,8 +24,8 @@ export default function ProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateProfile({ idade: parseInt(idade) || null, salario: parseFloat(salario) || null });
-    toast.success("Perfil atualizado com sucesso!");
+    const ok = await updateProfile({ idade: parseInt(idade) || null, salario: parseFloat(salario) || null });
+    if (ok) toast.success("Perfil atualizado com sucesso!");
   };
 
   return (
