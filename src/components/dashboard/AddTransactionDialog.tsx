@@ -7,6 +7,7 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { formatLocalDate } from "@/lib/dates";
 
 interface Props {
   open: boolean;
@@ -19,7 +20,7 @@ export function AddTransactionDialog({ open, onOpenChange }: Props) {
   const [valor, setValor] = useState("");
   const [tipo, setTipo] = useState<"receita" | "despesa">("despesa");
   const [categoriaId, setCategoriaId] = useState("");
-  const [data, setData] = useState(new Date().toISOString().split("T")[0]);
+  const [data, setData] = useState(formatLocalDate(new Date()));
   const [newCategory, setNewCategory] = useState("");
   const [parcelado, setParcelado] = useState(false);
   const [parcelas, setParcelas] = useState("2");
@@ -28,7 +29,7 @@ export function AddTransactionDialog({ open, onOpenChange }: Props) {
   const reset = () => {
     setDescricao(""); setValor(""); setTipo("despesa"); setCategoriaId(""); setNewCategory("");
     setParcelado(false); setParcelas("2");
-    setData(new Date().toISOString().split("T")[0]);
+    setData(formatLocalDate(new Date()));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -50,7 +51,7 @@ export function AddTransactionDialog({ open, onOpenChange }: Props) {
 
       for (let i = 0; i < n; i++) {
         const d = new Date(yy, mm - 1 + i, dd);
-        const iso = d.toISOString().split("T")[0];
+        const iso = formatLocalDate(d);
         await addTransaction({
           descricao: n > 1 ? `${descricao} (${i + 1}/${n})` : descricao,
           valor: valorParcela,

@@ -12,6 +12,7 @@ import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { canCreateGoal } from "@/lib/plan-access";
+import { parseLocalDate } from "@/lib/dates";
 
 export default function Goals() {
   const { goals, addGoal, updateGoal, deleteGoal, profile, loading } = useFinance();
@@ -50,7 +51,7 @@ export default function Goals() {
   const calcMonthly = (goal: { valor_objetivo: number; valor_atual: number; prazo: string }) => {
     const remaining = goal.valor_objetivo - goal.valor_atual;
     if (remaining <= 0) return 0;
-    const months = Math.max(1, Math.ceil((new Date(goal.prazo).getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30.44)));
+    const months = Math.max(1, Math.ceil((parseLocalDate(goal.prazo).getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30.44)));
     return remaining / months;
   };
 
@@ -127,7 +128,7 @@ export default function Goals() {
               <div className="flex justify-between items-start mb-4">
                 <div>
                   <p className={type.overline}>
-                    {new Date(g.prazo).toLocaleDateString("pt-BR")}
+                    {parseLocalDate(g.prazo).toLocaleDateString("pt-BR")}
                   </p>
                   <h3 className={type.sectionTitle}>{g.nome}</h3>
                 </div>

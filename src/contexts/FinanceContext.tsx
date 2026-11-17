@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useMemo, t
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "./AuthContext";
 import { toast } from "sonner";
+import { parseLocalDate } from "@/lib/dates";
 
 export interface Transaction {
   id: string;
@@ -154,7 +155,7 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
     let earliest = new Date(now.getFullYear(), now.getMonth(), 1);
     let latest = new Date(now.getFullYear(), now.getMonth() + 2, 1);
     transactions.forEach((t) => {
-      const d = new Date(t.data);
+      const d = parseLocalDate(t.data);
       const monthStart = new Date(d.getFullYear(), d.getMonth(), 1);
       if (monthStart < earliest) earliest = monthStart;
       if (monthStart > latest) latest = monthStart;

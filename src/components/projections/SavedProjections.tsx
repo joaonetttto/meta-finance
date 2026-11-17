@@ -13,6 +13,7 @@ import { layout } from "@/lib/layout";
 import { cn } from "@/lib/utils";
 import { PanelCardHeader } from "@/components/layout/page";
 import { type } from "@/lib/layout";
+import { formatLocalDate } from "@/lib/dates";
 
 interface SavedProjection {
   id: string;
@@ -131,7 +132,7 @@ export function SavedProjections({ onReopen }: Props) {
       nome: p.nome,
       valor_objetivo: p.valor_desejado,
       valor_atual: 0,
-      prazo: prazoDate.toISOString().split("T")[0],
+      prazo: formatLocalDate(prazoDate),
     });
     if (!ok) return;
 

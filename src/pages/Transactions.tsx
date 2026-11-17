@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PageShell, PageHeader } from "@/components/layout/page";
 import { layout, type } from "@/lib/layout";
 import { cn } from "@/lib/utils";
+import { parseLocalDate, formatLocalDate } from "@/lib/dates";
 
 
 interface FormData {
@@ -21,7 +22,7 @@ interface FormData {
   descricao: string;
 }
 
-const empty: FormData = { valor: "", tipo: "despesa", categoria_id: "", data: new Date().toISOString().slice(0, 10), descricao: "" };
+const empty: FormData = { valor: "", tipo: "despesa", categoria_id: "", data: formatLocalDate(new Date()), descricao: "" };
 
 export default function Transactions() {
   const { transactionsWithSalary: transactions, categories, addTransaction, updateTransaction, deleteTransaction, addCategory } = useFinance();
@@ -191,7 +192,7 @@ export default function Transactions() {
                     <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                       <span>{cat?.nome ?? "Sem categoria"}</span>
                       <span className="w-px h-3 bg-border" />
-                      <span>{new Date(t.data).toLocaleDateString("pt-BR")}</span>
+                      <span>{parseLocalDate(t.data).toLocaleDateString("pt-BR")}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">

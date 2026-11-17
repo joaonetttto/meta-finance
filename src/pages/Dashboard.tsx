@@ -15,6 +15,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Skeleton } from "@/components/ui/skeleton";
 import { layout, type } from "@/lib/layout";
 import { cn } from "@/lib/utils";
+import { parseLocalDate } from "@/lib/dates";
 import { FinancialChartTooltip } from "@/components/charts/FinancialChartTooltip";
 import {
   CHART_CATEGORY_COLORS,
@@ -57,7 +58,7 @@ export default function Dashboard() {
 
   const monthTransactions = useMemo(
     () => transactions.filter((t) => {
-      const d = new Date(t.data);
+      const d = parseLocalDate(t.data);
       return d.getMonth() === selectedMonth && d.getFullYear() === selectedYear;
     }),
     [transactions, selectedMonth, selectedYear]
@@ -71,7 +72,7 @@ export default function Dashboard() {
 
   const prevMonthTransactions = useMemo(
     () => transactions.filter((t) => {
-      const d = new Date(t.data);
+      const d = parseLocalDate(t.data);
       return d.getMonth() === prevMonthDate.month && d.getFullYear() === prevMonthDate.year;
     }),
     [transactions, prevMonthDate]
@@ -116,7 +117,7 @@ export default function Dashboard() {
       saldo: 0,
     }));
     monthTransactions.forEach((t) => {
-      const d = new Date(t.data).getDate();
+      const d = parseLocalDate(t.data).getDate();
       const idx = d - 1;
       if (!arr[idx]) return;
       if (t.tipo === "receita") arr[idx].receitas += t.valor;
@@ -138,7 +139,7 @@ export default function Dashboard() {
       const m = d.getMonth();
       const y = d.getFullYear();
       const list = transactions.filter((t) => {
-        const td = new Date(t.data);
+        const td = parseLocalDate(t.data);
         return td.getMonth() === m && td.getFullYear() === y;
       });
       out.push({
@@ -640,7 +641,7 @@ export default function Dashboard() {
                     <div>
                       <p className={cn(type.body, "font-medium")}>{t.descricao}</p>
                       <p className={type.caption}>
-                        {cat?.nome ?? "Sem categoria"} · {new Date(t.data).toLocaleDateString("pt-BR")}
+                        {cat?.nome ?? "Sem categoria"} · {parseLocalDate(t.data).toLocaleDateString("pt-BR")}
                       </p>
                     </div>
                   </div>
@@ -860,7 +861,7 @@ function GoalRow({
   // Forecast completion date (based on linear progress so far)
   let forecast: string | null = null;
   if (!completed && goal.valor_atual > 0 && goal.prazo) {
-    const prazoDate = new Date(goal.prazo);
+    const prazoDate = parseLocalDate(goal.prazo);
     // simple: if at current pace they reach target on/before deadline → show deadline,
     // otherwise estimate using months elapsed since "now" isn't trackable here, so just show deadline as forecast
     if (!isNaN(prazoDate.getTime())) {
