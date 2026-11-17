@@ -8,6 +8,13 @@
       "when": 1794592596052,
       "tag": "0000_lock_profile_plano",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794942227120,
+      "tag": "0001_enforce_free_goal_limit",
+      "breakpoints": true
     }
   ]
 }

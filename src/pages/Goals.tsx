@@ -9,22 +9,40 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { PageShell, PageHeader } from "@/components/layout/page";
 import { layout, type } from "@/lib/layout";
 import { cn } from "@/lib/utils";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { canCreateGoal } from "@/lib/plan-access";
 
 export default function Goals() {
-  const { goals, addGoal, updateGoal, deleteGoal, profile } = useFinance();
+  const { goals, addGoal, updateGoal, deleteGoal, profile, loading } = useFinance();
+  const navigate = useNavigate();
+  const [saving, setSaving] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ nome: "", valor_objetivo: "", valor_atual: "", prazo: "" });
 
   const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 
+  const allowCreation = () => {
+    if (canCreateGoal(profile.plano, goals.length)) return true;
+    toast.warning("O plano Gratuito permite no máximo 3 metas.", {
+      description: "Veja os planos Ouro e Diamante para criar metas ilimitadas.",
+      action: { label: "Ver planos", onClick: () => navigate("/planos") },
+    });
+    return false;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await addGoal({
+    if (saving || loading || !allowCreation()) return;
+    setSaving(true);
+    const ok = await addGoal({
       nome: form.nome,
       valor_objetivo: parseFloat(form.valor_objetivo),
       valor_atual: parseFloat(form.valor_atual) || 0,
       prazo: form.prazo,
     });
+    setSaving(false);
+    if (!ok) return;
     setForm({ nome: "", valor_objetivo: "", valor_atual: "", prazo: "" });
     setShowForm(false);
   };
@@ -39,7 +57,7 @@ export default function Goals() {
   return (
     <PageShell>
       <PageHeader title="Metas Financeiras">
-        <Button onClick={() => setShowForm(!showForm)} size="sm" className="gap-2">
+        <Button onClick={() => { if (showForm || allowCreation()) setShowForm(!showForm); }} disabled={loading || saving} size="sm" className="gap-2">
           {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
           {showForm ? "Fechar" : "Nova Meta"}
         </Button>
@@ -85,7 +103,7 @@ export default function Goals() {
                 )}
               </div>
             )}
-            <Button type="submit">Criar Meta</Button>
+            <Button type="submit" disabled={saving || loading}>{saving ? "Criando..." : "Criar Meta"}</Button>
           </motion.form>
         )}
       </AnimatePresence>
@@ -138,8 +156,9 @@ export default function Goals() {
                     if (e.key === "Enter") {
                       const val = parseFloat((e.target as HTMLInputElement).value);
                       if (!isNaN(val)) {
-                        await updateGoal(g.id, { valor_atual: val });
-                        (e.target as HTMLInputElement).value = "";
+                        const input = e.target as HTMLInputElement;
+                        const ok = await updateGoal(g.id, { valor_atual: val });
+                        if (ok) input.value = "";
                       }
                     }
                   }}

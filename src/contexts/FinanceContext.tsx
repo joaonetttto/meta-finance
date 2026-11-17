@@ -47,9 +47,9 @@ interface FinanceContextType {
   deleteTransaction: (id: string) => Promise<void>;
   addCategory: (nome: string) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
-  addGoal: (g: Omit<Goal, "id">) => Promise<void>;
-  updateGoal: (id: string, g: Partial<Goal>) => Promise<void>;
-  deleteGoal: (id: string) => Promise<void>;
+  addGoal: (g: Omit<Goal, "id">) => Promise<boolean>;
+  updateGoal: (id: string, g: Partial<Goal>) => Promise<boolean>;
+  deleteGoal: (id: string) => Promise<boolean>;
   updateProfile: (p: Partial<Omit<Profile, "plano">>) => Promise<boolean>;
   refresh: () => void;
 }
@@ -112,18 +112,27 @@ export function FinanceProvider({ children }: { children: ReactNode }) {
   };
 
   const addGoal = async (g: Omit<Goal, "id">) => {
-    await supabase.from("goals").insert({ ...g, user_id: user!.id });
-    fetchAll();
+    if (!user) { toast.error("Entre na sua conta para criar uma meta."); return false; }
+    const { error } = await supabase.from("goals").insert({ ...g, user_id: user.id });
+    if (error) { toast.error(error.message); return false; }
+    await fetchAll();
+    return true;
   };
 
   const updateGoal = async (id: string, g: Partial<Goal>) => {
-    await supabase.from("goals").update(g).eq("id", id);
-    fetchAll();
+    if (!user) { toast.error("Entre na sua conta para atualizar uma meta."); return false; }
+    const { error } = await supabase.from("goals").update(g).eq("id", id).eq("user_id", user.id);
+    if (error) { toast.error(error.message); return false; }
+    await fetchAll();
+    return true;
   };
 
   const deleteGoal = async (id: string) => {
-    await supabase.from("goals").delete().eq("id", id);
-    fetchAll();
+    if (!user) { toast.error("Entre na sua conta para excluir uma meta."); return false; }
+    const { error } = await supabase.from("goals").delete().eq("id", id).eq("user_id", user.id);
+    if (error) { toast.error(error.message); return false; }
+    await fetchAll();
+    return true;
   };
 
   const updateProfile = async (p: Partial<Omit<Profile, "plano">>) => {

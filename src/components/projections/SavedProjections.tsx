@@ -127,12 +127,13 @@ export function SavedProjections({ onReopen }: Props) {
     prazoDate.setFullYear(prazoDate.getFullYear() + Math.floor(p.prazo_anos));
     prazoDate.setMonth(prazoDate.getMonth() + Math.round((p.prazo_anos % 1) * 12));
 
-    await addGoal({
+    const ok = await addGoal({
       nome: p.nome,
       valor_objetivo: p.valor_desejado,
       valor_atual: 0,
       prazo: prazoDate.toISOString().split("T")[0],
     });
+    if (!ok) return;
 
     await supabase.from("saved_projections").update({ convertida: true }).eq("id", p.id);
     setProjections((prev) => prev.map((x) => (x.id === p.id ? { ...x, convertida: true } : x)));

@@ -39,8 +39,27 @@ import { InsightsBlock } from "@/components/projections/InsightsBlock";
 import { PageShell, PageHeader, PanelCard, PanelCardHeader } from "@/components/layout/page";
 import { layout, type } from "@/lib/layout";
 import { cn } from "@/lib/utils";
+import { Link } from "react-router-dom";
+import { canUseProjections } from "@/lib/plan-access";
 
 export default function Projections() {
+  const { profile, loading } = useFinance();
+  if (loading) return <PageShell><PageHeader title="Projeções Financeiras" /><p className={type.bodyMuted}>Carregando...</p></PageShell>;
+  if (!canUseProjections(profile.plano)) {
+    return (
+      <PageShell>
+        <PageHeader title="Projeções Financeiras" />
+        <div className={layout.stack}>
+          <p className={type.bodyMuted}>Projeções fazem parte do plano Ouro e também estão disponíveis no Diamante.</p>
+          <Button asChild className="self-start"><Link to="/planos">Ver planos</Link></Button>
+        </div>
+      </PageShell>
+    );
+  }
+  return <ProjectionsContent />;
+}
+
+function ProjectionsContent() {
   const { profile } = useFinance();
   const { user } = useAuth();
   const [valorDesejado, setValorDesejado] = useState("");

@@ -1,0 +1,3 @@
+- [x] Aplicar limite de metas na interface e no banco, com erros visíveis.
+- [x] Bloquear Projeções do plano gratuito sem alterar checkout ou design.
+- [x] Testar a conta autenticada e remover todos os dados temporários.

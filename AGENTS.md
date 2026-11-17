@@ -1,0 +1,2 @@
+- Keep plan access decisions in `src/lib/plan-access.ts` and enforce goal creation limits in a database trigger; client checks improve UX but are not a security boundary.
+- Live integration tests must opt in with a minted authenticated session and remove their own temporary records in teardown; credentials and fixtures must never be committed.
