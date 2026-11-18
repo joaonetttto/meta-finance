@@ -36,7 +36,7 @@ export function buildTimeline(pmt: number, rateAnnual: number, years: number, pv
       points.push({ ano: m / 12, valor: Math.round(balance), investido: Math.round(totalInvested) });
     }
     totalInvested += pmt;
-    balance = (balance + pmt) * (1 + r);
+    balance = balance * (1 + r) + pmt;
   }
   return points;
 }
@@ -47,7 +47,7 @@ export function calcYearsNeeded(fv: number, pmt: number, rateAnnual: number, pv 
   const target = fv;
   if (r === 0) {
     if (pmt <= 0) return Infinity;
-    return (target - pv) / pmt / 12;
+    return Math.max(0, (target - pv) / pmt / 12);
   }
   // Iterative approach for accuracy with PV
   if (pv > 0 || pmt > 0) {
@@ -55,7 +55,7 @@ export function calcYearsNeeded(fv: number, pmt: number, rateAnnual: number, pv 
     let months = 0;
     const maxMonths = 100 * 12;
     while (balance < target && months < maxMonths) {
-      balance = (balance + pmt) * (1 + r);
+      balance = balance * (1 + r) + pmt;
       months++;
     }
     return months >= maxMonths ? Infinity : months / 12;

@@ -1,5 +1,6 @@
 - [x] Aplicar limite de metas na interface e no banco, com erros visíveis.
 - [x] Bloquear Projeções do plano gratuito sem alterar checkout ou design.
 - [x] Testar a conta autenticada e remover todos os dados temporários.
-- [ ] Corrigir interpretação e geração de datas locais em todos os pontos de src.
-- [ ] Testar limites de mês/ano e executar a suíte em America/Sao_Paulo, sem acessar o banco.
+- [x] Corrigir interpretação e geração de datas locais em todos os pontos de src.
+- [x] Testar limites de mês/ano e executar a suíte em America/Sao_Paulo, sem acessar o banco.
+- [x] Alinhar buildTimeline e calcYearsNeeded ao aporte de fim de mês (calcPMT/calcFV) e cobrir projeções com testes.
