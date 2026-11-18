@@ -1,0 +1,2 @@
+ALTER TABLE public.saved_projections ADD COLUMN IF NOT EXISTS valor_inicial numeric NOT NULL DEFAULT 0;
+ALTER TABLE public.saved_projections ADD CONSTRAINT saved_projections_valor_inicial_nonneg CHECK (valor_inicial >= 0);

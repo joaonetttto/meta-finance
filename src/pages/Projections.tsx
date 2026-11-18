@@ -108,11 +108,12 @@ function ProjectionsContent() {
       valor_desejado: valor,
       prazo_anos: anos,
       aporte_mensal: aporte,
+      valor_inicial: pvInicial,
       cenario: recKey,
-    } as any);
+    });
     setSaving(false);
     if (error) {
-      toast.error("Erro ao salvar projeção");
+      toast.error("Erro ao salvar projeção", { description: error.message });
     } else {
       toast.success("Projeção salva!");
       setProjName("");
@@ -120,10 +121,11 @@ function ProjectionsContent() {
     }
   };
 
-  const handleReopen = (p: { valorDesejado: string; prazoAnos: string; aporteManual: string }) => {
+  const handleReopen = (p: { valorDesejado: string; prazoAnos: string; aporteManual: string; valorInicial: string }) => {
     setValorDesejado(p.valorDesejado);
     setPrazoAnos(p.prazoAnos);
     setAporteManual(p.aporteManual);
+    setValorInicial(p.valorInicial);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 

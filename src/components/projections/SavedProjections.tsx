@@ -21,13 +21,14 @@ interface SavedProjection {
   valor_desejado: number;
   prazo_anos: number;
   aporte_mensal: number;
+  valor_inicial: number;
   cenario: string;
   convertida: boolean;
   created_at: string;
 }
 
 interface Props {
-  onReopen: (p: { valorDesejado: string; prazoAnos: string; aporteManual: string }) => void;
+  onReopen: (p: { valorDesejado: string; prazoAnos: string; aporteManual: string; valorInicial: string }) => void;
 }
 
 const PLAN_LIMITS: Record<string, number> = {
@@ -122,7 +123,7 @@ export function SavedProjections({ onReopen }: Props) {
 
   const handleConvert = async (p: SavedProjection) => {
     const sc = SCENARIOS.find((s) => s.key === p.cenario);
-    const pmt = p.aporte_mensal || calcPMT(p.valor_desejado, sc?.rate ?? 0.07, p.prazo_anos);
+    const pmt = p.aporte_mensal || calcPMT(p.valor_desejado, sc?.rate ?? 0.07, p.prazo_anos, Number(p.valor_inicial) || 0);
 
     const prazoDate = new Date();
     prazoDate.setFullYear(prazoDate.getFullYear() + Math.floor(p.prazo_anos));
@@ -146,6 +147,7 @@ export function SavedProjections({ onReopen }: Props) {
       valorDesejado: String(p.valor_desejado),
       prazoAnos: String(p.prazo_anos),
       aporteManual: p.aporte_mensal ? String(p.aporte_mensal) : "",
+      valorInicial: Number(p.valor_inicial) > 0 ? String(p.valor_inicial) : "",
     });
   };
 
@@ -267,6 +269,11 @@ export function SavedProjections({ onReopen }: Props) {
                     <p className={type.financialSm}>{fmt(pmt)}</p>
                   </div>
                 </div>
+                {Number(p.valor_inicial) > 0 && (
+                  <p className={cn(type.caption, "text-muted-foreground -mt-2 mb-4")}>
+                    Capital inicial: <span className={type.financialSm}>{fmt(Number(p.valor_inicial))}</span>
+                  </p>
+                )}
 
                 {/* Actions */}
                 <div className="flex items-center gap-1">

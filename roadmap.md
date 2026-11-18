@@ -4,3 +4,4 @@
 - [x] Corrigir interpretação e geração de datas locais em todos os pontos de src.
 - [x] Testar limites de mês/ano e executar a suíte em America/Sao_Paulo, sem acessar o banco.
 - [x] Alinhar buildTimeline e calcYearsNeeded ao aporte de fim de mês (calcPMT/calcFV) e cobrir projeções com testes.
+- [x] Persistir e restaurar o capital inicial nas projeções salvas.

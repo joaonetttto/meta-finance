@@ -107,6 +107,7 @@ export type Database = {
           updated_at: string
           user_id: string
           valor_desejado: number
+          valor_inicial: number
         }
         Insert: {
           aporte_mensal?: number
@@ -119,6 +120,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           valor_desejado: number
+          valor_inicial?: number
         }
         Update: {
           aporte_mensal?: number
@@ -131,6 +133,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           valor_desejado?: number
+          valor_inicial?: number
         }
         Relationships: []
       }
